@@ -1,0 +1,73 @@
+import React from 'react';
+import { Metadata } from 'next';
+import NavigationPremium from '@/components/NavigationPremium';
+import HeroPremium from '@/components/HeroPremium';
+import MigrationTrendsVideoSection from '@/components/MigrationTrendsVideoSection';
+import WhyChooseVanhsya from '@/components/WhyChooseVanhsya';
+import RealStoriesResults from '@/components/RealStoriesResults';
+import AIToolsShowcase from '@/components/AIToolsShowcase';
+import VanhsyaPromise from '@/components/VanhsyaPromise';
+import ReferralProgramSection from '@/components/ReferralProgramSection';
+import EmployerConnectSection from '@/components/EmployerConnectSection';
+import VanhsyaDifference from '@/components/VanhsyaDifference';
+import Footer from '@/components/Footer';
+import { generateMetadata as generateSEOMetadata, generateStructuredData, StructuredData } from '@/components/SEO';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'VANHSYA - #1 Trusted AI-Powered Migration Platform | Transparent, Secure, Guaranteed',
+  description: 'Transform your migration journey with VANHSYA\'s AI-powered platform. 99% approval rate, transparent pricing, zero agents, and guaranteed results. Join 15,000+ successful clients worldwide.',
+  keywords: ['migration services', 'AI migration platform', 'visa application', 'immigration consultant', 'study abroad', 'work visa', 'PR application', 'migration scam protection'],
+  canonical: 'https://vanhsya.com'
+});
+
+export default function Home() {
+  const organizationSchema = generateStructuredData('Organization', {
+    address: 'Global Headquarters, Migration Excellence Center',
+    city: 'Toronto',
+    region: 'ON',
+    postalCode: 'M5V 3A8',
+    phone: '+1-800-VANHSYA'
+  });
+
+  return (
+    <>
+      <StructuredData schema={organizationSchema} />
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 overflow-x-hidden">
+        {/* Premium Navigation */}
+        <NavigationPremium />
+        
+        <div className="space-y-0">
+          {/* 1. Hero Section - Main conversion point */}
+          <HeroPremium />
+
+          {/* 1.5. Migration Trends & Inside Videos - Unique Value */}
+          <MigrationTrendsVideoSection />
+          
+          {/* 2. Why Choose VANHSYA - Key differentiators */}
+          <WhyChooseVanhsya />
+          
+          {/* 3. Real Stories & Results - Social proof */}
+          <RealStoriesResults />
+          
+          {/* 4. AI Tools Showcase - Value demonstration */}
+          <AIToolsShowcase />
+          
+          {/* 5. VANHSYA Promise - Trust building */}
+          <VanhsyaPromise />
+          
+          {/* 6. Referral Program - Viral growth */}
+          <ReferralProgramSection />
+          
+          {/* 7. Employer Connect - B2B value */}
+          <EmployerConnectSection />
+          
+          {/* 8. The VANHSYA Difference - Competitive advantage */}
+          <VanhsyaDifference />
+          
+          {/* 9. Footer - Final conversion */}
+          <Footer />
+        </div>
+      </div>
+    </>
+  );
+}

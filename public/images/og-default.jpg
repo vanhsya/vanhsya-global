@@ -1,0 +1,72 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Grid Pattern -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  
+  <!-- Logo Circle -->
+  <circle cx="300" cy="315" r="80" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="3"/>
+  <text x="300" y="330" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">V</text>
+  
+  <!-- Main Title -->
+  <text x="500" y="250" fill="white" font-family="Arial, sans-serif" font-size="64" font-weight="bold">VANHSYA</text>
+  <text x="500" y="310" fill="rgba(255,255,255,0.9)" font-family="Arial, sans-serif" font-size="36" font-weight="normal">AI Innovations</text>
+  
+  <!-- Subtitle -->
+  <text x="500" y="380" fill="rgba(255,255,255,0.8)" font-family="Arial, sans-serif" font-size="24" font-weight="normal">Transforming Careers with AI Technology</text>
+  
+  <!-- AI Icons -->
+  <g transform="translate(900, 200)">
+    <!-- Robot Icon -->
+    <rect x="0" y="20" width="40" height="50" rx="8" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="20" cy="10" r="8" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="15" cy="35" r="3" fill="white"/>
+    <circle cx="25" cy="35" r="3" fill="white"/>
+    <rect x="10" y="45" width="20" height="4" rx="2" fill="white"/>
+  </g>
+  
+  <g transform="translate(960, 200)">
+    <!-- Document Icon -->
+    <rect x="0" y="0" width="30" height="40" rx="4" fill="rgba(255,255,255,0.3)"/>
+    <rect x="5" y="8" width="20" height="2" fill="white"/>
+    <rect x="5" y="14" width="15" height="2" fill="white"/>
+    <rect x="5" y="20" width="18" height="2" fill="white"/>
+    <rect x="5" y="26" width="12" height="2" fill="white"/>
+  </g>
+  
+  <g transform="translate(1000, 200)">
+    <!-- Network Icon -->
+    <circle cx="5" cy="5" r="5" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="25" cy="5" r="5" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="15" cy="25" r="5" fill="rgba(255,255,255,0.3)"/>
+    <line x1="10" y1="5" x2="20" y2="5" stroke="white" stroke-width="2"/>
+    <line x1="10" y1="8" x2="18" y2="22" stroke="white" stroke-width="2"/>
+    <line x1="20" y1="8" x2="12" y2="22" stroke="white" stroke-width="2"/>
+  </g>
+  
+  <!-- Feature Tags -->
+  <rect x="500" y="420" width="120" height="30" rx="15" fill="rgba(255,255,255,0.2)"/>
+  <text x="560" y="440" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">CV Builder</text>
+  
+  <rect x="640" y="420" width="130" height="30" rx="15" fill="rgba(255,255,255,0.2)"/>
+  <text x="705" y="440" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Referral System</text>
+  
+  <rect x="790" y="420" width="110" height="30" rx="15" fill="rgba(255,255,255,0.2)"/>
+  <text x="845" y="440" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Lucky Draw</text>
+  
+  <!-- Bottom Text -->
+  <text x="600" y="560" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Arial, sans-serif" font-size="18">Transparent • Professional • Innovative</text>
+</svg>
