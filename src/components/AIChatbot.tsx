@@ -227,7 +227,7 @@ const AIChatbot = () => {
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
                   placeholder="Ask about our AI innovations..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />

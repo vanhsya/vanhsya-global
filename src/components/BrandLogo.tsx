@@ -26,8 +26,8 @@ type BrandLogoProps = {
 const DEFAULT_EXPERIMENT_KEY = 'logoHero.v1';
 
 const getQueryVariant = () => {
-  if (typeof window === 'undefined') return undefined;
-  const url = new URL(window.location.href);
+  if (typeof globalThis === 'undefined' || !globalThis.location) return undefined;
+  const url = new URL(globalThis.location.href);
   const v = url.searchParams.get('logoVariant');
   if (v === 'A' || v === 'B') return v;
   return undefined;
@@ -85,13 +85,13 @@ export default function BrandLogo({
 
   // Handle client-side only initialization
   useEffect(() => {
-    const raf = window.requestAnimationFrame(() => {
+    const raf = globalThis.requestAnimationFrame(() => {
       setMounted(true);
       const v = forcedVariant ?? getQueryVariant() ?? getStoredVariant(storageKey) ?? pickVariant();
       setVariant(v);
       setStoredVariant(storageKey, v);
     });
-    return () => window.cancelAnimationFrame(raf);
+    return () => globalThis.cancelAnimationFrame(raf);
   }, [forcedVariant, storageKey]);
 
   const lockupConfig = useMemo(() => {

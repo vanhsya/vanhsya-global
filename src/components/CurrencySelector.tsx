@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, DollarSign } from 'lucide-react';
 
@@ -32,7 +32,7 @@ interface CurrencyContextType {
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
-export function CurrencyProvider({ children }: { children: React.ReactNode }) {
+export function CurrencyProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]);
 
   useEffect(() => {
@@ -43,25 +43,30 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setCurrency = (currency: Currency) => {
+  const setCurrency = React.useCallback((currency: Currency) => {
     setSelectedCurrency(currency);
     localStorage.setItem('vanhsya-currency', currency.code);
-  };
+  }, []);
 
-  const convertPrice = (usdPrice: number) => {
+  const convertPrice = React.useCallback((usdPrice: number) => {
     return usdPrice * selectedCurrency.rate;
-  };
+  }, [selectedCurrency]);
 
-  const formatPrice = (usdPrice: number) => {
+  const formatPrice = React.useCallback((usdPrice: number) => {
     const converted = convertPrice(usdPrice);
     return `${selectedCurrency.symbol}${converted.toLocaleString(undefined, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     })}`;
-  };
+  }, [selectedCurrency, convertPrice]);
+
+  const providerValue = React.useMemo(
+    () => ({ selectedCurrency, setCurrency, convertPrice, formatPrice }),
+    [selectedCurrency, setCurrency, convertPrice, formatPrice]
+  );
 
   return (
-    <CurrencyContext.Provider value={{ selectedCurrency, setCurrency, convertPrice, formatPrice }}>
+    <CurrencyContext.Provider value={providerValue}>
       {children}
     </CurrencyContext.Provider>
   );
@@ -80,7 +85,7 @@ interface CurrencySelectorProps {
   variant?: 'default' | 'minimal' | 'icon-only';
 }
 
-export default function CurrencySelector({ className = '', variant = 'default' }: CurrencySelectorProps) {
+export default function CurrencySelector({ className = '', variant = 'default' }: Readonly<CurrencySelectorProps>) {
   const { selectedCurrency, setCurrency } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
 

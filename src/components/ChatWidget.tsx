@@ -245,7 +245,7 @@ const ChatWidget: React.FC = () => {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendMessage(inputValue)}
                   placeholder="Type your message..."
                   className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />

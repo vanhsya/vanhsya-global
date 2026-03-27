@@ -3,7 +3,7 @@
  import React from 'react';
  import NavigationPremium from '@/components/NavigationPremium';
  import Footer from '@/components/Footer';
- import { LineChart, ShieldCheck, Mail, Building2, Coins, Target } from 'lucide-react';
+import { LineChart, ShieldCheck, Mail, Building2, Target } from 'lucide-react';
  
  export default function InvestorsPage() {
    return (

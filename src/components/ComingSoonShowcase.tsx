@@ -1,12 +1,12 @@
  "use client";
  
  import React, { useEffect, useState } from "react";
- import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
  import { Sparkles, Timer, Rocket, Coins, CreditCard, Atom, Globe2 } from "lucide-react";
  
  type TimeLeft = { days: number; hours: number; minutes: number; seconds: number };
  
- function Countdown({ target }: { target: Date }) {
+function Countdown({ target }: Readonly<{ target: Date }>) {
    const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
    useEffect(() => {
      const update = () => {
@@ -20,8 +20,8 @@
        });
      };
      update();
-     const id = window.setInterval(update, 1000);
-     return () => window.clearInterval(id);
+    const id = globalThis.setInterval(update, 1000);
+    return () => globalThis.clearInterval(id);
    }, [target]);
  
    return (

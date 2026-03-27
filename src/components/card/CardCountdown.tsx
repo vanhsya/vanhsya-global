@@ -36,13 +36,13 @@ export default function CardCountdown() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const raf = window.requestAnimationFrame(() => setMounted(true));
+    const raf = globalThis.requestAnimationFrame(() => setMounted(true));
     // Set launch date to 30 days from now for demo
     const launchDate = new Date();
     launchDate.setDate(launchDate.getDate() + 30);
 
     const timer = setInterval(() => {
-      const now = new Date().getTime();
+      const now = Date.now();
       const distance = launchDate.getTime() - now;
 
       setTimeLeft({
@@ -58,7 +58,7 @@ export default function CardCountdown() {
     }, 1000);
 
     return () => {
-      window.cancelAnimationFrame(raf);
+      globalThis.cancelAnimationFrame(raf);
       clearInterval(timer);
     };
   }, []);

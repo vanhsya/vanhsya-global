@@ -57,7 +57,9 @@ const commonScams = [
 const hashString = (value: string) => {
   let hash = 2166136261;
   for (let i = 0; i < value.length; i++) {
-    hash ^= value.charCodeAt(i);
+    const cp = value.codePointAt(i) ?? 0;
+    hash ^= cp;
+    if (cp > 0xffff) i++; // advance extra for surrogate pairs
     hash = Math.imul(hash, 16777619);
   }
   return hash >>> 0;
