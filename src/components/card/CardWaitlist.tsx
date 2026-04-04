@@ -3,8 +3,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMail, FiCheckCircle, FiLoader, FiAlertCircle } from 'react-icons/fi';
+import type { CardTier } from '@/data/card/tiers';
 
-export default function CardWaitlist() {
+type CardWaitlistProps = {
+  tier?: CardTier;
+};
+
+export default function CardWaitlist({ tier = 'standard' }: CardWaitlistProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -18,13 +23,26 @@ export default function CardWaitlist() {
     }
 
     setStatus('loading');
-    
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const res = await fetch('/api/card/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, tier })
+      });
+      const json = (await res.json().catch(() => null)) as { id?: string; error?: string } | null;
+      if (!res.ok) {
+        setStatus('error');
+        setMessage(json?.error || 'Failed to join waitlist');
+        return;
+      }
       setStatus('success');
       setMessage("You're on the list! We'll notify you soon.");
       setEmail('');
-    }, 1500);
+    } catch {
+      setStatus('error');
+      setMessage('Network error');
+    }
   };
 
   return (

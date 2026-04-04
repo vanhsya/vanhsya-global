@@ -53,7 +53,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem;
+  scroll-padding-top: 8rem;
 }
 
 body {
@@ -62,8 +62,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-attachment: fixed;
+  background: #0A0A10;
   min-height: 100vh;
 }
 
@@ -215,6 +214,60 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: var(--glass-shadow);
+}
+
+.nav-island {
+  background: rgba(10, 10, 16, 0.55);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.nav-link-liquid {
+  position: relative;
+}
+
+.nav-link-liquid::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -10px;
+  height: 2px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(2px) scaleX(0.6);
+  transform-origin: center;
+  background: linear-gradient(90deg, rgba(99,102,241,0), rgba(168,85,247,0.9), rgba(99,102,241,0));
+  filter: blur(0.2px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.nav-link-liquid:hover::after,
+.nav-link-liquid:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0) scaleX(1);
+}
+
+.cta-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+  animation: ctaShimmer 3.2s ease-in-out infinite;
+}
+
+@keyframes ctaShimmer {
+  0% { transform: translateX(-120%); }
+  50% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
 }
 
 /* Modern Section Styling */

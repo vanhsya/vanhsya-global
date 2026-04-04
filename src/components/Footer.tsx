@@ -57,6 +57,8 @@ const Footer: React.FC = () => {
       links: [
         { name: 'About Us', href: '/about' },
         { name: 'Why VANHSYA?', href: '/why-vanhsya' },
+        { name: 'Next Era', href: '/next-era' },
+        { name: 'Investors', href: '/investors' },
         { name: 'Contact', href: '/contact' },
         { name: 'Referral Program', href: '/referral-program' },
         { name: 'Privacy Policy', href: '/privacy' },
@@ -74,7 +76,7 @@ const Footer: React.FC = () => {
     },
     {
       icon: FaEnvelope,
-      label: 'Email',
+      label: 'Support',
       value: COMPANY.emails.support,
       href: `mailto:${COMPANY.emails.support}`
     },
@@ -83,6 +85,18 @@ const Footer: React.FC = () => {
       label: 'Address',
       value: `${COMPANY.uae.country} • Coverage across all 7 Emirates`,
       href: '/contact'
+    },
+    {
+      icon: FaEnvelope,
+      label: 'Investors',
+      value: COMPANY.emails.founder,
+      href: `mailto:${COMPANY.emails.founder}`
+    },
+    {
+      icon: FaEnvelope,
+      label: 'Careers',
+      value: COMPANY.emails.career,
+      href: `mailto:${COMPANY.emails.career}`
     }
   ];
 

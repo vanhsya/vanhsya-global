@@ -31,6 +31,7 @@ const contactMethods = [
     description: 'Speak directly with our immigration experts',
     contact: COMPANY.phoneDisplay,
     action: 'Call Now',
+    href: `tel:${COMPANY.phoneE164}`,
     available: COMPANY.uae.availability,
     color: 'green'
   },
@@ -40,8 +41,29 @@ const contactMethods = [
     description: 'Send us your questions and documents',
     contact: COMPANY.emails.support,
     action: 'Send Email',
+    href: `mailto:${COMPANY.emails.support}`,
     available: 'Response in 2 hours',
     color: 'blue'
+  },
+  {
+    icon: FaEnvelope,
+    title: 'Investor Relations',
+    description: 'Investment, automation partnerships, and strategic collaboration',
+    contact: COMPANY.emails.founder,
+    action: 'Email Founder',
+    href: `mailto:${COMPANY.emails.founder}`,
+    available: 'Direct channel',
+    color: 'amber'
+  },
+  {
+    icon: FaEnvelope,
+    title: 'Careers',
+    description: 'Join VANHSYA and build the next era of migration automation',
+    contact: COMPANY.emails.career,
+    action: 'Email Careers',
+    href: `mailto:${COMPANY.emails.career}`,
+    available: 'Hiring pipeline',
+    color: 'purple'
   },
   {
     icon: FaWhatsapp,
@@ -49,6 +71,7 @@ const contactMethods = [
     description: 'Quick answers and document sharing',
     contact: COMPANY.phoneDisplay,
     action: 'Start Chat',
+    href: COMPANY.whatsappLink,
     available: 'Instant Response',
     color: 'green'
   },
@@ -58,6 +81,7 @@ const contactMethods = [
     description: 'Schedule a detailed consultation',
     contact: 'Free 30-min session',
     action: 'Book Now',
+    href: '/consultation',
     available: 'Next Available: Today',
     color: 'purple'
   }
@@ -239,7 +263,15 @@ export default function ContactPage() {
               const colorClasses = {
                 green: 'bg-green-100 text-green-600 border-green-500',
                 blue: 'bg-blue-100 text-blue-600 border-blue-500',
-                purple: 'bg-purple-100 text-purple-600 border-purple-500'
+                purple: 'bg-purple-100 text-purple-600 border-purple-500',
+                amber: 'bg-amber-100 text-amber-700 border-amber-500'
+              };
+
+              const buttonClasses = {
+                green: 'bg-green-600 hover:bg-green-700',
+                blue: 'bg-blue-600 hover:bg-blue-700',
+                purple: 'bg-purple-600 hover:bg-purple-700',
+                amber: 'bg-amber-600 hover:bg-amber-700'
               };
 
               return (
@@ -257,9 +289,16 @@ export default function ContactPage() {
                   <p className="text-gray-600 mb-3">{method.description}</p>
                   <div className="text-lg font-semibold text-gray-800 mb-2">{method.contact}</div>
                   <div className="text-sm text-gray-500 mb-4">{method.available}</div>
-                  <button className={`w-full py-2 rounded-lg font-medium transition-colors bg-${method.color}-600 text-white hover:bg-${method.color}-700`}>
+                  <a
+                    href={method.href}
+                    className={`w-full py-2 rounded-lg font-medium transition-colors text-white flex items-center justify-center ${
+                      buttonClasses[method.color as keyof typeof buttonClasses]
+                    }`}
+                    target={method.href.startsWith('http') ? '_blank' : undefined}
+                    rel={method.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  >
                     {method.action}
-                  </button>
+                  </a>
                 </AnimatedCard>
               );
             })}

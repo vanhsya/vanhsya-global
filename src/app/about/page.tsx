@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
   FaGraduationCap, 
   FaUsers, 
@@ -11,10 +11,15 @@ import {
   FaShieldAlt,
   FaChartLine,
   FaCertificate,
-  FaLinkedin
+  FaLinkedin,
+  FaLeaf
 } from 'react-icons/fa';
+import { FiCpu, FiDroplet, FiMapPin, FiX } from 'react-icons/fi';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import WorldMapVisualization from '@/components/WorldMapVisualization';
+import GlassCard from '@/components/GlassCard';
+import Link from 'next/link';
 
 const teamMembers = [
   {
@@ -104,6 +109,69 @@ const stats = [
 ];
 
 export default function AboutPage() {
+  const projects = useMemo(
+    () => [
+      {
+        id: 'migration',
+        title: 'Vanhsya Global Migration',
+        icon: FaGlobe,
+        focus: 'End-to-end relocation, Golden Visas, and corporate migration.',
+        integration: 'AI-powered eligibility, document automation, and scam-resistant workflows.',
+        detail:
+          'The flagship platform that connects assessment, documents, guidance, and support into one transparent journey.'
+      },
+      {
+        id: 'yno',
+        title: 'YNO Coin & Blockchain',
+        icon: FiCpu,
+        focus: 'Blockchain rails for global migration payments and asset transfer.',
+        integration: 'High-performance networks for borderless value flows and settlement readiness.',
+        detail:
+          'A next-era finance layer designed to support compliant settlement flows and cross-border transfers.'
+      },
+      {
+        id: 'beauty',
+        title: 'Vanhsya Beauty & Natural',
+        icon: FaLeaf,
+        focus: 'Premium, eco-conscious lifestyle products aligned with sustainability.',
+        integration: 'Quality-first supply chain and brand experience rooted in trust.',
+        detail:
+          'A lifestyle arm that reflects the group’s commitment to quality, design, and responsible sourcing.'
+      },
+      {
+        id: 'tours',
+        title: 'Vanhsya Tours & Adventure',
+        icon: FiMapPin,
+        focus: 'Luxury travel experiences and destination scouting for relocation clients.',
+        integration: 'Destination discovery paired with relocation planning.',
+        detail:
+          'A premium experience layer that helps clients evaluate destinations beyond paperwork.'
+      },
+      {
+        id: 'carwash',
+        title: 'Eco-Friendly Waterless Car Wash (UAE)',
+        icon: FiDroplet,
+        focus: 'Technology-led luxury car care while conserving water.',
+        integration: 'Sustainability-first operations designed for UAE environments.',
+        detail:
+          'A UAE-based sustainability venture aligned with premium service delivery and environmental efficiency.'
+      },
+      {
+        id: 'ai-rd',
+        title: 'AI R&D and Intellectual Property',
+        icon: FaAward,
+        focus: 'Research and development in AI SDKs and web3 integration.',
+        integration: 'Concierge workflows, document intelligence, and next-gen automation.',
+        detail:
+          'The technical core that powers the concierge, eligibility, documents, and future-ready platform modules.'
+      }
+    ],
+    []
+  );
+
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const activeProject = projects.find((p) => p.id === activeProjectId) || null;
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -118,10 +186,10 @@ export default function AboutPage() {
             className="text-center max-w-4xl mx-auto"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              About VANHSYA AI Innovations
+              About The VANHSYA Group
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100">
-              Your trusted partner in AI-powered solutions with complete transparency, cutting-edge technology, and commitment to innovation excellence.
+              A borderless ecosystem where technology, luxury, and opportunity converge — built for the next era of global mobility.
             </p>
           </motion.div>
         </div>
@@ -136,16 +204,11 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="heading-lg mb-6">Our Mission</h2>
-              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                To provide transparent, innovative AI-powered solutions that empower individuals and organizations worldwide. We believe in complete transparency, ethical AI practices, and delivering cutting-edge technology without compromising user trust.
-              </p>
-              <div className="flex items-center space-x-4">
-                <FaHandshake className="text-3xl text-blue-600" />
-                <div>
-                  <h3 className="font-semibold text-gray-800">Innovation-First Approach</h3>
-                  <p className="text-gray-600">Your success through technology</p>
-                </div>
+              <h2 className="heading-lg mb-6">The Vision</h2>
+              <div className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                <p className="text-lg text-gray-800 leading-relaxed font-semibold">
+                  “To redefine global mobility by building a borderless ecosystem where technology, luxury, and opportunity converge, empowering every individual to find their place in the next era of human civilization.”
+                </p>
               </div>
             </motion.div>
             
@@ -155,18 +218,234 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="bg-gradient-to-br from-blue-50 to-green-50 p-8 rounded-xl"
             >
-              <h2 className="heading-lg mb-6">Our Vision</h2>
-              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                To become the world's most trusted AI innovation platform, known for our transparency, cutting-edge technology, and commitment to transforming lives through artificial intelligence solutions.
-              </p>
-              <div className="flex items-center space-x-4">
-                <FaShieldAlt className="text-3xl text-green-600" />
-                <div>
-                  <h3 className="font-semibold text-gray-800">Trust & Transparency</h3>
-                  <p className="text-gray-600">100% transparent, ethical AI solutions</p>
+              <h2 className="heading-lg mb-6">The Mission</h2>
+              <div className="space-y-5">
+                <div className="flex items-start gap-4">
+                  <FaHandshake className="text-2xl text-blue-600 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Innovation</h3>
+                    <p className="text-gray-700">
+                      Integrating AI-driven solutions to simplify complex migration and business legalities.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <FaAward className="text-2xl text-purple-600 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Excellence</h3>
+                    <p className="text-gray-700">
+                      Providing an ultra-luxury, black-card experience for high-net-worth individuals and global entrepreneurs.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <FaShieldAlt className="text-2xl text-green-700 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Integrity</h3>
+                    <p className="text-gray-700">
+                      Building a transparent, secure, and decentralized future for global asset management and relocation.
+                    </p>
+                  </div>
+                </div>
+                <div className="pt-4">
+                  <Link
+                    href="/next-era"
+                    className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors"
+                  >
+                    Explore the Next Era
+                  </Link>
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Group Portfolio */}
+      <section className="section-padding bg-gray-50">
+        <div className="container-max">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="heading-lg mb-4">The VANHSYA Group Portfolio</h2>
+            <p className="text-gray-600 max-w-3xl mx-auto">
+              Modular ecosystem pillars designed to scale globally — from migration to AI R&D and next-era finance.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((p, idx) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.06 }}
+              >
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full flex flex-col">
+                  <div className="p-6 flex-1">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white flex items-center justify-center mb-4">
+                      <p.icon className="text-xl" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{p.title}</h3>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-3">{p.focus}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      <span className="font-semibold text-gray-800">Key integration:</span> {p.integration}
+                    </p>
+                  </div>
+                  <div className="px-6 pb-6">
+                    <button
+                      type="button"
+                      onClick={() => setActiveProjectId(p.id)}
+                      className="w-full py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors"
+                    >
+                      Learn More
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <AnimatePresence>
+        {activeProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60]"
+          >
+            <button
+              type="button"
+              onClick={() => setActiveProjectId(null)}
+              className="absolute inset-0 bg-black/50"
+              aria-label="Close project panel"
+            />
+            <motion.div
+              initial={{ x: 420 }}
+              animate={{ x: 0 }}
+              exit={{ x: 420 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+              className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white flex items-center justify-center">
+                    <activeProject.icon className="text-lg" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">Ecosystem Pillar</div>
+                    <div className="text-base font-extrabold text-gray-900">{activeProject.title}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveProjectId(null)}
+                  className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <FiX />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="text-sm font-semibold text-gray-800">Focus</div>
+                <div className="text-gray-700 leading-relaxed">{activeProject.focus}</div>
+                <div className="text-sm font-semibold text-gray-800">Key integration</div>
+                <div className="text-gray-700 leading-relaxed">{activeProject.integration}</div>
+                <div className="text-sm font-semibold text-gray-800">Overview</div>
+                <div className="text-gray-700 leading-relaxed">{activeProject.detail}</div>
+                <div className="pt-2 flex flex-col gap-3">
+                  <Link
+                    href="/next-era"
+                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-center transition-colors"
+                    onClick={() => setActiveProjectId(null)}
+                  >
+                    Next Era Roadmap
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="w-full py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-semibold text-center transition-colors"
+                    onClick={() => setActiveProjectId(null)}
+                  >
+                    Talk to VANHSYA
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Global Presence Map */}
+      <section className="section-padding">
+        <div className="container-max">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <h2 className="heading-lg mb-4">Global Presence</h2>
+            <p className="text-gray-600 max-w-3xl mx-auto">
+              UAE-based operations with a global destination focus across the UK, Canada, and Europe.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div className="relative rounded-3xl overflow-hidden border border-gray-100 shadow-lg bg-slate-950">
+              <WorldMapVisualization mode="Immigration" className="absolute inset-0 opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
+              <div className="relative z-10 p-6 flex items-end h-full min-h-[360px]">
+                <div className="text-white">
+                  <div className="text-xs font-black uppercase tracking-[0.3em] text-white/70">Operations</div>
+                  <div className="mt-2 text-2xl font-extrabold">United Arab Emirates</div>
+                  <div className="mt-2 text-white/70">
+                    Target destinations: Canada, UK, Europe, USA, Australia
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <GlassCard className="h-full">
+              <div className="text-gray-900 font-extrabold text-xl mb-4">Core Destinations</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { label: 'Canada', href: '/countries/canada' },
+                  { label: 'United Kingdom', href: '/countries/uk' },
+                  { label: 'Germany / Europe', href: '/countries/germany' },
+                  { label: 'United States', href: '/countries/usa' },
+                  { label: 'Australia', href: '/countries/australia' },
+                  { label: 'UAE', href: '/countries/uae' }
+                ].map((d) => (
+                  <Link
+                    key={d.href}
+                    href={d.href}
+                    className="flex items-center justify-between rounded-2xl bg-white/70 border border-gray-100 px-4 py-4 hover:shadow-md transition-all"
+                  >
+                    <span className="font-semibold text-gray-900">{d.label}</span>
+                    <span className="text-gray-500">→</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-6 rounded-2xl bg-gray-50 border border-gray-100 p-5">
+                <div className="flex items-center gap-3">
+                  <FaShieldAlt className="text-green-700 text-xl" />
+                  <div>
+                    <div className="font-bold text-gray-900">Transparency-first</div>
+                    <div className="text-sm text-gray-600">
+                      Verified guidance, scam-aware support, and AI-assisted workflows.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
           </div>
         </div>
       </section>

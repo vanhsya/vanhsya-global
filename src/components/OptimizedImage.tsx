@@ -10,6 +10,7 @@ interface OptimizedImageProps {
   width?: number;
   height?: number;
   className?: string;
+  imgClassName?: string;
   priority?: boolean;
   fill?: boolean;
   sizes?: string;
@@ -23,6 +24,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   width,
   height,
   className = '',
+  imgClassName = '',
   priority = false,
   fill = false,
   sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
@@ -87,11 +89,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         onError={handleError}
         className={`transition-opacity duration-300 ${
           isLoading ? 'opacity-0' : 'opacity-100'
-        } ${fill ? 'object-cover' : ''}`}
-        style={{
-          maxWidth: '100%',
-          height: 'auto',
-        }}
+        } ${fill ? 'object-cover' : ''} ${imgClassName}`}
+        style={fill ? undefined : { maxWidth: '100%', height: 'auto' }}
       />
     </div>
   );

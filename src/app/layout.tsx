@@ -3,6 +3,7 @@ import "./globals.css";
 import PageTransition from "@/components/PageTransition";
 import { CurrencyProvider } from "@/components/CurrencySelector";
 import ContactSupport from "@/components/ContactSupport";
+import ImmigrationConciergeChat from "@/components/ImmigrationConciergeChat";
 import LogoPreloader from "@/components/LogoPreloader";
 import TrustRibbon from "@/components/TrustRibbon";
 import { Metadata } from "next";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://vanhsya.com'),
   title: "VANHSYA Global Migration - Expert Migration & Visa Services Worldwide",
   description: "Trusted global migration consultancy offering comprehensive visa and migration services. Expert guidance for work, study, family, and business visas with transparent pricing and verified success rates.",
-  keywords: "migration services, visa consultation, immigration lawyer, work visa, study visa, family visa, business visa, permanent residence, global migration, visa processing, immigration consultant",
+  keywords: "migration services, visa consultation, immigration lawyer, work visa, study visa, family visa, business visa, permanent residence, global migration, visa processing, immigration consultant, Vanhsya World Best Immigration Company, UAE Luxury Business Setup, AI-Powered Relocation Services, YNO Coin Global Migration",
   authors: [{ name: "VANHSYA Global Migration" }],
   robots: "index, follow",
   openGraph: {
@@ -39,9 +40,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://vanhsya.com"
-  },
-  verification: {
-    google: "your-google-verification-code-here"
   }
 };
 
@@ -72,6 +70,7 @@ export default function RootLayout({
             <PageTransition>
               {children}
             </PageTransition>
+            <ImmigrationConciergeChat />
             <ContactSupport variant="floating" />
           </CurrencyProvider>
         </ErrorBoundary>

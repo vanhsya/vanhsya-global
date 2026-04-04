@@ -19,6 +19,7 @@ import {
   FaStar,
   FaEye
 } from 'react-icons/fa';
+import Image from 'next/image';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import AnimatedCard from '@/components/AnimatedCard';
@@ -55,7 +56,7 @@ const resources: Resource[] = [
     rating: 4.9,
     isNew: false,
     isPremium: false,
-    thumbnail: '/placeholder-guide-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '2',
@@ -69,7 +70,7 @@ const resources: Resource[] = [
     rating: 4.8,
     isNew: true,
     isPremium: false,
-    thumbnail: '/placeholder-calculator-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '3',
@@ -83,7 +84,7 @@ const resources: Resource[] = [
     rating: 4.7,
     isNew: true,
     isPremium: true,
-    thumbnail: '/placeholder-checklist-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '4',
@@ -98,7 +99,7 @@ const resources: Resource[] = [
     rating: 4.9,
     isNew: false,
     isPremium: false,
-    thumbnail: '/placeholder-video-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '5',
@@ -113,7 +114,7 @@ const resources: Resource[] = [
     rating: 4.6,
     isNew: true,
     isPremium: true,
-    thumbnail: '/placeholder-webinar-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '6',
@@ -128,7 +129,7 @@ const resources: Resource[] = [
     rating: 4.5,
     isNew: false,
     isPremium: false,
-    thumbnail: '/placeholder-template-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '7',
@@ -143,7 +144,7 @@ const resources: Resource[] = [
     rating: 4.7,
     isNew: false,
     isPremium: false,
-    thumbnail: '/placeholder-guide-2.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&q=80&w=1200'
   },
   {
     id: '8',
@@ -157,7 +158,7 @@ const resources: Resource[] = [
     rating: 4.8,
     isNew: true,
     isPremium: false,
-    thumbnail: '/placeholder-tracker-1.jpg'
+    thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1200'
   }
 ];
 
@@ -278,6 +279,7 @@ export default function ResourcesPage() {
                 <FaGlobe className="text-purple-600 mr-2" />
                 <span className="font-medium text-gray-700 mr-3">Category:</span>
                 <select
+                  aria-label="Category"
                   value={activeCategory}
                   onChange={(e) => setActiveCategory(e.target.value)}
                   className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -293,6 +295,7 @@ export default function ResourcesPage() {
                 <FaFilter className="text-blue-600 mr-2" />
                 <span className="font-medium text-gray-700 mr-3">Type:</span>
                 <select
+                  aria-label="Type"
                   value={activeType}
                   onChange={(e) => setActiveType(e.target.value)}
                   className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -310,6 +313,7 @@ export default function ResourcesPage() {
                 <FaStar className="text-yellow-600 mr-2" />
                 <span className="font-medium text-gray-700 mr-3">Sort by:</span>
                 <select
+                  aria-label="Sort by"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -353,8 +357,19 @@ export default function ResourcesPage() {
                     className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                   >
                     <div className="relative">
-                      <div className="h-32 bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                        <Icon className="text-4xl text-white" />
+                      <div className="relative h-32">
+                        <Image
+                          src={resource.thumbnail}
+                          alt={resource.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          className="object-cover"
+                          priority={index < 4}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/70 to-blue-600/70" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Icon className="text-4xl text-white" />
+                        </div>
                       </div>
                       
                       {/* Badges */}

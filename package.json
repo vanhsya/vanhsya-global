@@ -14,9 +14,11 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.0.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@types/three": "^0.183.1",
+    "ai": "^4.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lottie-react": "^2.4.1",

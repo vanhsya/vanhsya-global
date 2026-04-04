@@ -80,10 +80,6 @@ export default function NavigationPremium({ className = '', variant = 'default' 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const [sr, setSr] = useState(0);
-  const [visas, setVisas] = useState(0);
-  const [clients, setClients] = useState(0);
-  const [countriesCount, setCountriesCount] = useState(0);
 
   useEffect(() => {
     const raf = window.requestAnimationFrame(() => {
@@ -108,24 +104,6 @@ export default function NavigationPremium({ className = '', variant = 'default' 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  useEffect(() => {
-    let start: number | null = null;
-    const d1 = 99.9;
-    const d2 = 12847;
-    const d3 = 15623;
-    const d4 = 45;
-    const step = (t: number) => {
-      if (start == null) start = t;
-      const p = Math.min(1, (t - start) / 1200);
-      setSr(Number((p * d1).toFixed(1)));
-      setVisas(Math.floor(p * d2));
-      setClients(Math.floor(p * d3));
-      setCountriesCount(Math.floor(p * d4));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    const id = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(id);
   }, []);
 
   const migrationServices: DropdownItem[] = [
@@ -158,39 +136,54 @@ export default function NavigationPremium({ className = '', variant = 'default' 
     { label: 'Entry Requirements Radar', href: '/ai-tools/entry-requirements-radar', description: 'Border-ready pack generator' },
     { label: 'Travel Itinerary AI', href: '/ai-tools/travel-itinerary-ai', description: 'Visa-smart tourism itineraries' }
   ];
+  const exposeItems: DropdownItem[] = [
+    { label: 'Expose Overview', href: '/expose', description: 'Transparency platform and action plan' },
+    { label: 'Victim Stories', href: '/expose/victim-stories', description: 'Submit and track scam cases' },
+    { label: 'Industry Watch', href: '/expose/industry-watch', description: 'Fraud patterns and verification signals' },
+    { label: 'YouTube Interviews', href: '/expose/interviews', description: 'Interviews and safety explainers' },
+    { label: 'Scammer Profiles', href: '/expose/scammers', description: 'Profiles and checklists' }
+  ];
   const companyItems: DropdownItem[] = [
     { label: 'Transparency', href: '/expose', description: 'Real cases, fraud protection, help desk' },
+    { label: 'Victim Stories', href: '/expose/victim-stories', description: 'Submit and track scam cases' },
+    { label: 'Industry Watch', href: '/expose/industry-watch', description: 'Fraud patterns and verification signals' },
+    { label: 'YouTube Interviews', href: '/expose/interviews', description: 'Client interviews and safety explainers' },
+    { label: 'Scammer Profiles', href: '/expose/scammers', description: 'Profiles and checklists' },
     { label: 'Success Stories', href: '/success-stories', description: 'Verified global testimonials' },
     { label: 'Referral Program', href: '/referral-program', description: 'Earn with VANHSYA' },
     { label: 'Ecosystem', href: '/blog', description: 'Community hub, stories, Q&A, videos' },
+    { label: 'VANHSYA Vision', href: '/next-era', description: 'The next era: AI, systems, and experiences' },
+    { label: 'AI Innovations', href: '/ai-innovations', description: 'Product and research direction' },
+    { label: 'Resources', href: '/resources', description: 'Guides, toolkits, and frameworks' },
     { label: 'Investors', href: '/investors', description: 'IR materials and contact' },
+    { label: 'Careers', href: '/contact', description: 'Join the team and build the future' },
   ];
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 ${
+      className={`fixed ${variant === 'neo' ? 'top-10' : 'top-0'} left-0 right-0 z-50 ${
         variant === 'neo'
-          ? `header-blur-vanhsya ${scrolled ? 'bg-black/60' : 'bg-black/30'} border-b border-white/10`
+          ? 'bg-transparent'
           : 'bg-slate-950/80 backdrop-blur-xl border-b border-white/10'
       } ${className}`}
     >
-      {variant === 'neo' && (
-        <div className="hidden md:block">
-          <div className="h-10 bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-700 border-b border-white/10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-end gap-6 text-xs font-bold text-white/80">
-              <span className="whitespace-nowrap font-extrabold tracking-wide">{sr}% Success Rate</span>
-              <span className="whitespace-nowrap font-extrabold tracking-wide">{visas.toLocaleString()} Visas Approved</span>
-              <span className="whitespace-nowrap font-extrabold tracking-wide">{clients.toLocaleString()} Clients Served</span>
-              <span className="whitespace-nowrap font-extrabold tracking-wide">{countriesCount} Countries</span>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex items-center justify-between ${variant === 'neo' ? (scrolled ? 'h-16' : 'h-20') : 'h-20'}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${variant === 'neo' ? (scrolled ? 'py-2' : 'py-4') : ''}`}>
+        <div
+          className={`${
+            variant === 'neo'
+              ? `nav-island rounded-3xl ${scrolled ? 'px-4' : 'px-6'}`
+              : ''
+          }`}
+        >
+          <div className={`flex items-center justify-between ${variant === 'neo' ? (scrolled ? 'h-14' : 'h-16') : 'h-20'}`}>
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -227,7 +220,7 @@ export default function NavigationPremium({ className = '', variant = 'default' 
           <div className="hidden lg:flex items-center space-x-8">
             <Link 
               href="/" 
-              className="text-white hover:text-indigo-300 transition-colors font-medium"
+              className={`transition-colors font-medium nav-link-liquid ${isActive('/') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
             >
               Home
             </Link>
@@ -241,7 +234,9 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className="flex items-center space-x-1 text-white hover:text-indigo-300 transition-colors font-medium"
+                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                  isActive('/services') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                }`}
               >
                 <span>Migration Services</span>
                 <FiChevronDown className="w-4 h-4" />
@@ -262,7 +257,9 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className="flex items-center space-x-1 text-white hover:text-indigo-300 transition-colors font-medium"
+                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                  isActive('/countries') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                }`}
               >
                 <span>Countries</span>
                 <FiChevronDown className="w-4 h-4" />
@@ -279,7 +276,11 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className="flex items-center space-x-1 text-white hover:text-indigo-300 transition-colors font-medium"
+                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                  isActive('/about') || isActive('/blog') || isActive('/referral-program') || isActive('/success-stories') || isActive('/investors') || isActive('/resources') || isActive('/ai-innovations')
+                    ? 'text-amber-200'
+                    : 'text-white hover:text-indigo-200'
+                }`}
               >
                 <span>Company</span>
                 <FiChevronDown className="w-4 h-4" />
@@ -289,10 +290,29 @@ export default function NavigationPremium({ className = '', variant = 'default' 
 
             <Link 
               href="/why-vanhsya" 
-              className="text-white hover:text-indigo-300 transition-colors font-medium"
+              className={`transition-colors font-medium nav-link-liquid ${isActive('/why-vanhsya') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
             >
               Why VANHSYA?
             </Link>
+
+            {/* Expose Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown('expose')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <button
+                type="button"
+                aria-haspopup="menu"
+                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                  isActive('/expose') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                }`}
+              >
+                <span>Expose</span>
+                <FiChevronDown className="w-4 h-4" />
+              </button>
+              <DropdownMenu items={exposeItems} isOpen={activeDropdown === 'expose'} onSelect={() => setActiveDropdown(null)} />
+            </div>
 
             {/* AI Tools Dropdown */}
             <div
@@ -303,7 +323,9 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className="flex items-center space-x-1 text-white hover:text-indigo-300 transition-colors font-medium"
+                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                  isActive('/ai-tools') || isActive('/tools') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                }`}
               >
                 <FaRobot className="w-4 h-4" />
                 <span>AI Tools</span>
@@ -313,20 +335,34 @@ export default function NavigationPremium({ className = '', variant = 'default' 
             </div>
 
             <Link 
-              href="/card" 
-              className="relative text-amber-400 hover:text-amber-300 transition-colors font-bold flex items-center gap-1 group"
+              href="/card"
+              className="relative text-amber-300 hover:text-amber-200 transition-colors font-extrabold flex items-center gap-2 group nav-link-liquid"
             >
               <FiCreditCard className="w-4 h-4" />
-              <span>Card</span>
-              <span className="text-[8px] bg-amber-400/20 px-1 rounded uppercase tracking-tighter">Soon</span>
+              <span>VANHSYA Card</span>
+              <span className="text-[8px] bg-amber-400/20 px-1 rounded uppercase tracking-tighter">Preview</span>
               <span className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="absolute inset-0 rounded-md bg-gradient-to-r from-amber-300/10 via-amber-500/10 to-amber-300/10 blur-md" />
               </span>
             </Link>
 
+            <Link
+              href="/next-era"
+              className={`transition-colors font-medium nav-link-liquid ${isActive('/next-era') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
+            >
+              Vanhsya Vision
+            </Link>
+
+            <Link
+              href="/investors"
+              className={`transition-colors font-medium nav-link-liquid ${isActive('/investors') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
+            >
+              Invest
+            </Link>
+
             <Link 
               href="/contact" 
-              className="text-white hover:text-indigo-300 transition-colors font-medium"
+              className={`transition-colors font-medium nav-link-liquid ${isActive('/contact') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
             >
               Contact
             </Link>
@@ -337,7 +373,7 @@ export default function NavigationPremium({ className = '', variant = 'default' 
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 href="/consultation"
-                className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl text-white transition-all duration-300 shadow-lg shadow-indigo-500/25"
+                className="cta-shimmer flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-2xl text-white transition-all duration-300 shadow-lg shadow-purple-500/30 border border-white/10"
               >
                 <span className="font-bold">Get Started</span>
               </Link>
@@ -349,10 +385,11 @@ export default function NavigationPremium({ className = '', variant = 'default' 
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            className="lg:hidden p-2 text-white hover:text-indigo-300 transition-colors"
+            className="lg:hidden p-2 text-white hover:text-indigo-200 transition-colors"
           >
             {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
           </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Menu */}
@@ -363,7 +400,7 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden fixed top-20 left-0 right-0 bottom-0 bg-slate-950/95 backdrop-blur-xl border-t border-white/10 overflow-y-auto"
+              className={`lg:hidden fixed ${variant === 'neo' ? 'top-24' : 'top-20'} left-0 right-0 bottom-0 bg-slate-950/95 backdrop-blur-xl border-t border-white/10 overflow-y-auto`}
             >
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-2">
                 <Link 
@@ -401,6 +438,20 @@ export default function NavigationPremium({ className = '', variant = 'default' 
                 >
                   AI Tools
                 </Link>
+                <Link
+                  href="/next-era"
+                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Vanhsya Vision
+                </Link>
+                <Link
+                  href="/investors"
+                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Invest
+                </Link>
                 <Link 
                   href="/blog" 
                   className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
@@ -413,10 +464,17 @@ export default function NavigationPremium({ className = '', variant = 'default' 
                   className="block text-amber-300 hover:text-amber-200 transition-colors font-bold py-3 px-3 rounded-xl hover:bg-white/5 flex items-center justify-between"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span>Transparency</span>
+                  <span>Expose</span>
                   <span className="text-[10px] bg-amber-400/20 px-2 py-0.5 rounded-full uppercase tracking-tighter font-black">
                     Help
                   </span>
+                </Link>
+                <Link
+                  href="/resources"
+                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Resources
                 </Link>
                 <Link 
                   href="/referral-program" 

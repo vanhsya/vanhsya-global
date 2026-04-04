@@ -7,9 +7,14 @@ export const COMPANY = {
   whatsappLink: 'https://wa.me/971522338785',
   emails: {
     founder: 'founder@vanhsya.com',
+    career: 'career@vanhsya.com',
     connect: 'connect@vanhsya.com',
     hr: 'hr@vanhsya.com',
     support: 'support@vanhsya.com',
+  },
+  social: {
+    youtubeChannel: 'https://www.youtube.com/@Vanhsya_live',
+    youtubeSubscribe: 'https://www.youtube.com/@Vanhsya_live?sub_confirmation=1',
   },
   uae: {
     country: 'United Arab Emirates',

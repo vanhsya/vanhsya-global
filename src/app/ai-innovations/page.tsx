@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { 
-  FileText, 
+  FileText,
   Users, 
   Gift, 
   Star, 
@@ -33,7 +34,7 @@ const cvTemplates: CVTemplate[] = [
   {
     id: 'modern-tech',
     name: 'Modern Tech Professional',
-    preview: '/cv-templates/modern-tech.png',
+    preview: 'https://images.unsplash.com/photo-1541462608143-67571c6738dd?auto=format&fit=crop&q=80&w=1200',
     category: 'Technology',
     features: ['ATS Optimized', 'Skills Section', 'Project Portfolio', 'Clean Design'],
     premium: false
@@ -41,7 +42,7 @@ const cvTemplates: CVTemplate[] = [
   {
     id: 'executive-luxury',
     name: 'Executive Luxury',
-    preview: '/cv-templates/executive.png',
+    preview: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200',
     category: 'Leadership',
     features: ['Premium Design', 'Achievement Focus', 'Leadership Emphasis', 'Professional Layout'],
     premium: true
@@ -49,7 +50,7 @@ const cvTemplates: CVTemplate[] = [
   {
     id: 'healthcare-specialist',
     name: 'Healthcare Specialist',
-    preview: '/cv-templates/healthcare.png',
+    preview: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=1200',
     category: 'Healthcare',
     features: ['Medical Focus', 'Certification Highlight', 'Experience Timeline', 'Clean Medical Format'],
     premium: false
@@ -57,7 +58,7 @@ const cvTemplates: CVTemplate[] = [
   {
     id: 'creative-designer',
     name: 'Creative Designer',
-    preview: '/cv-templates/creative.png',
+    preview: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200',
     category: 'Creative',
     features: ['Portfolio Integration', 'Visual Appeal', 'Creative Layout', 'Brand Showcase'],
     premium: true
@@ -164,8 +165,16 @@ export default function AIInnovations() {
                   onClick={() => setSelectedTemplate(template.id)}
                 >
                   <div className="relative">
-                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                      <FileText className="w-12 h-12 text-gray-400" />
+                    <div className="relative aspect-[3/4] rounded-lg mb-4 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                      <Image
+                        src={template.preview}
+                        alt={`${template.name} preview`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover"
+                        priority={index < 4}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
                     </div>
                     {template.premium && (
                       <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">

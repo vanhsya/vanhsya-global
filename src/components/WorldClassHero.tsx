@@ -288,10 +288,11 @@ export default function WorldClassHero() {
               key={i}
               className="absolute rounded-full bg-white"
               style={{
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                width: p.size,
-                height: p.size,
+                left: `${p.left.toFixed(4)}%`,
+                top: `${p.top.toFixed(4)}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                opacity: 0.15,
               }}
               animate={{
                 opacity: [0.15, 0.55, 0.15],

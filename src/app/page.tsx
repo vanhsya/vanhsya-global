@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { generateMetadata as generateSEOMetadata, generateStructuredData, StructuredData } from '@/components/SEO';
 import LandingStatsStrip from '@/components/LandingStatsStrip';
 import WebGLCountryVisualizationSection from '@/components/WebGLCountryVisualizationSection';
+import { COMPANY } from '@/lib/company';
 
 // Dynamic imports for heavy sections
 const MigrationTrendsVideoSection = dynamic(() => import('@/components/MigrationTrendsVideoSection'), {
@@ -58,18 +59,19 @@ function SectionSkeleton() {
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'World\'s Best Migration Platform – New Era Starts Now',
-  description: 'Experience the world\'s premier AI-driven global migration platform. 99% approval rate, 100% transparency, and zero-risk guaranteed results for your global mobility.',
+  description:
+    'A premium, AI-enabled global migration platform built on transparency, precision, and verified workflows for high-value relocations.',
   keywords: ['migration services', 'AI migration platform', 'visa application', 'immigration consultant', 'study abroad', 'work visa', 'PR application', 'migration scam protection'],
   canonical: 'https://vanhsya.com'
 });
 
 export default function Home() {
   const organizationSchema = generateStructuredData('Organization', {
-    address: 'Global Headquarters, Migration Excellence Center',
-    city: 'Toronto',
-    region: 'ON',
-    postalCode: 'M5V 3A8',
-    phone: '+1-800-VANHSYA'
+    address: COMPANY.uae.country,
+    city: 'Dubai',
+    region: 'Dubai',
+    postalCode: '',
+    phone: COMPANY.phoneE164
   });
 
   return (

@@ -212,10 +212,7 @@ Captions: 300-400 weight
 # Run ESLint
 npm run lint
 
-# Type checking
-npm run type-check
-
-# Build verification
+# Build verification (includes type checking)
 npm run build
 ```
 
@@ -227,6 +224,42 @@ npm run build
 - [ ] Responsive design functions
 - [ ] Accessibility features work
 - [ ] Contact methods are functional
+
+## 🩺 Health Checks & Availability
+
+### Health Endpoint
+
+The app exposes a lightweight health endpoint for uptime monitoring:
+
+- `GET /api/health`
+
+Response includes `status`, `time`, and basic dependency checks (without leaking secrets).
+
+### Common Causes of “Service Unavailable”
+
+- **Port conflicts (local/dev)**: another Next.js process already binding to the same port. Stop the old process before starting a new one.
+- **Missing environment variables (production)**: AI Concierge requires `OPENAI_API_KEY` to enable streaming chat responses. The UI will still render, but `/api/chat` will return `503` if the key is missing.
+- **Hydration mismatches (UX reliability)**: avoid non-deterministic values during SSR/hydration (`Math.random()`, `Date.now()`) in client components that are SSR-rendered.
+
+## 🧾 Expose Platform (Fraud Victims)
+
+### Expose Pages
+
+- `/expose` (landing + action plan)
+- `/expose/victim-stories` (secure submission + tracking ID)
+- `/expose/interviews` (video gallery)
+- `/expose/industry-watch` (fraud pattern ledger)
+- `/expose/scammers` (profiles + checklists)
+
+### Expose APIs
+
+- `POST /api/expose/submit` (multipart form data, supports up to 5 files, 10MB each)
+- `GET /api/expose/status/:id` (case tracking)
+- `GET /api/expose/videos?type=interviews|cases` (cached, returns YouTube IDs + thumbnails)
+
+### Production Storage Note
+
+Current submission persistence writes to the local filesystem under `var/` for simplicity. For serverless deployments (Vercel/Netlify), switch storage to a persistent backend (e.g., S3 or Supabase Storage) and store metadata in a DB (e.g., Supabase/Postgres). The logic is centralized in `src/lib/exposeStorage.ts`.
 
 ## 🌍 Deployment
 
@@ -262,6 +295,17 @@ npm run build
 - **Lighthouse CI**: Performance monitoring
 - **Sentry**: Error tracking and monitoring
 - **Hotjar**: User experience insights
+
+### Uptime Monitoring (Recommended)
+
+1. Configure an uptime monitor (e.g., UptimeRobot) to poll:
+   - `https://<your-domain>/api/health`
+2. Alert on:
+   - Non-200 responses
+   - Sustained latency spikes
+3. Review runtime logs:
+   - Vercel “Functions” logs (for `/api/*`)
+   - Next.js server logs (self-hosted)
 
 ## 🤝 Contributing
 

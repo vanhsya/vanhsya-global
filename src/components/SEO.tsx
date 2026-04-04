@@ -119,7 +119,17 @@ export const pageSEO = {
   about: {
     title: 'About Vanhsya - Leading Immigration Consultancy',
     description: 'Learn about Vanhsya Immigration Services - your trusted partner since 2015. Certified consultants, 98% success rate, 5000+ satisfied clients worldwide.',
-    keywords: ['about vanhsya', 'immigration consultancy', 'certified consultants', 'success rate', 'client testimonials']
+    keywords: [
+      'about vanhsya',
+      'immigration consultancy',
+      'certified consultants',
+      'success rate',
+      'client testimonials',
+      'Vanhsya World Best Immigration Company',
+      'UAE Luxury Business Setup',
+      'YNO Coin Global Migration',
+      'AI-Powered Relocation Services'
+    ]
   },
   eligibilityBot: {
     title: 'Immigration Eligibility Assessment - Free Online Tool',

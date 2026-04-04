@@ -144,23 +144,45 @@ function buildLinePositions(
 }
 
 async function fetchCountriesGeoJSON(signal: AbortSignal): Promise<GeoJSON> {
-  const cacheKey = "vanhsya_world_geojson_v2";
+  const cacheKey = "vanhsya_world_geojson_v3";
   try {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) return JSON.parse(cached) as GeoJSON;
   } catch {
     // ignore
   }
-  const url = "https://cdn.jsdelivr.net/npm/geojson-world-map@2.0.0/world.geo.json";
-  const res = await fetch(url, { signal, cache: "force-cache" });
-  if (!res.ok) throw new Error(`Failed to load country data (${res.status})`);
-  const json = (await res.json()) as GeoJSON;
-  try {
-    sessionStorage.setItem(cacheKey, JSON.stringify(json));
-  } catch {
-    // ignore
+  const configuredUrl =
+    (typeof process !== "undefined" && (process.env.NEXT_PUBLIC_COUNTRY_GEOJSON_URL as string | undefined)) || "";
+  const urls = [
+    configuredUrl,
+    "https://cdn.jsdelivr.net/npm/0static/geo/World.json",
+    "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
+  ].filter(Boolean);
+
+  let lastStatus: number | null = null;
+  let lastError: unknown = null;
+
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal, cache: "force-cache" });
+      if (!res.ok) {
+        lastStatus = res.status;
+        continue;
+      }
+      const json = (await res.json()) as GeoJSON;
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(json));
+      } catch {
+        // ignore
+      }
+      return json;
+    } catch (err) {
+      lastError = err;
+    }
   }
-  return json;
+
+  if (typeof lastStatus === "number") throw new Error(`Failed to load country data (${lastStatus})`);
+  throw new Error(`Failed to load country data (${lastError ? "network" : "unknown"})`);
 }
 
 function useReducedMotionPref(initial = false) {

@@ -21,6 +21,18 @@ This document outlines the hierarchical relationship of the website's navigation
   - New Zealand (`/countries/new-zealand`)
   - Singapore (`/countries/singapore`)
   - UAE (`/countries/uae`)
+- **Company** (Dropdown)
+  - Transparency / Expose (`/expose`)
+  - Victim Stories (`/expose/victim-stories`)
+  - Industry Watch (`/expose/industry-watch`)
+  - YouTube Interviews (`/expose/interviews`)
+  - Scammer Profiles (`/expose/scammers`)
+  - Success Stories (`/success-stories`)
+  - Referral Program (`/referral-program`)
+  - Ecosystem (`/blog`)
+  - Next Era (`/next-era`)
+  - Investors (`/investors`)
+  - Careers (`/contact`)
 - **Why VANHSYA?** (`/why-vanhsya`)
 - **AI Tools** (Dropdown)
   - Eligibility Checker (`/ai-tools/eligibility`)
@@ -28,24 +40,20 @@ This document outlines the hierarchical relationship of the website's navigation
   - SOP Generator (`/ai-tools/sop-generator`)
   - CV Builder (`/ai-tools/cv-builder`)
   - Embassy Alerts (`/ai-tools/embassy-alerts`)
-- **Referral Program** (`/referral-program`)
-- **Success Stories** (`/success-stories`)
+- **VANHSYA Card** (`/card`)
 - **Contact** (`/contact`)
 
 ## Mobile Navigation (Sidebar)
 
 - **Home**
-- **Migration Services** (Accordion)
-  - *Same items as Desktop*
-- **Countries** (Accordion)
-  - *Same items as Desktop*
-- **AI Tools** (Accordion)
-  - *Same items as Desktop*
+- **Migration Services**
+- **Countries**
+- **AI Tools**
 - **Why VANHSYA?**
-- **Referral Program**
-- **Success Stories**
-- **Contact**
-- **Client Portal** (CTA)
+- **Ecosystem** (`/blog`)
+- **Expose** (`/expose`)
+- **VANHSYA Card** (`/card`)
+- **Contact** (`/contact`)
 
 ## Footer Navigation
 
@@ -67,3 +75,5 @@ This document outlines the hierarchical relationship of the website's navigation
   - Referral Program
   - Privacy Policy
   - Terms of Service
+
+

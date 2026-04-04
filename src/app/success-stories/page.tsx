@@ -16,11 +16,10 @@ import {
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
-
+import NavigationPremium from '@/components/NavigationPremium';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 import AnimatedCard from '@/components/AnimatedCard';
-import NavigationPremium from '@/components/NavigationPremium';
 
 interface SuccessStory {
   id: string;
@@ -116,7 +115,7 @@ const successStories: SuccessStory[] = [
     }
   },
   {
-    id: '5',
+    id: '7',
     name: 'Maria Rodriguez',
     country: 'United States',
     visaType: 'O-1 Extraordinary Ability',
@@ -134,7 +133,7 @@ const successStories: SuccessStory[] = [
     }
   },
   {
-    id: '6',
+    id: '8',
     name: 'James Wilson',
     country: 'United Kingdom',
     visaType: 'Global Talent Visa',

@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   images: {
     // Enable modern image formats
     formats: ['image/webp', 'image/avif'],
@@ -13,6 +14,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'plus.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
       },
       {
         protocol: 'https',
@@ -47,6 +52,10 @@ const nextConfig = {
   
   // Optimize bundle
   webpack: (config, { isServer, dev }) => {
+    if (dev) {
+      config.cache = false;
+    }
+
     // Optimize for production
     if (!isServer) {
       config.resolve.fallback = {
@@ -72,7 +81,13 @@ const nextConfig = {
   compress: true,
   
   // PoweredBy header removal for security
-  poweredByHeader: false
+  poweredByHeader: false,
+
+  async rewrites() {
+    return [
+      { source: '/@vite/client', destination: '/api/vite-client' }
+    ];
+  }
 };
 
 module.exports = nextConfig;
