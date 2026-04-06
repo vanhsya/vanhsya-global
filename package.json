@@ -9,6 +9,7 @@
     "build": "next build --webpack",
     "postinstall": "npx update-browserslist-db@latest --yes || true",
     "spell": "cspell --config ./cspell.json --no-progress --no-must-find-files \"src/**/*.{ts,tsx,css,md}\"",
+    "test": "node --test --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON",
     "prestart": "npm run build",
     "start": "next start",
     "lint": "eslint src --max-warnings 0"

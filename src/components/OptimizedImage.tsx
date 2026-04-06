@@ -16,6 +16,7 @@ interface OptimizedImageProps {
   sizes?: string;
   placeholder?: 'blur' | 'empty';
   blurDataURL?: string;
+  unoptimized?: boolean;
 }
 
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -29,7 +30,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   fill = false,
   sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
   placeholder = 'blur',
-  blurDataURL
+  blurDataURL,
+  unoptimized
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -85,6 +87,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         priority={priority}
         placeholder={placeholder}
         blurDataURL={blurDataURL || defaultBlurDataURL}
+        unoptimized={typeof unoptimized === 'boolean' ? unoptimized : src.toLowerCase().endsWith('.svg')}
         onLoad={handleLoad}
         onError={handleError}
         className={`transition-opacity duration-300 ${

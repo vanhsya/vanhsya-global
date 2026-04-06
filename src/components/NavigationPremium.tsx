@@ -127,6 +127,15 @@ export default function NavigationPremium({ className = '', variant = 'default' 
   ];
 
   const aiTools: DropdownItem[] = [
+    { label: 'AI Tools Hub', href: '/ai-tools', description: 'All tools, progress, and simulations' },
+    { label: 'IELTS Trainer AI', href: '/ai-tools/ielts-trainer', description: 'Writing scoring, speaking practice, study plan' },
+    { label: 'Visa Interview Coach', href: '/ai-tools/visa-interview-coach', description: 'Mock interviews with feedback and cultural tips' },
+    { label: 'Visa Rejection Analyzer', href: '/ai-tools/visa-rejection-analyzer', description: 'Refusal letter diagnosis and improvement plan' },
+    { label: 'Immigration Simulations', href: '/ai-tools/immigration-simulations', description: 'Visa journey games: documents + interview scenarios' },
+    { label: 'Document Verification', href: '/ai-tools/document-verification', description: 'Country/pathway packs and readiness checks' },
+    { label: 'Timeline Optimizer', href: '/ai-tools/timeline-optimizer', description: 'Milestone plan with buffers and risk flags' },
+    { label: 'Success Predictor', href: '/ai-tools/success-predictor', description: 'Risk band and success estimate from profile signals' },
+    { label: 'Progress Dashboard', href: '/ai-tools/dashboard', description: 'Track sessions and record outcomes locally' },
     { label: 'Eligibility Checker', href: '/ai-tools/eligibility', description: 'AI-powered visa assessment' },
     { label: 'Scam Detector', href: '/ai-tools/scam-detector', description: '200+ fraud pattern detection' },
     { label: 'SOP Generator', href: '/ai-tools/sop-generator', description: 'AI statement of purpose writer' },
@@ -175,55 +184,61 @@ export default function NavigationPremium({ className = '', variant = 'default' 
           : 'bg-slate-950/80 backdrop-blur-xl border-b border-white/10'
       } ${className}`}
     >
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${variant === 'neo' ? (scrolled ? 'py-2' : 'py-4') : ''}`}>
+      <div
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
+          variant === 'neo' ? (scrolled ? 'py-2' : 'py-4') : ''
+        } transition-[padding] duration-300`}
+      >
         <div
           className={`${
             variant === 'neo'
               ? `nav-island rounded-3xl ${scrolled ? 'px-4' : 'px-6'}`
               : ''
-          }`}
+          } transition-[padding] duration-300`}
         >
-          <div className={`flex items-center justify-between ${variant === 'neo' ? (scrolled ? 'h-14' : 'h-16') : 'h-20'}`}>
-          {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center space-x-3"
+          <div
+            className={`flex items-center ${
+              variant === 'neo' ? (scrolled ? 'h-14' : 'h-16') : 'h-20'
+            } transition-[height] duration-300`}
           >
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
-                  <BrandLogo
-                    href=""
-                    lockup="icon"
-                    emblemSize={28}
-                    chrome="none"
-                    showDescriptor={false}
-                    priority
-                    enableParallax={false}
-                    enableReveal={false}
-                    experimentKey="logoNav.v1"
-                    forcedVariant="B"
-                  />
+            <motion.div whileHover={{ scale: 1.03 }} className="shrink-0">
+              <Link href="/" aria-label="VANHSYA Home" className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-11 h-11 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
+                    <BrandLogo
+                      href=""
+                      lockup="icon"
+                      emblemSize={28}
+                      chrome="none"
+                      showDescriptor={false}
+                      priority
+                      enableParallax={false}
+                      enableReveal={false}
+                      experimentKey="logoNav.v1"
+                      forcedVariant="B"
+                    />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full animate-pulse" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">
-                  VANHSYA
-                </h1>
-                <p className="text-xs text-gray-400 -mt-1">Global Migration</p>
-              </div>
-            </Link>
-          </motion.div>
+                <div className="flex flex-col justify-center leading-none">
+                  <div className="text-[18px] font-black tracking-[0.10em] bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent leading-none">
+                    VANHSYA
+                  </div>
+                  <div className="mt-1 text-[11px] text-white/50 tracking-[0.12em] leading-none">GLOBAL MIGRATION</div>
+                </div>
+              </Link>
+            </motion.div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <Link 
-              href="/" 
-              className={`transition-colors font-medium nav-link-liquid ${isActive('/') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
-            >
-              Home
-            </Link>
+            <div className="hidden lg:flex flex-1 items-center justify-center">
+              <div className="flex items-center gap-1 xl:gap-2">
+                <Link
+                  href="/"
+                  className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                    isActive('/') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                  }`}
+                >
+                  Home
+                </Link>
 
             {/* Migration Services Dropdown */}
             <div
@@ -234,7 +249,8 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                aria-current={isActive('/services') ? 'page' : undefined}
+                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
                   isActive('/services') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
                 }`}
               >
@@ -257,7 +273,8 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                aria-current={isActive('/countries') ? 'page' : undefined}
+                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
                   isActive('/countries') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
                 }`}
               >
@@ -276,7 +293,12 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                aria-current={
+                  isActive('/about') || isActive('/blog') || isActive('/referral-program') || isActive('/success-stories') || isActive('/investors') || isActive('/resources') || isActive('/ai-innovations')
+                    ? 'page'
+                    : undefined
+                }
+                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
                   isActive('/about') || isActive('/blog') || isActive('/referral-program') || isActive('/success-stories') || isActive('/investors') || isActive('/resources') || isActive('/ai-innovations')
                     ? 'text-amber-200'
                     : 'text-white hover:text-indigo-200'
@@ -288,12 +310,14 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <DropdownMenu items={companyItems} isOpen={activeDropdown === 'company'} onSelect={() => setActiveDropdown(null)} />
             </div>
 
-            <Link 
-              href="/why-vanhsya" 
-              className={`transition-colors font-medium nav-link-liquid ${isActive('/why-vanhsya') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
-            >
-              Why VANHSYA?
-            </Link>
+                <Link
+                  href="/why-vanhsya"
+                  className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                    isActive('/why-vanhsya') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+                  }`}
+                >
+                  Why VANHSYA?
+                </Link>
 
             {/* Expose Dropdown */}
             <div
@@ -304,7 +328,8 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                aria-current={isActive('/expose') ? 'page' : undefined}
+                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
                   isActive('/expose') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
                 }`}
               >
@@ -323,7 +348,8 @@ export default function NavigationPremium({ className = '', variant = 'default' 
               <button
                 type="button"
                 aria-haspopup="menu"
-                className={`flex items-center space-x-1 transition-colors font-medium nav-link-liquid ${
+                aria-current={isActive('/ai-tools') || isActive('/tools') ? 'page' : undefined}
+                className={`h-10 px-3 rounded-xl inline-flex items-center gap-2 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
                   isActive('/ai-tools') || isActive('/tools') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
                 }`}
               >
@@ -336,7 +362,7 @@ export default function NavigationPremium({ className = '', variant = 'default' 
 
             <Link 
               href="/card"
-              className="relative text-amber-300 hover:text-amber-200 transition-colors font-extrabold flex items-center gap-2 group nav-link-liquid"
+              className="relative h-10 px-3 rounded-xl inline-flex items-center gap-2 text-amber-300 hover:text-amber-200 transition-colors font-extrabold group nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
             >
               <FiCreditCard className="w-4 h-4" />
               <span>VANHSYA Card</span>
@@ -348,47 +374,54 @@ export default function NavigationPremium({ className = '', variant = 'default' 
 
             <Link
               href="/next-era"
-              className={`transition-colors font-medium nav-link-liquid ${isActive('/next-era') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
+              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                isActive('/next-era') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+              }`}
             >
               Vanhsya Vision
             </Link>
 
             <Link
               href="/investors"
-              className={`transition-colors font-medium nav-link-liquid ${isActive('/investors') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
+              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                isActive('/investors') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+              }`}
             >
               Invest
             </Link>
 
             <Link 
               href="/contact" 
-              className={`transition-colors font-medium nav-link-liquid ${isActive('/contact') ? 'text-amber-200' : 'text-white hover:text-indigo-200'}`}
+              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                isActive('/contact') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
+              }`}
             >
               Contact
             </Link>
-          </div>
+              </div>
+            </div>
 
-          {/* Right Side Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/consultation"
-                className="cta-shimmer flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-2xl text-white transition-all duration-300 shadow-lg shadow-purple-500/30 border border-white/10"
+            <div className="ml-auto flex items-center gap-2">
+              <div className="hidden lg:flex items-center">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href="/consultation"
+                    className="cta-shimmer h-10 px-5 rounded-2xl inline-flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transition-colors shadow-lg shadow-purple-500/30 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+                  >
+                    <span className="font-extrabold">Get Started</span>
+                  </Link>
+                </motion.div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                className="lg:hidden h-10 w-10 rounded-2xl inline-flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
               >
-                <span className="font-bold">Get Started</span>
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            className="lg:hidden p-2 text-white hover:text-indigo-200 transition-colors"
-          >
-            {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
-          </button>
+                {isMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
