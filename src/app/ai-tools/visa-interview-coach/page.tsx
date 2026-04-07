@@ -7,7 +7,7 @@ import LanguageSelect from '@/components/ai/LanguageSelect';
 import { COUNTRY_LABELS, VISA_INTERVIEW_QUESTIONS, VisaCountry } from '@/data/ai/interviewQuestions';
 import { addProgressEvent } from '@/lib/toolProgress';
 import { motion } from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, BadgeCheck, Mic, ShieldCheck, Sparkles } from 'lucide-react';
 
 type SpeechRecognition = any;
@@ -55,12 +55,17 @@ export default function VisaInterviewCoachPage() {
   const recRef = useRef<SpeechRecognition | null>(null);
   const [micActive, setMicActive] = useState(false);
   const micStartAt = useRef<number | null>(null);
+  const [hasSpeechSupport, setHasSpeechSupport] = useState(false);
 
   const [eyeContact, setEyeContact] = useState<'low' | 'ok' | 'high'>('ok');
   const [posture, setPosture] = useState<'slouched' | 'neutral' | 'upright'>('upright');
   const [gestures, setGestures] = useState<'none' | 'controlled' | 'excessive'>('controlled');
   const [pace, setPace] = useState<'slow' | 'balanced' | 'fast'>('balanced');
   const [confidence, setConfidence] = useState<'low' | 'ok' | 'high'>('ok');
+
+  useEffect(() => {
+    setHasSpeechSupport(speakingSupported());
+  }, []);
 
   const startMic = () => {
     if (!speakingSupported()) return;
@@ -299,7 +304,7 @@ export default function VisaInterviewCoachPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    disabled={!speakingSupported() || micActive}
+                    disabled={!hasSpeechSupport || micActive}
                     onClick={startMic}
                     className="h-10 px-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold transition-colors disabled:opacity-60"
                   >
