@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { createUIMessageStream, createUIMessageStreamResponse, streamText } from 'ai';
 import { verifyCsrf } from '@/lib/security/csrf';
 
 export async function POST(req: Request) {
@@ -8,10 +8,25 @@ export async function POST(req: Request) {
     if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
 
     if (!process.env.OPENAI_API_KEY) {
-      return Response.json(
-        { error: 'Concierge is not configured on the server (missing OPENAI_API_KEY).' },
-        { status: 503 }
-      );
+      const stream = createUIMessageStream({
+        execute({ writer }) {
+          const id = 'offline';
+          writer.write({ type: 'text-start', id });
+          writer.write({
+            type: 'text-delta',
+            id,
+            delta:
+              'Concierge is temporarily offline. Please try again later, or email founder@vanhsya.com for investors and career@vanhsya.com for careers.'
+          });
+          writer.write({ type: 'text-end', id });
+        }
+      });
+
+      return createUIMessageStreamResponse({
+        status: 200,
+        headers: { 'cache-control': 'no-store' },
+        stream
+      });
     }
 
     const body = await req.json().catch(() => null);
@@ -24,7 +39,18 @@ export async function POST(req: Request) {
       messages
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse({
+      onError(error) {
+        if (error == null) return 'unknown error';
+        if (typeof error === 'string') return error;
+        if (error instanceof Error) return error.message;
+        try {
+          return JSON.stringify(error);
+        } catch {
+          return 'unknown error';
+        }
+      }
+    });
   } catch (err) {
     console.error('Concierge API error:', err);
     return Response.json({ error: 'Concierge service error' }, { status: 502 });
