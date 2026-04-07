@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import { useMemo, useState } from 'react';
 import { FiArrowRight, FiMessageSquare, FiX } from 'react-icons/fi';
 import { FaRobot, FaUser } from 'react-icons/fa';
@@ -156,4 +156,3 @@ export default function ImmigrationConciergeChat() {
     </>
   );
 }
-
