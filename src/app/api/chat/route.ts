@@ -2,31 +2,32 @@ import { openai } from '@ai-sdk/openai';
 import { createUIMessageStream, createUIMessageStreamResponse, streamText } from 'ai';
 import { verifyCsrf } from '@/lib/security/csrf';
 
+const singleMessageStream = (text: string) => {
+  const stream = createUIMessageStream({
+    execute({ writer }) {
+      const id = 'system';
+      writer.write({ type: 'text-start', id });
+      writer.write({ type: 'text-delta', id, delta: text });
+      writer.write({ type: 'text-end', id });
+    }
+  });
+
+  return createUIMessageStreamResponse({
+    status: 200,
+    headers: { 'cache-control': 'no-store' },
+    stream
+  });
+};
+
 export async function POST(req: Request) {
   try {
     const csrf = verifyCsrf(req);
-    if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+    if (!csrf.ok) return singleMessageStream(`Request blocked. ${csrf.reason}`);
 
     if (!process.env.OPENAI_API_KEY) {
-      const stream = createUIMessageStream({
-        execute({ writer }) {
-          const id = 'offline';
-          writer.write({ type: 'text-start', id });
-          writer.write({
-            type: 'text-delta',
-            id,
-            delta:
-              'Concierge is temporarily offline. Please try again later, or email founder@vanhsya.com for investors and career@vanhsya.com for careers.'
-          });
-          writer.write({ type: 'text-end', id });
-        }
-      });
-
-      return createUIMessageStreamResponse({
-        status: 200,
-        headers: { 'cache-control': 'no-store' },
-        stream
-      });
+      return singleMessageStream(
+        'Concierge is temporarily offline. Please try again later, or email founder@vanhsya.com for investors and career@vanhsya.com for careers.'
+      );
     }
 
     const body = await req.json().catch(() => null);
@@ -53,6 +54,6 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error('Concierge API error:', err);
-    return Response.json({ error: 'Concierge service error' }, { status: 502 });
+    return singleMessageStream('Concierge service error.');
   }
 }
