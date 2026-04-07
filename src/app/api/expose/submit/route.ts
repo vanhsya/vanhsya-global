@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { findSubmission, readSubmissions, type ExposeSubmission, writeSubmissions } from '@/lib/exposeStorage';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,9 @@ const createId = () => {
 const toSafeFileName = (name: string) => name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const contentType = req.headers.get('content-type') || '';
   if (!contentType.includes('multipart/form-data')) {
     return Response.json({ error: 'Invalid content type' }, { status: 400 });
@@ -84,4 +88,3 @@ export async function POST(req: Request) {
 
   return Response.json({ id, status: saved.status }, { status: 200 });
 }
-

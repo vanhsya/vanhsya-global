@@ -1,10 +1,14 @@
 import { addDeckRequest } from '@/lib/investorLeadsStorage';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
 
 const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const body = (await req.json().catch(() => null)) as
     | {
         name?: unknown;
@@ -35,4 +39,3 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Failed to submit' }, { status: 500 });
   }
 }
-

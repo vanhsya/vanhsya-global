@@ -1,8 +1,12 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 export async function POST(req: Request) {
   try {
+    const csrf = verifyCsrf(req);
+    if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
     if (!process.env.OPENAI_API_KEY) {
       return Response.json(
         { error: 'Concierge is not configured on the server (missing OPENAI_API_KEY).' },
@@ -20,7 +24,7 @@ export async function POST(req: Request) {
       messages
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (err) {
     console.error('Concierge API error:', err);
     return Response.json({ error: 'Concierge service error' }, { status: 502 });

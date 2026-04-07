@@ -1,5 +1,7 @@
 export const runtime = 'nodejs';
 
+import { verifyCsrf } from '@/lib/security/csrf';
+
 type Req = {
   country?: unknown;
   path?: unknown;
@@ -26,6 +28,9 @@ const isSafePath = (p: string) => {
 };
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const body = (await req.json().catch(() => null)) as Req | null;
   const countryRaw = typeof body?.country === 'string' ? body.country.trim().toLowerCase() : '';
   const methodRaw = typeof body?.method === 'string' ? body.method.trim().toUpperCase() : 'GET';
@@ -88,4 +93,3 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Failed to reach upstream official API.' }, { status: 502 });
   }
 }
-

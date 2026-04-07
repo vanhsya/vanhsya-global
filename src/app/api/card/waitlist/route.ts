@@ -1,5 +1,6 @@
 import { addToCardWaitlist } from '@/lib/cardWaitlistStorage';
 import type { CardTier } from '@/data/card/tiers';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
 
@@ -8,6 +9,9 @@ const isTier = (v: unknown): v is CardTier => v === 'standard' || v === 'pro' ||
 const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const body = (await req.json().catch(() => null)) as { email?: unknown; tier?: unknown } | null;
   const email = typeof body?.email === 'string' ? body.email.trim() : '';
   const rawTier = body?.tier;

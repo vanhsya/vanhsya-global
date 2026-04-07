@@ -2,6 +2,7 @@ export const runtime = 'nodejs';
 
 import { ensureAiConfigured, generateJson } from '@/lib/aiJson';
 import { IELTS_SPEAKING_CRITERIA } from '@/data/ai/ielts';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 type Req = {
   prompt?: unknown;
@@ -22,6 +23,9 @@ type Res = {
 };
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const config = ensureAiConfigured();
   if (!config.ok) return Response.json({ error: config.error }, { status: 503 });
 
@@ -79,4 +83,3 @@ Produce a conservative bandEstimate and criterion-level notes. Provide 6-10 impr
 
   return Response.json(ai.data, { status: 200 });
 }
-

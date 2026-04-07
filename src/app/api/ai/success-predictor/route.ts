@@ -1,5 +1,7 @@
 export const runtime = 'nodejs';
 
+import { verifyCsrf } from '@/lib/security/csrf';
+
 type Req = {
   country?: unknown;
   pathway?: unknown;
@@ -25,6 +27,9 @@ type Res = {
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const body = (await req.json().catch(() => null)) as Req | null;
 
   const country = typeof body?.country === 'string' ? body.country.trim() : '';
@@ -125,4 +130,3 @@ export async function POST(req: Request) {
 
   return Response.json(res, { status: 200 });
 }
-

@@ -1,5 +1,6 @@
 import { IELTS_WRITING_RUBRICS } from '@/data/ai/ielts';
 import { ensureAiConfigured, generateJson } from '@/lib/aiJson';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
 
@@ -21,6 +22,9 @@ type Res = {
 };
 
 export async function POST(req: Request) {
+  const csrf = verifyCsrf(req);
+  if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
   const cfg = ensureAiConfigured();
   if (!cfg.ok) return Response.json({ error: cfg.error }, { status: 503 });
 
@@ -77,4 +81,3 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Failed to evaluate writing.' }, { status: 502 });
   }
 }
-
