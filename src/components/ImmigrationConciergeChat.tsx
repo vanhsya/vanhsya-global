@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
 import { useMemo, useState } from 'react';
 import { FiArrowRight, FiMessageSquare, FiX } from 'react-icons/fi';
 import { FaRobot, FaUser } from 'react-icons/fa';
@@ -16,23 +17,33 @@ const defaultSuggestions = [
 
 export default function ImmigrationConciergeChat() {
   const [open, setOpen] = useState(false);
+  const [input, setInput] = useState('');
 
-  const initialMessages = useMemo(
+  const initialMessages = useMemo<UIMessage[]>(
     () => [
       {
         id: 'welcome',
         role: 'assistant' as const,
-        content:
-          "Welcome to VANHSYA Concierge. Tell me your goal (study, work, PR, business) and your target country — I’ll guide you step-by-step."
+        parts: [
+          {
+            type: 'text' as const,
+            text: "Welcome to VANHSYA Concierge. Tell me your goal (study, work, PR, business) and your target country — I’ll guide you step-by-step."
+          }
+        ]
       }
     ],
     []
   );
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
-    api: '/api/chat',
-    initialMessages
+  const { messages, status, error, sendMessage } = useChat<UIMessage>({
+    messages: initialMessages
   });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
+  const messageText = (m: UIMessage) =>
+    m.parts
+      .map((p) => (p.type === 'text' || p.type === 'reasoning' ? p.text : ''))
+      .join('');
 
   return (
     <>
@@ -83,7 +94,7 @@ export default function ImmigrationConciergeChat() {
             </div>
 
             <div className="h-[360px] overflow-y-auto px-4 py-4 space-y-3">
-              {messages.map((m) => (
+              {messages.map((m: UIMessage) => (
                 <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm border ${
@@ -98,7 +109,7 @@ export default function ImmigrationConciergeChat() {
                       ) : (
                         <FaRobot className="mt-0.5 text-yellow-300" />
                       )}
-                      <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
+                      <div className="whitespace-pre-wrap leading-relaxed">{messageText(m)}</div>
                     </div>
                   </div>
                 </div>
@@ -112,7 +123,7 @@ export default function ImmigrationConciergeChat() {
                       <button
                         key={s}
                         type="button"
-                        onClick={() => append({ role: 'user', content: s })}
+                        onClick={() => void sendMessage({ text: s })}
                         className="px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
                       >
                         {s}
@@ -131,10 +142,19 @@ export default function ImmigrationConciergeChat() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = input.trim();
+                  if (!text) return;
+                  setInput('');
+                  void sendMessage({ text });
+                }}
+                className="flex items-center gap-2"
+              >
                 <input
                   value={input}
-                  onChange={handleInputChange}
+                  onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about Golden Visa, PR, work, study…"
                   className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/25"
                 />
