@@ -248,12 +248,12 @@ export default function WorldClassHero() {
               </div>
 
               {[
-                { label: "Canada", x: "50%", y: "-6%" },
-                { label: "Australia", x: "50%", y: "106%" },
-                { label: "Germany", x: "88%", y: "18%" },
-                { label: "UK", x: "22%", y: "78%" },
+                { label: "Canada", pos: "left-1/2 top-[-6%]" },
+                { label: "Australia", pos: "left-1/2 top-[106%]" },
+                { label: "Germany", pos: "left-[88%] top-[18%]" },
+                { label: "UK", pos: "left-[22%] top-[78%]" }
               ].map((m) => (
-                <div key={m.label} className="absolute" style={{ left: m.x, top: m.y, transform: "translate(-50%, -50%)" }}>
+                <div key={m.label} className={`absolute ${m.pos} -translate-x-1/2 -translate-y-1/2`}>
                   <div className="group relative">
                     <div className="w-4 h-4 bg-purple-300 rounded-full border-2 border-white/70 shadow-[0_0_20px_rgba(255,255,255,0.45)] transition-transform group-hover:scale-125" />
                     <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">

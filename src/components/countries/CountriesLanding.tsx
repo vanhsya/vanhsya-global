@@ -260,9 +260,7 @@ export default function CountriesLanding() {
                       </div>
                       <div className="text-white/70 font-bold">{d.popularity}%</div>
                     </div>
-                    <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-amber-300/80 via-purple-400/70 to-indigo-400/70" style={{ width: `${Math.min(100, d.popularity)}%` }} />
-                    </div>
+                    <progress value={Math.min(100, d.popularity)} max={100} className="vanhsya-progress mt-3 w-full h-2" />
                   </Link>
                 ))}
               </div>
@@ -390,4 +388,3 @@ export default function CountriesLanding() {
     </main>
   );
 }
-

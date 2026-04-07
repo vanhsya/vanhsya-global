@@ -4,7 +4,7 @@ import NavigationPremium from '@/components/NavigationPremium';
 import Footer from '@/components/Footer';
 import GlassCard from '@/components/GlassCard';
 import LanguageSelect from '@/components/ai/LanguageSelect';
-import { DOCUMENT_CHECKLISTS, DocumentChecklist } from '@/data/ai/documentChecklists';
+import { DOCUMENT_CHECKLISTS } from '@/data/ai/documentChecklists';
 import { addProgressEvent } from '@/lib/toolProgress';
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
@@ -126,12 +126,11 @@ export default function DocumentVerificationPage() {
                 <div className="mt-3 text-white font-extrabold">
                   Required: {completion.reqHit}/{completion.reqTotal}
                 </div>
-                <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-300/80 via-purple-400/70 to-indigo-400/70"
-                    style={{ width: `${Math.round((completion.reqHit / Math.max(1, completion.reqTotal)) * 100)}%` }}
-                  />
-                </div>
+                <progress
+                  value={completion.reqHit}
+                  max={Math.max(1, completion.reqTotal)}
+                  className="vanhsya-progress mt-3 w-full h-2"
+                />
               </div>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
@@ -205,4 +204,3 @@ export default function DocumentVerificationPage() {
     </main>
   );
 }
-

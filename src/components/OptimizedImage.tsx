@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import type { FC } from 'react';
 import { useState } from 'react';
 
 interface OptimizedImageProps {
@@ -19,7 +19,7 @@ interface OptimizedImageProps {
   unoptimized?: boolean;
 }
 
-const OptimizedImage: React.FC<OptimizedImageProps> = ({
+const OptimizedImage: FC<OptimizedImageProps> = ({
   src,
   alt,
   width,
@@ -51,10 +51,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   if (error) {
     return (
-      <div 
-        className={`flex items-center justify-center bg-gray-200 text-gray-500 ${className}`}
-        style={{ width: width || '100%', height: height || 'auto' }}
-      >
+      <div className={`flex items-center justify-center bg-gray-200 text-gray-500 w-full ${className}`}>
         <svg 
           className="w-12 h-12" 
           fill="currentColor" 
@@ -90,10 +87,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         unoptimized={typeof unoptimized === 'boolean' ? unoptimized : src.toLowerCase().endsWith('.svg')}
         onLoad={handleLoad}
         onError={handleError}
-        className={`transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        } ${fill ? 'object-cover' : ''} ${imgClassName}`}
-        style={fill ? undefined : { maxWidth: '100%', height: 'auto' }}
+        className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${fill ? 'object-cover' : 'max-w-full h-auto'} ${imgClassName}`}
       />
     </div>
   );
