@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FiArrowRight, FiMessageSquare, FiX } from 'react-icons/fi';
 import { FaRobot, FaUser } from 'react-icons/fa';
 import { COMPANY } from '@/lib/company';
@@ -18,6 +18,8 @@ const defaultSuggestions = [
 export default function ImmigrationConciergeChat() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [offlineMode, setOfflineMode] = useState(false);
+  const localIdRef = useRef(0);
 
   const initialMessages = useMemo<UIMessage[]>(
     () => [
@@ -35,7 +37,7 @@ export default function ImmigrationConciergeChat() {
     []
   );
 
-  const { messages, status, error, sendMessage } = useChat<UIMessage>({
+  const { messages, status, error, sendMessage, setMessages } = useChat<UIMessage>({
     messages: initialMessages
   });
 
@@ -44,6 +46,70 @@ export default function ImmigrationConciergeChat() {
     m.parts
       .map((p) => (p.type === 'text' || p.type === 'reasoning' ? p.text : ''))
       .join('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const res = await fetch('/api/health', { cache: 'no-store' });
+        const json = (await res.json().catch(() => null)) as { checks?: { openaiKeyConfigured?: boolean } } | null;
+        const openaiKeyConfigured = Boolean(json?.checks?.openaiKeyConfigured);
+        if (!cancelled) setOfflineMode(!openaiKeyConfigured);
+      } catch {
+        if (!cancelled) setOfflineMode(true);
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const newId = () => {
+    localIdRef.current += 1;
+    return `local-${localIdRef.current}`;
+  };
+
+  const offlineReply = (text: string) => {
+    const t = text.toLowerCase();
+    if (t.includes('career') || t.includes('job') || t.includes('hiring')) {
+      return `For careers, email ${COMPANY.emails.career}. If you share your role, experience, and target country, I can outline a safe next step checklist.`;
+    }
+    if (t.includes('investor') || t.includes('investment') || t.includes('fund')) {
+      return `For investors, email ${COMPANY.emails.founder}. If you share your timeline and preferred regions, I can list what details to include in your intro.`;
+    }
+    if (t.includes('golden visa') || t.includes('uae')) {
+      return `UAE Golden Visa depends on your profile (salary, profession, education, business, or investment). Share your job title, monthly salary, degree, and whether you hold UAE residency, and I’ll map the safest pathway and documents.`;
+    }
+    if (t.includes('work visa') || t.includes('documents')) {
+      return `Typical work visa documents: passport, photos, signed job offer/contract, employer sponsorship/approval, degree + transcripts, experience letters, police clearance, medicals, CV, bank statements (some countries), and translations. Tell me the country and occupation for an exact list.`;
+    }
+    if (t.includes('scam') || t.includes('fraud')) {
+      return `To avoid scams: verify government portal links, confirm employer registration, never pay “guaranteed visa” fees, avoid fake embassy calls, and ensure contracts have refund terms. If you paste an offer letter or agency name, I’ll tell you what red flags to check.`;
+    }
+    if (t.includes('pr') || t.includes('permanent')) {
+      return `To recommend a PR route, share: age, nationality, education, years of experience, IELTS/English level, budget, and target countries. I’ll suggest 2–3 realistic pathways and next actions.`;
+    }
+    return `I can help, but the AI concierge is in offline mode right now. Tell me your target country + goal (study/work/PR/business) + timeline, and I’ll give a safe step-by-step checklist.`;
+  };
+
+  const send = (text: string) => {
+    if (offlineMode) {
+      const userMessage: UIMessage = {
+        id: newId(),
+        role: 'user',
+        parts: [{ type: 'text', text }]
+      };
+      const assistantMessage: UIMessage = {
+        id: newId(),
+        role: 'assistant',
+        parts: [{ type: 'text', text: offlineReply(text) }]
+      };
+      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      return;
+    }
+    void sendMessage({ text });
+  };
 
   return (
     <>
@@ -81,7 +147,7 @@ export default function ImmigrationConciergeChat() {
                 <div>
                   <div className="text-white font-extrabold tracking-wide text-sm">VANHSYA CONCIERGE</div>
                   <div className="text-white/60 text-xs">
-                    {isLoading ? 'Thinking…' : error ? 'Limited mode' : 'Elite guidance, scam-aware'}
+                    {isLoading ? 'Thinking…' : offlineMode ? 'Offline mode' : error ? 'Limited mode' : 'Elite guidance, scam-aware'}
                   </div>
                 </div>
               </div>
@@ -123,7 +189,7 @@ export default function ImmigrationConciergeChat() {
                       <button
                         key={s}
                         type="button"
-                        onClick={() => void sendMessage({ text: s })}
+                        onClick={() => send(s)}
                         className="px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
                       >
                         {s}
@@ -135,9 +201,9 @@ export default function ImmigrationConciergeChat() {
             </div>
 
             <div className="px-4 py-4 border-t border-white/10">
-              {error && (
+              {(error || offlineMode) && (
                 <div className="text-xs text-yellow-200/90 mb-2">
-                  Concierge is not connected right now. For investors email {COMPANY.emails.founder}. For careers email{' '}
+                  Concierge is in offline mode. For investors email {COMPANY.emails.founder}. For careers email{' '}
                   {COMPANY.emails.career}.
                 </div>
               )}
@@ -148,7 +214,7 @@ export default function ImmigrationConciergeChat() {
                   const text = input.trim();
                   if (!text) return;
                   setInput('');
-                  void sendMessage({ text });
+                  send(text);
                 }}
                 className="flex items-center gap-2"
               >
