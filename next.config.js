@@ -2,6 +2,7 @@
 const nextConfig = {
   outputFileTracingRoot: __dirname,
   images: {
+    unoptimized: process.env.NODE_ENV === 'development',
     // Enable modern image formats
     formats: ['image/webp', 'image/avif'],
     
