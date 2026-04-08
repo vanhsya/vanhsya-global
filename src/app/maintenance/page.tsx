@@ -59,6 +59,13 @@ export default function MaintenancePage() {
                   <div className="mt-1 text-sm text-white/60">Return to the main hub</div>
                 </Link>
                 <Link
+                  href="/status"
+                  className="block rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] px-5 py-4 transition-colors"
+                >
+                  <div className="text-white font-extrabold">Status</div>
+                  <div className="mt-1 text-sm text-white/60">Live system updates</div>
+                </Link>
+                <Link
                   href="/ai-tools"
                   className="block rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] px-5 py-4 transition-colors"
                 >
@@ -79,6 +86,13 @@ export default function MaintenancePage() {
                   <div className="text-white font-extrabold">Contact</div>
                   <div className="mt-1 text-sm text-white/60">Get help from the team</div>
                 </Link>
+                <Link
+                  href="/webmail"
+                  className="block rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] px-5 py-4 transition-colors"
+                >
+                  <div className="text-white font-extrabold">Email Login</div>
+                  <div className="mt-1 text-sm text-white/60">Secure webmail portal</div>
+                </Link>
               </div>
 
               <div className="mt-6 text-xs text-white/50 leading-relaxed">
@@ -93,4 +107,3 @@ export default function MaintenancePage() {
     </main>
   );
 }
-

@@ -6,6 +6,7 @@ import ContactSupport from "@/components/ContactSupport";
 import ImmigrationConciergeChat from "@/components/ImmigrationConciergeChat";
 import LogoPreloader from "@/components/LogoPreloader";
 import TrustRibbon from "@/components/TrustRibbon";
+import SystemStatusBanner from "@/components/SystemStatusBanner";
 import { Metadata } from "next";
 import { ErrorBoundary } from "@/components/ErrorHandling";
 
@@ -66,6 +67,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <CurrencyProvider>
             <TrustRibbon />
+            <SystemStatusBanner />
             <LogoPreloader />
             <PageTransition>
               {children}

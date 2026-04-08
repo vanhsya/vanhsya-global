@@ -26,10 +26,22 @@
   status = 301
   force = true
 
+[[redirects]]
+  from = "https://mail.vanhsya.com/*"
+  to = "https://mail.privateemail.com/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://webmail.vanhsya.com/*"
+  to = "https://mail.privateemail.com/"
+  status = 302
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Strict-Transport-Security = "max-age=31536000"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
