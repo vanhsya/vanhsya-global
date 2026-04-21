@@ -72,12 +72,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Project Context for Netlify AI
+# Project Context for Netlify AI (Build Plugins)
 [context]
-name = "VANHSYA Global Migration Platform"
-description = "Premium Next.js 16/React 19 PWA with WebGL, AI tools, Three.js for immigration services. Optimized for SSR, image opt, security headers."
-tech_stack = "Next.js 16, React 19, TailwindCSS, Framer Motion, @react-three/fiber, Lucide React"
-build_command = "npm ci && npm run build"
-publish_dir = ".next"
-deploy_notes = "Uses Netlify Next.js plugin. Monitor functions, edge images. Node 20 required."
-style_guide = "Dark neo-brutalism: slate-950 bg, glassmorphism cards, grid patterns, premium typography."
+  [context.name]
+  description = "Premium Next.js 16/React 19 immigration platform with WebGL, AI tools, Three.js. SSR optimized."
+  tech_stack = "Next.js 16, React 19, Tailwind, Framer Motion, @react-three/fiber"
+  build_command = "npm ci && npm run build"
+  publish_dir = ".next"
+  deploy_notes = "Netlify Next.js plugin. Node 20. Monitor Edge Functions/Images."
+  style_guide = "Dark neo-brutalism: slate-950, glassmorphism, premium typography."
