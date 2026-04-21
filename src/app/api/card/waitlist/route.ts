@@ -1,5 +1,6 @@
 import { addToCardWaitlist } from '@/lib/cardWaitlistStorage';
 import type { CardTier } from '@/data/card/tiers';
+import { queueSubmissionWebhook } from '@/lib/submissionsWebhook';
 import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
@@ -23,6 +24,11 @@ export async function POST(req: Request) {
 
   try {
     const entry = addToCardWaitlist(email, tier);
+    queueSubmissionWebhook({
+      kind: 'card_waitlist',
+      receivedAt: new Date().toISOString(),
+      data: { id: entry.id, email: entry.email, tier: entry.tier }
+    });
     return Response.json({ id: entry.id }, { status: 200 });
   } catch {
     return Response.json({ error: 'Failed to save' }, { status: 500 });

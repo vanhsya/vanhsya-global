@@ -16,19 +16,43 @@ export type InvestorDeckRequest = {
 const dir = path.join(process.cwd(), 'var', 'invest');
 const filePath = path.join(dir, 'deck_requests.json');
 
+const memoryKey = '__vanhsya_investor_deck_requests';
+
+const getMemory = () => {
+  const g = globalThis as unknown as Record<string, unknown>;
+  if (!Array.isArray(g[memoryKey])) g[memoryKey] = [];
+  return g[memoryKey] as InvestorDeckRequest[];
+};
+
+const canWriteFileStorage = () => {
+  if (process.env.VERCEL || process.env.NETLIFY) return false;
+  if (process.env.NODE_ENV === 'production') return process.env.LOCAL_FILE_STORAGE === '1';
+  return true;
+};
+
 const readAll = (): InvestorDeckRequest[] => {
   try {
-    if (!fs.existsSync(filePath)) return [];
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed as InvestorDeckRequest[];
+    if (canWriteFileStorage()) {
+      if (!fs.existsSync(filePath)) return getMemory();
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) return getMemory();
+      const disk = parsed as InvestorDeckRequest[];
+      const mem = getMemory();
+      if (mem.length === 0 && disk.length) mem.push(...disk);
+      return disk;
+    }
+    return getMemory();
   } catch {
-    return [];
+    return getMemory();
   }
 };
 
 const writeAll = (entries: InvestorDeckRequest[]) => {
+  const mem = getMemory();
+  mem.length = 0;
+  mem.push(...entries);
+  if (!canWriteFileStorage()) return;
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(entries, null, 2), 'utf8');
 };
@@ -50,4 +74,3 @@ export const addDeckRequest = (input: Omit<InvestorDeckRequest, 'id' | 'createdA
   writeAll([entry, ...entries]);
   return entry;
 };
-

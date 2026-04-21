@@ -1,4 +1,5 @@
 import { addDeckRequest } from '@/lib/investorLeadsStorage';
+import { queueSubmissionWebhook } from '@/lib/submissionsWebhook';
 import { verifyCsrf } from '@/lib/security/csrf';
 
 export const runtime = 'nodejs';
@@ -34,6 +35,20 @@ export async function POST(req: Request) {
 
   try {
     const entry = addDeckRequest({ name, email, organization, role, stage, message, source });
+    queueSubmissionWebhook({
+      kind: 'investor_deck_request',
+      receivedAt: new Date().toISOString(),
+      data: {
+        id: entry.id,
+        name,
+        email,
+        organization,
+        role,
+        stage,
+        message,
+        source
+      }
+    });
     return Response.json({ id: entry.id }, { status: 200 });
   } catch {
     return Response.json({ error: 'Failed to submit' }, { status: 500 });
