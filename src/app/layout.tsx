@@ -1,14 +1,7 @@
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import PageTransition from "@/components/PageTransition";
-import { CurrencyProvider } from "@/components/CurrencySelector";
-import ContactSupport from "@/components/ContactSupport";
-import ImmigrationConciergeChat from "@/components/ImmigrationConciergeChat";
-import LogoPreloader from "@/components/LogoPreloader";
-import TrustRibbon from "@/components/TrustRibbon";
-import SystemStatusBanner from "@/components/SystemStatusBanner";
+import ClientLayout from "./ClientLayout";
 import { Metadata } from "next";
-import { ErrorBoundary } from "@/components/ErrorHandling";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vanhsya.com'),
@@ -64,18 +57,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
-        <ErrorBoundary>
-          <CurrencyProvider>
-            <TrustRibbon />
-            <SystemStatusBanner />
-            <LogoPreloader />
-            <PageTransition>
-              {children}
-            </PageTransition>
-            <ImmigrationConciergeChat />
-            <ContactSupport variant="floating" />
-          </CurrencyProvider>
-        </ErrorBoundary>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

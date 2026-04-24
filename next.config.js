@@ -1,5 +1,52 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Security Headers - Fix Ethereum property error
+  async headers() {
+    if (process.env.NODE_ENV !== 'production') return [];
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vanhsya.com https://assets.vanhsya.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src * data: blob:",
+              "connect-src 'self' https://api.vanhsya.com https://vanhsya.com wss://*.vanhsya.com",
+              "media-src 'self' https://i.ytimg.com https://*.ytimg.com https://assets.mixkit.co",
+              "frame-ancestors 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'"
+            ].join('; ')
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=()'
+          }
+        ]
+      }
+    ];
+  },
   outputFileTracingRoot: __dirname,
   images: {
     unoptimized: process.env.NODE_ENV === 'development',

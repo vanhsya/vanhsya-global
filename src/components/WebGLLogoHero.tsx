@@ -189,7 +189,7 @@ const sampleLogoParticles = (img: HTMLImageElement, maxParticles: number) => {
   };
 };
 
-export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
+export default function WebGLLogoHero({ className = '' }: Readonly<WebGLLogoHeroProps>) {
   const reducedMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -234,19 +234,21 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
       return;
     }
 
-    const program = createProgram(glContext, vertexShaderSource, fragmentShaderSource);
+    const gl = glContext;
+
+    const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
     if (!program) {
       setWebglOk(false);
       return;
     }
 
-    const uResolution = glContext.getUniformLocation(program, 'u_resolution');
-    const uTime = glContext.getUniformLocation(program, 'u_time');
-    const uMouse = glContext.getUniformLocation(program, 'u_mouse');
-    const uScroll = glContext.getUniformLocation(program, 'u_scroll');
+    const uResolution = gl.getUniformLocation(program, 'u_resolution');
+    const uTime = gl.getUniformLocation(program, 'u_time');
+    const uMouse = gl.getUniformLocation(program, 'u_mouse');
+    const uScroll = gl.getUniformLocation(program, 'u_scroll');
 
-    const aPos = glContext.getAttribLocation(program, 'a_pos');
-    const aSeed = glContext.getAttribLocation(program, 'a_seed');
+    const aPos = gl.getAttribLocation(program, 'a_pos');
+    const aSeed = gl.getAttribLocation(program, 'a_seed');
 
     let disposed = false;
     const start = performance.now();
@@ -275,7 +277,7 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
         canvas.width = w;
         canvas.height = h;
       }
-      glContext.viewport(0, 0, canvas.width, canvas.height);
+      gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
     const onContextLost = (ev: Event) => {
@@ -307,18 +309,18 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
         }
         count = sampled.count;
 
-        posBuffer = glContext!.createBuffer();
-        seedBuffer = glContext!.createBuffer();
+        posBuffer = gl.createBuffer();
+        seedBuffer = gl.createBuffer();
         if (!posBuffer || !seedBuffer) {
           setWebglOk(false);
           return;
         }
 
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, posBuffer);
-        glContext.bufferData(glContext.ARRAY_BUFFER, sampled.positions, glContext.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, sampled.positions, gl.STATIC_DRAW);
 
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, seedBuffer);
-        glContext.bufferData(glContext.ARRAY_BUFFER, sampled.seeds, glContext.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, seedBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, sampled.seeds, gl.STATIC_DRAW);
       } catch {
         setWebglOk(false);
       }
@@ -334,27 +336,27 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
 
       handleResize();
 
-      glContext.enable(glContext.BLEND);
-      glContext.blendFunc(glContext.SRC_ALPHA, glContext.ONE);
-      glContext.clearColor(0, 0, 0, 0);
-      glContext.clear(glContext.COLOR_BUFFER_BIT);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-      glContext.useProgram(program);
-      glContext.uniform2f(uResolution, canvas.width, canvas.height);
-      glContext.uniform1f(uTime, t);
-      glContext.uniform2f(uMouse, mouseX, mouseY);
-      glContext.uniform1f(uScroll, scroll);
+      gl.useProgram(program);
+      gl.uniform2f(uResolution, canvas.width, canvas.height);
+      gl.uniform1f(uTime, t);
+      gl.uniform2f(uMouse, mouseX, mouseY);
+      gl.uniform1f(uScroll, scroll);
 
       if (posBuffer && seedBuffer && count > 0) {
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, posBuffer);
-        glContext.enableVertexAttribArray(aPos);
-        glContext.vertexAttribPointer(aPos, 2, glContext.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, seedBuffer);
-        glContext.enableVertexAttribArray(aSeed);
-        glContext.vertexAttribPointer(aSeed, 1, glContext.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, seedBuffer);
+        gl.enableVertexAttribArray(aSeed);
+        gl.vertexAttribPointer(aSeed, 1, gl.FLOAT, false, 0, 0);
 
-        glContext.drawArrays(glContext.POINTS, 0, count);
+        gl.drawArrays(gl.POINTS, 0, count);
       }
 
       rafRef.current = globalThis.requestAnimationFrame(render);
@@ -371,9 +373,9 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
       globalThis.window.removeEventListener('scroll', handleScroll);
       globalThis.window.removeEventListener('resize', handleResize);
       canvas.removeEventListener('webglcontextlost', onContextLost);
-      if (posBuffer) glContext.deleteBuffer(posBuffer);
-      if (seedBuffer) glContext.deleteBuffer(seedBuffer);
-      glContext.deleteProgram(program);
+      if (posBuffer) gl.deleteBuffer(posBuffer);
+      if (seedBuffer) gl.deleteBuffer(seedBuffer);
+      gl.deleteProgram(program);
     };
   }, [reducedMotion]);
 
@@ -390,7 +392,10 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
       {videoOk && (
         <video
           className="absolute inset-0 w-full h-full object-cover opacity-[0.25] mix-blend-lighten"
-          src="https://assets.mixkit.co/videos/preview/mixkit-abstract-blue-and-purple-shapes-27350-large.mp4"
+          src={
+            process.env.NEXT_PUBLIC_HERO_VIDEO_URL ??
+            'https://assets.mixkit.co/videos/preview/mixkit-abstract-blue-and-purple-shapes-27350-large.mp4'
+          }
           autoPlay
           muted
           playsInline
@@ -404,7 +409,6 @@ export default function WebGLLogoHero({ className = '' }: WebGLLogoHeroProps) {
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full"
-          aria-hidden="true"
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center opacity-70">

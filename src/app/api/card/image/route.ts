@@ -10,5 +10,8 @@ const isTier = (v: string | null): v is CardTier =>
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const tier = isTier(url.searchParams.get('tier')) ? (url.searchParams.get('tier') as CardTier) : 'standard';
-  return Response.redirect(new URL(`/api/card/image/${tier}`, url), 302);
+  return new Response('Redirecting', {
+    status: 302,
+    headers: { Location: `/api/card/image/${tier}` }
+  });
 }
