@@ -15,6 +15,7 @@ export const COMPANY = {
   social: {
     youtubeChannel: 'https://www.youtube.com/@Vanhsya_live',
     youtubeSubscribe: 'https://www.youtube.com/@Vanhsya_live?sub_confirmation=1',
+    youtubeChannelId: 'UC1IYTDYDon9VMznD0YgHijw',
   },
   uae: {
     country: 'United Arab Emirates',

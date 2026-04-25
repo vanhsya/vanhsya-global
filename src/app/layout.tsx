@@ -2,6 +2,8 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 import { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vanhsya.com'),
@@ -10,6 +12,9 @@ export const metadata: Metadata = {
   keywords: "migration services, visa consultation, immigration lawyer, work visa, study visa, family visa, business visa, permanent residence, global migration, visa processing, immigration consultant, Vanhsya World Best Immigration Company, UAE Luxury Business Setup, AI-Powered Relocation Services, YNO Coin Global Migration",
   authors: [{ name: "VANHSYA Global Migration" }],
   robots: "index, follow",
+  other: {
+    "facebook-domain-verification": "56xb3biyo7pprrx8429ww96azvk88t",
+  },
   openGraph: {
     title: "VANHSYA Global Migration - Expert Migration & Visa Services Worldwide",
     description: "Where your journey begins — safely, securely, and supported. Real migration. Real guidance. Real results.",
@@ -58,6 +63,8 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
         <ClientLayout>{children}</ClientLayout>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

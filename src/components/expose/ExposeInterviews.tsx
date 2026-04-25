@@ -24,6 +24,15 @@ type InterviewApiItem = {
   tags: string[];
 };
 
+type UploadItem = {
+  id: string;
+  title: string;
+  publishedAt: string;
+  youtubeId: string;
+  thumbnail: string;
+  url: string;
+};
+
 export default function ExposeInterviews() {
   const fallback = useMemo<InterviewApiItem[]>(
     () =>
@@ -42,6 +51,7 @@ export default function ExposeInterviews() {
   );
 
   const [items, setItems] = useState<InterviewApiItem[]>(fallback);
+  const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [active, setActive] = useState<InterviewApiItem | null>(null);
   const [channel, setChannel] = useState<{ url: string; subscribeUrl: string } | null>(null);
 
@@ -50,9 +60,16 @@ export default function ExposeInterviews() {
     const run = async () => {
       const res = await fetch('/api/expose/videos?type=interviews');
       if (!res.ok) return;
-      const json = (await res.json()) as { interviews?: InterviewApiItem[]; channel?: { url: string; subscribeUrl: string } };
+      const json = (await res.json()) as {
+        interviews?: InterviewApiItem[];
+        uploads?: UploadItem[];
+        channel?: { url: string; subscribeUrl: string };
+      };
       if (!cancelled && Array.isArray(json.interviews) && json.interviews.length > 0) {
         setItems(json.interviews);
+      }
+      if (!cancelled && Array.isArray(json.uploads)) {
+        setUploads(json.uploads.slice(0, 6));
       }
       if (!cancelled && json.channel?.url && json.channel.subscribeUrl) {
         setChannel(json.channel);
@@ -88,6 +105,13 @@ export default function ExposeInterviews() {
             <p className="mt-6 text-lg text-white/70 leading-relaxed">
               Interviews and explainers that teach victims what to do next, and expose fraud patterns with calm precision.
             </p>
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm text-white/75">
+              <div className="font-extrabold text-white">Stay tuned.</div>
+              <div className="mt-1 leading-relaxed">
+                New episodes are in production—featuring high-impact public voices, founders, and verified experts to help expose fraud
+                and protect families.
+              </div>
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/expose"
@@ -119,6 +143,48 @@ export default function ExposeInterviews() {
               </a>
             </div>
           </motion.div>
+
+          {uploads.length > 0 && (
+            <div className="mt-10">
+              <div className="flex items-center justify-between gap-4">
+                <div className="text-xs font-black uppercase tracking-[0.25em] text-white/50">VANHSYA Live</div>
+                <a
+                  href={(channel?.url || COMPANY.social.youtubeChannel)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-amber-200 hover:text-white font-black transition-colors"
+                >
+                  View channel <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-5">
+                {uploads.map((u) => (
+                  <a
+                    key={u.id}
+                    href={u.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-2xl overflow-hidden border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] transition-colors"
+                  >
+                    <div className="relative aspect-video bg-black">
+                      <Image
+                        src={u.thumbnail}
+                        alt={u.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3 text-white font-extrabold line-clamp-2">{u.title}</div>
+                    </div>
+                    <div className="p-4 text-xs text-white/60 font-bold">
+                      {new Date(u.publishedAt).toLocaleDateString()}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
             {items.map((v, idx) => (
