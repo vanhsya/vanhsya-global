@@ -53,7 +53,7 @@ export function generateMetadata({
       title: fullTitle,
       description,
       images: [ogImage],
-      creator: '@vanhsya'
+      creator: '@vanhsya_global'
     },
     verification: {
       google: 'your-google-verification-code',
@@ -183,10 +183,10 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
           availableLanguage: ['English', 'French', 'Spanish', 'Hindi']
         },
         sameAs: [
-          'https://facebook.com/vanhsya',
-          'https://twitter.com/vanhsya',
-          'https://linkedin.com/company/vanhsya',
-          'https://instagram.com/vanhsya'
+          'https://facebook.com/vanhsyaglobal',
+          'https://twitter.com/vanhsya_global',
+          'https://linkedin.com/company/vanhsya-global',
+          'https://instagram.com/vanhsyaglobal'
         ]
       };
 

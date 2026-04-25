@@ -101,10 +101,10 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { icon: FaFacebook, href: 'https://facebook.com/vanhsya', label: 'Facebook' },
-    { icon: FaTwitter, href: 'https://twitter.com/vanhsya', label: 'Twitter' },
-    { icon: FaLinkedin, href: 'https://linkedin.com/company/vanhsya', label: 'LinkedIn' },
-    { icon: FaInstagram, href: 'https://instagram.com/vanhsya', label: 'Instagram' }
+    { icon: FaFacebook, href: COMPANY.social.facebook, label: 'Facebook' },
+    { icon: FaTwitter, href: COMPANY.social.twitter, label: 'Twitter' },
+    { icon: FaLinkedin, href: COMPANY.social.linkedin, label: 'LinkedIn' },
+    { icon: FaInstagram, href: COMPANY.social.instagram, label: 'Instagram' }
   ];
 
   return (

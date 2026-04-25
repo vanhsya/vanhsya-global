@@ -13,6 +13,10 @@ export const COMPANY = {
     support: 'support@vanhsya.com',
   },
   social: {
+    facebook: 'https://facebook.com/vanhsyaglobal',
+    instagram: 'https://instagram.com/vanhsyaglobal',
+    linkedin: 'https://linkedin.com/company/vanhsya-global',
+    twitter: 'https://twitter.com/vanhsya_global',
     youtubeChannel: 'https://www.youtube.com/@Vanhsya_live',
     youtubeSubscribe: 'https://www.youtube.com/@Vanhsya_live?sub_confirmation=1',
     youtubeChannelId: 'UC1IYTDYDon9VMznD0YgHijw',

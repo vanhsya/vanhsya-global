@@ -434,16 +434,36 @@ export default function ScamDetector() {
               >
                 <h3 className="font-bold text-gray-800 mb-4">Official Resources</h3>
                 <div className="space-y-3">
-                  <a href="#" className="block text-sm text-blue-600 hover:text-blue-800">
+                  <a
+                    href="https://consumer.ftc.gov/articles/immigration-scams"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
                     FTC Immigration Scam Alerts
                   </a>
-                  <a href="#" className="block text-sm text-blue-600 hover:text-blue-800">
+                  <a
+                    href="https://www.uscis.gov/avoid-scams"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
                     USCIS Avoid Scams
                   </a>
-                  <a href="#" className="block text-sm text-blue-600 hover:text-blue-800">
+                  <a
+                    href="https://www.antifraudcentre-centreantifraude.ca/index-eng.htm"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
                     Canadian Anti-Fraud Centre
                   </a>
-                  <a href="#" className="block text-sm text-blue-600 hover:text-blue-800">
+                  <a
+                    href="https://www.actionfraud.police.uk/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
                     UK Action Fraud
                   </a>
                 </div>

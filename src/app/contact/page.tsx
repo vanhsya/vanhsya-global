@@ -147,11 +147,11 @@ const officeLocations = [
 ];
 
 const socialLinks = [
-  { icon: FaFacebook, name: 'Facebook', url: '#', color: 'blue-600' },
-  { icon: FaTwitter, name: 'Twitter', url: '#', color: 'blue-400' },
-  { icon: FaLinkedin, name: 'LinkedIn', url: '#', color: 'blue-700' },
-  { icon: FaInstagram, name: 'Instagram', url: '#', color: 'pink-600' },
-  { icon: FaYoutube, name: 'YouTube', url: '#', color: 'red-600' }
+  { icon: FaFacebook, name: 'Facebook', url: COMPANY.social.facebook, color: 'blue-600' },
+  { icon: FaTwitter, name: 'Twitter', url: COMPANY.social.twitter, color: 'blue-400' },
+  { icon: FaLinkedin, name: 'LinkedIn', url: COMPANY.social.linkedin, color: 'blue-700' },
+  { icon: FaInstagram, name: 'Instagram', url: COMPANY.social.instagram, color: 'pink-600' },
+  { icon: FaYoutube, name: 'YouTube', url: COMPANY.social.youtubeChannel, color: 'red-600' }
 ];
 
 const faqs = [

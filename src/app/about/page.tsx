@@ -529,14 +529,18 @@ export default function AboutPage() {
                         <span>{member.experience}</span>
                       </div>
                     </div>
-                    <a 
-                      href={member.linkedin} 
-                      className="text-blue-600 hover:text-blue-700"
-                      title={`Connect with ${member.name} on LinkedIn`}
-                      aria-label={`Visit ${member.name}'s LinkedIn profile`}
-                    >
-                      <FaLinkedin className="text-xl" />
-                    </a>
+                    {member.linkedin && member.linkedin !== '#' ? (
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="text-blue-600 hover:text-blue-700"
+                        title={`Connect with ${member.name} on LinkedIn`}
+                        aria-label={`Visit ${member.name}'s LinkedIn profile`}
+                      >
+                        <FaLinkedin className="text-xl" />
+                      </a>
+                    ) : null}
                   </div>
                   
                   <div className="mt-4 space-y-2">
