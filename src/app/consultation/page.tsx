@@ -119,13 +119,22 @@ const ConsultationBooking: React.FC = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    
-    // Simulate API call
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const res = await fetch('/api/consultation', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        alert(json.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
       setIsSubmitted(true);
     } catch (error) {
       console.error('Submission error:', error);
+      alert('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

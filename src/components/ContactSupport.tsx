@@ -20,10 +20,27 @@ export default function ContactSupport({ variant = 'section', className = '' }: 
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    // console.log('Form submitted:', formData);
+    setSubmitStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Failed');
+      setSubmitStatus('ok');
+      setFormData({ name: '', email: '', phone: '', country: '', service: '', message: '' });
+      if (typeof window !== 'undefined' && (window as any).va) {
+        (window as any).va('event', { name: 'Contact Support Submitted' });
+      }
+    } catch {
+      setSubmitStatus('error');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

@@ -58,10 +58,10 @@ function SectionSkeleton() {
 }
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'World\'s Best Migration Platform – New Era Starts Now',
+  title: 'World\'s Best AI & Crypto Migration Platform | VANHSYA Global',
   description:
-    'A premium, AI-enabled global migration platform built on transparency, precision, and verified workflows for high-value relocations.',
-  keywords: ['migration services', 'AI migration platform', 'visa application', 'immigration consultant', 'study abroad', 'work visa', 'PR application', 'migration scam protection'],
+    'VANHSYA Global is the world\'s first AI-powered, crypto-enabled migration platform. Transparent visa services, automated document processing, blockchain-verified workflows for study, work, business, and family visas worldwide. 99% success rate.',
+  keywords: ['world\'s best migration company', 'AI-based migration services', 'crypto migration solutions', 'AI-powered immigration platform', 'blockchain document verification', 'migration services', 'visa application', 'immigration consultant', 'study abroad', 'work visa', 'PR application', 'migration scam protection', 'YNO Coin', 'crypto visa payments'],
   canonical: 'https://vanhsya.com'
 });
 

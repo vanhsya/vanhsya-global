@@ -45,16 +45,27 @@ const ContactSection: React.FC = () => {
     });
   };
 
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
+    setSubmitStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Failed');
+      setSubmitStatus('ok');
       setFormData({ name: '', email: '', phone: '', country: '', service: '', message: '' });
-    }, 2000);
+      if (typeof window !== 'undefined' && (window as any).va) {
+        (window as any).va('event', { name: 'Contact Form Submitted' });
+      }
+    } catch {
+      setSubmitStatus('error');
+    }
   };
 
   const contactMethods: ContactMethod[] = [
@@ -86,14 +97,14 @@ const ContactSection: React.FC = () => {
       available: 'Response within 2 hours'
     },
     {
-      icon: FaComments,
-      title: 'Live Chat',
-      description: 'Chat with our support team',
-      value: 'Start Chat',
-      href: '#chat',
-      color: 'bg-orange-500',
-      available: 'Available 24/7'
-    }
+        icon: FaComments,
+        title: 'Live Chat',
+        description: 'Chat with our support team',
+        value: 'Start Chat',
+        href: '#',
+        color: 'bg-orange-500',
+        available: 'Available 24/7'
+      }
   ];
 
   const services = [
@@ -116,7 +127,7 @@ const ContactSection: React.FC = () => {
     'Other'
   ];
 
-  if (isSubmitted) {
+  if (submitStatus === 'ok') {
     return (
       <section className="section-padding bg-green-50">
         <div className="container-max">
@@ -129,40 +140,17 @@ const ContactSection: React.FC = () => {
               <FaCheckCircle className="text-3xl text-white" />
             </div>
             <h2 className="heading-md mb-4 text-green-800">
-              Thank You for Your Interest!
+              Thank You!
             </h2>
             <p className="text-lg text-green-700 mb-6">
-              Your consultation request has been received. One of our immigration experts will contact you within 24 hours to discuss your case in detail.
+              Your message has been sent. Our team will respond within 2 hours.
             </p>
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-800 mb-4">What happens next?</h3>
-              <div className="space-y-3 text-left">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-blue-600 font-semibold text-sm">1</span>
-                  </div>
-                  <span className="text-gray-700">Initial consultation call (30 minutes, FREE)</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-blue-600 font-semibold text-sm">2</span>
-                  </div>
-                  <span className="text-gray-700">Case assessment and eligibility review</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-blue-600 font-semibold text-sm">3</span>
-                  </div>
-                  <span className="text-gray-700">Customized immigration strategy proposal</span>
-                </div>
-              </div>
-            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
-              onClick={() => setIsSubmitted(false)}
+              onClick={() => setSubmitStatus('idle')}
               className="btn-outline mt-6"
             >
-              Submit Another Inquiry
+              Send Another Message
             </motion.button>
           </motion.div>
         </div>
@@ -229,14 +217,13 @@ const ContactSection: React.FC = () => {
             >
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-blue-600" />
-                Our Office
+                {COMPANY.uae.country} — All Emirates
               </h4>
               <div className="space-y-2 text-gray-600">
-                <p>123 Immigration Plaza, Suite 500</p>
-                <p>Toronto, ON M5V 3A1, Canada</p>
+                <p>{COMPANY.uae.emirates.join(' • ')}</p>
                 <div className="flex items-center mt-4">
                   <FaClock className="mr-2 text-blue-600" />
-                  <span>Monday - Friday: 9:00 AM - 6:00 PM EST</span>
+                  <span>{COMPANY.uae.availability}</span>
                 </div>
               </div>
             </motion.div>

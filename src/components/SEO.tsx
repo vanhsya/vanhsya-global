@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { COMPANY } from '@/lib/company';
 
 interface SEOProps {
   title: string;
@@ -18,49 +19,81 @@ export function generateMetadata({
   canonical,
   noIndex = false
 }: SEOProps): Metadata {
-  const fullTitle = title.includes('Vanhsya') ? title : `${title} | Vanhsya Immigration Services`;
+  const fullTitle = title.includes('VANHSYA') ? title : `${title} | VANHSYA Global`;
   const baseUrl = 'https://vanhsya.com';
-  
+  const canonicalUrl = canonical ?? baseUrl;
+
+  // Always include highest-value keywords for search dominance
+  const extendedKeywords = [
+    ...keywords,
+    'world\'s best migration company',
+    'AI-based migration services',
+    'crypto migration solutions',
+    'AI-powered immigration platform',
+    'blockchain document verification',
+    'migration services',
+    'visa consultation',
+    'immigration consultant',
+    'work visa',
+    'study visa',
+    'family visa',
+    'business visa',
+    'permanent residence',
+    'global migration',
+    'visa processing',
+    'UAE immigration',
+    'Canada immigration',
+    'Australia immigration',
+    'UK immigration',
+    'YNO Coin',
+    'crypto visa payments',
+    'AI immigration tools',
+    'migration scam protection',
+    'Vanhsya World Best Immigration Company',
+    'UAE Luxury Business Setup',
+    'AI-Powered Relocation Services',
+    'YNO Coin Global Migration',
+  ].join(', ');
+
   return {
     title: fullTitle,
     description,
-    keywords: [...keywords, 'immigration', 'visa', 'canada', 'australia', 'vanhsya'].join(', '),
-    authors: [{ name: 'Vanhsya Immigration Services' }],
-    creator: 'Vanhsya Immigration Services',
-    publisher: 'Vanhsya Immigration Services',
+    keywords: extendedKeywords,
+    authors: [{ name: 'VANHSYA Global' }],
+    creator: 'VANHSYA Global',
+    publisher: 'VANHSYA Global',
     robots: noIndex ? 'noindex,nofollow' : 'index,follow',
     alternates: {
-      canonical: canonical || baseUrl
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: fullTitle,
       description,
-      url: canonical || baseUrl,
-      siteName: 'Vanhsya Immigration Services',
+      url: canonicalUrl,
+      siteName: 'VANHSYA Global – AI & Crypto Migration Platform',
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: title
-        }
+          alt: title,
+        },
       ],
       locale: 'en_US',
-      type: 'website'
+      type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
       description,
       images: [ogImage],
-      creator: '@vanhsya_global'
+      creator: COMPANY.social.twitter ? '@vanhsya_global' : undefined,
     },
     verification: {
-      google: 'your-google-verification-code',
-      yandex: 'your-yandex-verification-code',
-      yahoo: 'your-yahoo-verification-code'
+      google: process.env.GOOGLE_SITE_VERIFICATION ?? undefined,
+      yandex: process.env.YANDEX_VERIFICATION ?? undefined,
     },
-    category: 'Immigration Services'
+    category: 'Immigration Services',
   };
 }
 
@@ -164,30 +197,29 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
     case 'Organization':
       return {
         ...baseSchema,
-        name: 'Vanhsya Immigration Services',
+        name: 'VANHSYA Global',
         url: 'https://vanhsya.com',
         logo: 'https://vanhsya.com/images/originallogo.png',
-        description: 'Professional immigration services for global destinations',
+        description: 'The world\'s first AI-powered, crypto-enabled migration platform delivering transparent visa services and blockchain-verified workflows.',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: data.address || '123 Immigration Street',
-          addressLocality: data.city || 'Toronto',
-          addressRegion: data.region || 'ON',
-          postalCode: data.postalCode || 'M5V 3A8',
-          addressCountry: 'CA'
+          addressLocality: 'Dubai',
+          addressRegion: 'Dubai',
+          addressCountry: 'AE'
         },
         contactPoint: {
           '@type': 'ContactPoint',
-          telephone: data.phone || '+1-800-VANHSYA',
+          telephone: COMPANY.phoneE164,
           contactType: 'customer service',
-          availableLanguage: ['English', 'French', 'Spanish', 'Hindi']
+          availableLanguage: ['English', 'French', 'Spanish', 'Hindi', 'Arabic', 'Mandarin']
         },
         sameAs: [
-          'https://facebook.com/vanhsyaglobal',
-          'https://twitter.com/vanhsya_global',
-          'https://linkedin.com/company/vanhsya-global',
-          'https://instagram.com/vanhsyaglobal'
-        ]
+          COMPANY.social.facebook,
+          COMPANY.social.twitter,
+          COMPANY.social.linkedin,
+          COMPANY.social.instagram,
+          COMPANY.social.youtubeChannel,
+        ].filter(Boolean)
       };
 
     case 'Service':
@@ -196,7 +228,7 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
         name: data.name,
         provider: {
           '@type': 'Organization',
-          name: 'Vanhsya Immigration Services'
+          name: 'VANHSYA Global'
         },
         description: data.description,
         serviceType: 'Immigration Services',
@@ -222,11 +254,11 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
         description: data.description,
         author: {
           '@type': 'Organization',
-          name: 'Vanhsya Immigration Services'
+          name: 'VANHSYA Global'
         },
         publisher: {
           '@type': 'Organization',
-          name: 'Vanhsya Immigration Services',
+          name: 'VANHSYA Global',
           logo: {
             '@type': 'ImageObject',
             url: 'https://vanhsya.com/images/originallogo.png'

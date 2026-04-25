@@ -4,42 +4,82 @@ import ClientLayout from "./ClientLayout";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { COMPANY } from "@/lib/company";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vanhsya.com'),
-  title: "VANHSYA Global Migration - Expert Migration & Visa Services Worldwide",
-  description: "Trusted global migration consultancy offering comprehensive visa and migration services. Expert guidance for work, study, family, and business visas with transparent pricing and verified success rates.",
-  keywords: "migration services, visa consultation, immigration lawyer, work visa, study visa, family visa, business visa, permanent residence, global migration, visa processing, immigration consultant, Vanhsya World Best Immigration Company, UAE Luxury Business Setup, AI-Powered Relocation Services, YNO Coin Global Migration",
-  authors: [{ name: "VANHSYA Global Migration" }],
-  robots: "index, follow",
-  other: {
-    "facebook-domain-verification": "56xb3biyo7pprrx8429ww96azvk88t",
+  title: {
+    default: 'VANHSYA Global – World\'s First AI & Crypto-Enabled Migration Platform',
+    template: '%s | VANHSYA Global',
   },
+  description:
+    'VANHSYA Global is the world\'s first AI-powered, crypto-enabled migration platform. Transparent visa services, automated document processing, blockchain-verified workflows for study, work, business, and family visas worldwide.',
+  keywords: [
+    'world\'s best migration company',
+    'AI-based migration services',
+    'crypto migration solutions',
+    'AI-powered immigration platform',
+    'blockchain document verification',
+    'migration services',
+    'visa consultation',
+    'immigration consultant',
+    'work visa',
+    'study visa',
+    'family visa',
+    'business visa',
+    'permanent residence',
+    'global migration',
+    'visa processing',
+    'UAE immigration',
+    'Canada immigration',
+    'Australia immigration',
+    'UK immigration',
+    'YNO Coin',
+    'crypto visa payments',
+    'AI immigration tools',
+    'migration scam protection',
+    'Vanhsya World Best Immigration Company',
+    'UAE Luxury Business Setup',
+    'AI-Powered Relocation Services',
+    'YNO Coin Global Migration',
+  ],
+  authors: [{ name: 'VANHSYA Global' }],
+  creator: 'VANHSYA Global',
+  publisher: 'VANHSYA Global',
+  robots: { index: true, follow: true },
   openGraph: {
-    title: "VANHSYA Global Migration - Expert Migration & Visa Services Worldwide",
-    description: "Where your journey begins — safely, securely, and supported. Real migration. Real guidance. Real results.",
-    url: "https://vanhsya.com",
-    siteName: "VANHSYA Global Migration",
+    title: 'VANHSYA Global – World\'s First AI & Crypto-Enabled Migration Platform',
+    description:
+      'Where your journey begins — safely, securely, and supported by AI. Real migration. Real guidance. Real results.',
+    url: 'https://vanhsya.com',
+    siteName: 'VANHSYA Global',
     images: [
       {
-        url: "/images/originallogo.png",
+        url: '/images/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: "VANHSYA Global Migration - Your trusted migration partner"
-      }
+        alt: 'VANHSYA Global – AI-Powered Migration Platform',
+      },
     ],
-    locale: "en_US",
-    type: "website"
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "VANHSYA Global Migration - Expert Migration Services",
-    description: "Trusted global migration consultancy with transparent pricing and verified success rates. Professional guidance for worldwide migration.",
-    images: ["/images/originallogo.png"]
+    card: 'summary_large_image',
+    title: 'VANHSYA Global – World\'s First AI & Crypto Migration Platform',
+    description:
+      'The world\'s first AI-powered, crypto-enabled migration platform. Transparent, secure, automated visa services worldwide.',
+    images: ['/images/og-default.jpg'],
+    creator: '@vanhsya_global',
+    site: '@vanhsya_global',
   },
   alternates: {
-    canonical: "https://vanhsya.com"
-  }
+    canonical: 'https://vanhsya.com',
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION ?? 'your-google-verification-code',
+    yandex: process.env.YANDEX_VERIFICATION ?? undefined,
+  },
 };
 
 const inter = Inter({

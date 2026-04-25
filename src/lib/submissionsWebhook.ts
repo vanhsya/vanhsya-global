@@ -38,6 +38,41 @@ export type SubmissionWebhookPayload =
         contactPhone?: string;
         evidence?: { name: string; size: number; type: string }[];
       };
+    }
+  | {
+      kind: 'consultation_booking';
+      receivedAt: string;
+      data: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone?: string;
+        country: string;
+        preferredDestination: string;
+        consultationType: string;
+        preferredDate?: string;
+        preferredTime?: string;
+        immigrationGoal: string;
+        currentStatus?: string;
+        additionalNotes?: string;
+        marketingConsent: boolean;
+        source?: string;
+      };
+    }
+  | {
+      kind: 'contact_message';
+      receivedAt: string;
+      data: {
+        id: string;
+        name: string;
+        email: string;
+        phone?: string;
+        country?: string;
+        service?: string;
+        message?: string;
+        source?: string;
+      };
     };
 
 export const queueSubmissionWebhook = (payload: SubmissionWebhookPayload) => {

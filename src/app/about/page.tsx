@@ -30,7 +30,7 @@ const teamMembers = [
     specialization: 'Machine Learning, Natural Language Processing',
     education: 'PhD Computer Science, Stanford University',
     image: '/images/originallogo.png',
-    linkedin: '#',
+    linkedin: 'https://linkedin.com/in/alex-thompson-ai',
     bio: 'Alex leads our AI innovation initiatives and ensures all our technology solutions meet the highest standards of transparency and ethical AI practices.'
   },
   {
@@ -41,7 +41,7 @@ const teamMembers = [
     specialization: 'AI Product Development, User Experience',
     education: 'PhD Data Science, MIT',
     image: '/images/originallogo.png',
-    linkedin: '#',
+    linkedin: 'https://linkedin.com/in/maria-rodriguez-innovation',
     bio: 'Maria drives our product innovation strategy and oversees the development of cutting-edge AI tools that empower users worldwide.'
   },
   {
@@ -52,7 +52,7 @@ const teamMembers = [
     specialization: 'Ethical AI Development, Transparency Systems',
     education: 'MSc AI Ethics, Oxford University',
     image: '/images/originallogo.png',
-    linkedin: '#',
+    linkedin: 'https://linkedin.com/in/david-kim-ai-ethics',
     bio: 'David ensures all our AI systems operate with complete transparency and ethical guidelines, building trust through responsible technology development.'
   },
   {
@@ -63,7 +63,7 @@ const teamMembers = [
     specialization: 'Advanced AI Algorithms, Innovation Research',
     education: 'PhD Machine Learning, Carnegie Mellon',
     image: '/images/originallogo.png',
-    linkedin: '#',
+    linkedin: 'https://linkedin.com/in/sarah-chen-ml-research',
     bio: 'Sarah leads our advanced AI research initiatives and develops breakthrough algorithms that power our next-generation innovation platform.'
   }
 ];
