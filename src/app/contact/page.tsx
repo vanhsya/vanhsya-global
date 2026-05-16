@@ -19,6 +19,7 @@ import {
   FaCalendarAlt,
   FaGlobe
 } from 'react-icons/fa';
+import { SiTiktok, SiThreads } from 'react-icons/si';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import AnimatedCard from '@/components/AnimatedCard';
@@ -151,7 +152,9 @@ const socialLinks = [
   { icon: FaTwitter, name: 'Twitter', url: COMPANY.social.twitter, color: 'blue-400' },
   { icon: FaLinkedin, name: 'LinkedIn', url: COMPANY.social.linkedin, color: 'blue-700' },
   { icon: FaInstagram, name: 'Instagram', url: COMPANY.social.instagram, color: 'pink-600' },
-  { icon: FaYoutube, name: 'YouTube', url: COMPANY.social.youtubeChannel, color: 'red-600' }
+  { icon: FaYoutube, name: 'YouTube', url: COMPANY.social.youtubeChannel, color: 'red-600' },
+  { icon: SiTiktok, name: 'TikTok', url: COMPANY.social.tiktok, color: 'gray-900' },
+  { icon: SiThreads, name: 'Threads', url: COMPANY.social.threads, color: 'gray-700' },
 ];
 
 const faqs = [
@@ -518,6 +521,21 @@ export default function ContactPage() {
                     </motion.a>
                   ))}
                 </div>
+              </div>
+
+              {/* YouTube Subscribe CTA */}
+              <div className="bg-red-50 rounded-xl p-6 text-center">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Watch & Subscribe</h3>
+                <p className="text-gray-600 text-sm mb-4">Daily visa updates, scam alerts, and AI migration tips from Dubai.</p>
+                <a
+                  href={COMPANY.social.youtubeSubscribe}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                >
+                  <FaYoutube className="text-lg" />
+                  Subscribe on YouTube
+                </a>
               </div>
 
               {/* FAQ Preview */}

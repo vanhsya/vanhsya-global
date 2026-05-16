@@ -77,8 +77,12 @@ export const metadata: Metadata = {
     canonical: 'https://vanhsya.com',
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION ?? 'your-google-verification-code',
-    yandex: process.env.YANDEX_VERIFICATION ?? undefined,
+    google: process.env.GOOGLE_SITE_VERIFICATION ?? 'd5K7Nt1yL2zX9pQ3rR4sT5uY6wE7oP8',
+    yandex: process.env.YANDEX_VERIFICATION ?? 'YANDEX_VERIFICATION_CODE',
+    other: {
+      'msvalidate.01': process.env.BING_SITE_VERIFICATION ?? 'BING_VERIFICATION_CODE',
+      'facebook-domain-verification': process.env.FACEBOOK_VERIFICATION ?? '56xb3biyo7pprrx8429ww96azvk88t',
+    },
   },
 };
 

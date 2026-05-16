@@ -11,6 +11,7 @@ import {
   FaTwitter, 
   FaLinkedin, 
   FaInstagram,
+  FaYoutube,
   FaGlobe
 } from 'react-icons/fa';
 import { COMPANY } from '@/lib/company';
@@ -101,10 +102,11 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { icon: FaFacebook, href: COMPANY.social.facebook, label: 'Facebook' },
-    { icon: FaTwitter, href: COMPANY.social.twitter, label: 'Twitter' },
+    { icon: FaFacebook, href: COMPANY.social.facebookPage, label: 'Facebook' },
+    { icon: FaTwitter, href: COMPANY.social.twitter, label: 'Twitter / X' },
     { icon: FaLinkedin, href: COMPANY.social.linkedin, label: 'LinkedIn' },
-    { icon: FaInstagram, href: COMPANY.social.instagram, label: 'Instagram' }
+    { icon: FaInstagram, href: COMPANY.social.instagram, label: 'Instagram' },
+    { icon: FaYoutube, href: COMPANY.social.youtubeChannel, label: 'YouTube' },
   ];
 
   return (

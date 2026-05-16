@@ -87,7 +87,8 @@ export function generateMetadata({
       title: fullTitle,
       description,
       images: [ogImage],
-      creator: COMPANY.social.twitter ? '@vanhsya_global' : undefined,
+      creator: COMPANY.social.twitterHandle ?? '@vanhsya_global',
+      site: COMPANY.social.twitterHandle ?? '@vanhsya_global',
     },
     verification: {
       google: process.env.GOOGLE_SITE_VERIFICATION ?? undefined,
@@ -214,11 +215,13 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
           availableLanguage: ['English', 'French', 'Spanish', 'Hindi', 'Arabic', 'Mandarin']
         },
         sameAs: [
-          COMPANY.social.facebook,
+          COMPANY.social.facebookPage,
           COMPANY.social.twitter,
           COMPANY.social.linkedin,
           COMPANY.social.instagram,
           COMPANY.social.youtubeChannel,
+          COMPANY.social.tiktok,
+          COMPANY.social.threads,
         ].filter(Boolean)
       };
 

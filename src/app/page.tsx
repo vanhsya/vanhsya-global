@@ -8,6 +8,7 @@ import { generateMetadata as generateSEOMetadata, generateStructuredData, Struct
 import LandingStatsStrip from '@/components/LandingStatsStrip';
 import WebGLCountryVisualizationSection from '@/components/WebGLCountryVisualizationSection';
 import { COMPANY } from '@/lib/company';
+import YouTubeSubscribeSection from '@/components/YouTubeSubscribeSection';
 
 // Dynamic imports for heavy sections
 const MigrationTrendsVideoSection = dynamic(() => import('@/components/MigrationTrendsVideoSection'), {
@@ -108,6 +109,9 @@ export default function Home() {
 
               {/* 4.5. Blog + AI Insights - Card-based content highlights */}
               <LandingBlogSection />
+
+              {/* 4.75. YouTube Channel - Subscribe for daily migration insights */}
+              <YouTubeSubscribeSection />
               
               {/* 5. VANHSYA Promise - Trust building */}
               <VanhsyaPromise />
