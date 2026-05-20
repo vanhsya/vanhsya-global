@@ -20,6 +20,7 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_SMOKE_URL: ${{ secrets.VERCEL_SMOKE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +45,64 @@ jobs:
 
       - name: Vercel Deploy (Production)
         if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        id: vercel_deploy
         run: |
+          set -euo pipefail
           npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           npx vercel build --prod --token="$VERCEL_TOKEN"
-          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+          DEPLOY_LOG="$(mktemp)"
+          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee "$DEPLOY_LOG"
+          DEPLOY_URL="$(grep -Eo 'https?://[^ ]+\\.vercel\\.app' "$DEPLOY_LOG" | tail -n 1 || true)"
+          if [ -z "$DEPLOY_URL" ]; then
+            DEPLOY_URL="$(tail -n 1 "$DEPLOY_LOG" | tr -d '\r' | awk '{print $NF}')"
+          fi
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed to: $DEPLOY_URL"
+
+      - name: Smoke Test (Production)
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        env:
+          DEPLOY_URL: ${{ steps.vercel_deploy.outputs.deploy_url }}
+        run: |
+          set -euo pipefail
+          BASE_URL="${VERCEL_SMOKE_URL:-$DEPLOY_URL}"
+          if [ -z "$BASE_URL" ]; then
+            echo "Smoke test skipped: no deploy URL detected."
+            exit 1
+          fi
+
+          echo "Smoke testing: $BASE_URL"
+
+          check() {
+            local path="$1"
+            local expect="$2"
+            local url="${BASE_URL}${path}"
+            local body
+            body="$(mktemp)"
+            local code
+            code="$(curl -sS -o "$body" -w "%{http_code}" "$url" || true)"
+            echo "$path -> $code"
+            if [ "$expect" = "ok200" ] && [ "$code" != "200" ]; then
+              echo "Unexpected status for $url (expected 200)."
+              echo "Response (first 220 chars):"
+              head -c 220 "$body" || true
+              echo
+              if [ "$code" = "401" ]; then
+                echo "Detected 401 Authentication Required. Vercel Deployment Protection is enabled for this deployment."
+                echo "Disable protection in Vercel Project Settings (or allow public access) to make the site fully accessible."
+              fi
+              exit 1
+            fi
+            if [ "$expect" = "okHtml" ] && [ "$code" != "200" ] && [ "$code" != "301" ] && [ "$code" != "302" ] && [ "$code" != "307" ] && [ "$code" != "308" ]; then
+              echo "Unexpected status for $url (expected 200/3xx)."
+              echo "Response (first 220 chars):"
+              head -c 220 "$body" || true
+              echo
+              exit 1
+            fi
+          }
+
+          check "/" "okHtml"
+          check "/api/health" "ok200"
+          check "/robots.txt" "ok200"
+          check "/sitemap.xml" "ok200"
