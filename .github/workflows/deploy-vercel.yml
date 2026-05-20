@@ -21,6 +21,7 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_SMOKE_URL: ${{ secrets.VERCEL_SMOKE_URL }}
+      VERCEL_PROTECTION_BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,6 +73,13 @@ jobs:
           fi
 
           echo "Smoke testing: $BASE_URL"
+          COOKIE_JAR="$(mktemp)"
+          CURL_FLAGS=(-sS)
+          if [ -n "${VERCEL_PROTECTION_BYPASS:-}" ]; then
+            CURL_FLAGS+=(-H "x-vercel-protection-bypass: ${VERCEL_PROTECTION_BYPASS}")
+            CURL_FLAGS+=(-H "x-vercel-set-bypass-cookie: true")
+            CURL_FLAGS+=(-c "$COOKIE_JAR" -b "$COOKIE_JAR")
+          fi
 
           check() {
             local path="$1"
@@ -80,7 +88,7 @@ jobs:
             local body
             body="$(mktemp)"
             local code
-            code="$(curl -sS -o "$body" -w "%{http_code}" "$url" || true)"
+            code="$(curl "${CURL_FLAGS[@]}" -o "$body" -w "%{http_code}" "$url" || true)"
             echo "$path -> $code"
             if [ "$expect" = "ok200" ] && [ "$code" != "200" ]; then
               echo "Unexpected status for $url (expected 200)."
@@ -89,7 +97,10 @@ jobs:
               echo
               if [ "$code" = "401" ]; then
                 echo "Detected 401 Authentication Required. Vercel Deployment Protection is enabled for this deployment."
-                echo "Disable protection in Vercel Project Settings (or allow public access) to make the site fully accessible."
+                if [ -z "${VERCEL_PROTECTION_BYPASS:-}" ]; then
+                  echo "To verify protected deployments automatically, set GitHub secret VERCEL_PROTECTION_BYPASS to your Vercel automation bypass secret."
+                fi
+                echo "To make the site publicly accessible, disable protection in Vercel Project Settings (or allow public access) for the target environment."
               fi
               exit 1
             fi
