@@ -13,6 +13,7 @@ export type StudioSettings = {
   loop: boolean;
   journeyMode: boolean;
   shuffle: boolean;
+  crossfadeMs: number;
   eqLowDb: number;
   eqMidDb: number;
   eqHighDb: number;
@@ -104,6 +105,7 @@ export const deriveDefaultStudioSettings = (userId: string): StudioSettings => {
   const eqMidDb = Math.round((r() * 8 - 3) * 10) / 10;
   const eqHighDb = Math.round((r() * 8 - 2) * 10) / 10;
   const space = Math.round((0.12 + r() * 0.5) * 100) / 100;
+  const crossfadeMs = Math.round(clamp(650 + r() * 900, 0, 2500));
 
   return {
     volume: clamp(0.3 + r() * 0.28, 0.2, 0.7),
@@ -111,6 +113,7 @@ export const deriveDefaultStudioSettings = (userId: string): StudioSettings => {
     loop: true,
     journeyMode: false,
     shuffle: true,
+    crossfadeMs,
     eqLowDb: clamp(eqLowDb, -12, 12),
     eqMidDb: clamp(eqMidDb, -12, 12),
     eqHighDb: clamp(eqHighDb, -12, 12),
@@ -148,6 +151,7 @@ export const mergeStudioSettings = (defaults: StudioSettings, partial: Partial<S
   return {
     ...n,
     volume: clamp(Number(n.volume), 0, 1),
+    crossfadeMs: clamp(Math.round(Number(n.crossfadeMs)), 0, 2500),
     eqLowDb: clamp(Number(n.eqLowDb), -12, 12),
     eqMidDb: clamp(Number(n.eqMidDb), -12, 12),
     eqHighDb: clamp(Number(n.eqHighDb), -12, 12),
@@ -159,4 +163,3 @@ export const mergeStudioSettings = (defaults: StudioSettings, partial: Partial<S
     shuffle: Boolean(n.shuffle)
   };
 };
-

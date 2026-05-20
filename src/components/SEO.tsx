@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { COMPANY } from '@/lib/company';
+import { getSiteUrl } from '@/lib/utils';
 
 interface SEOProps {
   title: string;
@@ -20,7 +21,7 @@ export function generateMetadata({
   noIndex = false
 }: SEOProps): Metadata {
   const fullTitle = title.includes('VANHSYA') ? title : `${title} | VANHSYA Global`;
-  const baseUrl = 'https://vanhsya.com';
+  const baseUrl = getSiteUrl();
   const canonicalUrl = canonical ?? baseUrl;
 
   // Always include highest-value keywords for search dominance
@@ -189,6 +190,7 @@ export const pageSEO = {
 
 // Structured Data Schema
 export const generateStructuredData = (type: 'Organization' | 'Service' | 'Article' | 'FAQPage', data: any) => {
+  const baseUrl = getSiteUrl();
   const baseSchema = {
     '@context': 'https://schema.org',
     '@type': type
@@ -199,8 +201,8 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
       return {
         ...baseSchema,
         name: 'VANHSYA Global',
-        url: 'https://vanhsya.com',
-        logo: 'https://vanhsya.com/images/originallogo.png',
+        url: baseUrl,
+        logo: `${baseUrl}/images/originallogo.png`,
         description: 'The world\'s first AI-powered, crypto-enabled migration platform delivering transparent visa services and blockchain-verified workflows.',
         address: {
           '@type': 'PostalAddress',
@@ -264,7 +266,7 @@ export const generateStructuredData = (type: 'Organization' | 'Service' | 'Artic
           name: 'VANHSYA Global',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://vanhsya.com/images/originallogo.png'
+            url: `${baseUrl}/images/originallogo.png`
           }
         },
         datePublished: data.publishDate,

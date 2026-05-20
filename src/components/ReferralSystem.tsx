@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import { GlassServiceCard } from './GlassCard';
 import { IconType } from 'react-icons';
+import { getSiteUrl } from '@/lib/utils';
 
 interface ReferralTier {
   name: string;
@@ -78,14 +79,16 @@ export default function ReferralSystem() {
   });
 
   const copyReferralCode = () => {
-    navigator.clipboard.writeText(`Join VANHSYA with my referral code: ${referralCode} and get ₹5,000 bonus! https://vanhsya.com/ref/${referralCode}`);
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : getSiteUrl();
+    navigator.clipboard.writeText(`Join VANHSYA with my referral code: ${referralCode} and get ₹5,000 bonus! ${baseUrl}/ref/${referralCode}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const shareReferral = (platform: string) => {
     const text = `🌍 Join me on VANHSYA Global Migration! Use code ${referralCode} for ₹5,000 bonus. World's most trusted migration platform with AI-powered services! 🚀`;
-    const url = `https://vanhsya.com/ref/${referralCode}`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : getSiteUrl();
+    const url = `${baseUrl}/ref/${referralCode}`;
     
     switch (platform) {
       case 'whatsapp':

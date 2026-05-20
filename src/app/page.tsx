@@ -9,6 +9,7 @@ import LandingStatsStrip from '@/components/LandingStatsStrip';
 import WebGLCountryVisualizationSection from '@/components/WebGLCountryVisualizationSection';
 import { COMPANY } from '@/lib/company';
 import YouTubeSubscribeSection from '@/components/YouTubeSubscribeSection';
+import { getSiteUrl } from '@/lib/utils';
 
 // Dynamic imports for heavy sections
 const MigrationTrendsVideoSection = dynamic(() => import('@/components/MigrationTrendsVideoSection'), {
@@ -63,7 +64,7 @@ export const metadata: Metadata = generateSEOMetadata({
   description:
     'VANHSYA Global is the world\'s first AI-powered, crypto-enabled migration platform. Transparent visa services, automated document processing, blockchain-verified workflows for study, work, business, and family visas worldwide. 99% success rate.',
   keywords: ['world\'s best migration company', 'AI-based migration services', 'crypto migration solutions', 'AI-powered immigration platform', 'blockchain document verification', 'migration services', 'visa application', 'immigration consultant', 'study abroad', 'work visa', 'PR application', 'migration scam protection', 'YNO Coin', 'crypto visa payments'],
-  canonical: 'https://vanhsya.com'
+  canonical: getSiteUrl()
 });
 
 export default function Home() {

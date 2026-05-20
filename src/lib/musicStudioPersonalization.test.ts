@@ -21,6 +21,7 @@ test('deriveDefaultStudioSettings returns clamped values and differs across user
   const a = deriveDefaultStudioSettings('user-a');
   const b = deriveDefaultStudioSettings('user-b');
   assert.ok(a.volume >= 0 && a.volume <= 1);
+  assert.ok(a.crossfadeMs >= 0 && a.crossfadeMs <= 2500);
   assert.ok(a.eqLowDb >= -12 && a.eqLowDb <= 12);
   assert.ok(a.eqMidDb >= -12 && a.eqMidDb <= 12);
   assert.ok(a.eqHighDb >= -12 && a.eqHighDb <= 12);
@@ -43,13 +44,13 @@ test('derivePlaylistOrder returns a stable permutation per user', () => {
 test('mergeStudioSettings merges persisted settings safely', () => {
   const defaults = deriveDefaultStudioSettings('user-a');
   const stored = safeParseStudioSettings(
-    JSON.stringify({ volume: 2, eqLowDb: 99, eqMidDb: -99, eqHighDb: 0, space: -1, muted: 'yes' })
+    JSON.stringify({ volume: 2, crossfadeMs: 99999, eqLowDb: 99, eqMidDb: -99, eqHighDb: 0, space: -1, muted: 'yes' })
   );
   const merged = mergeStudioSettings(defaults, stored);
   assert.ok(merged.volume >= 0 && merged.volume <= 1);
+  assert.ok(merged.crossfadeMs >= 0 && merged.crossfadeMs <= 2500);
   assert.ok(merged.eqLowDb >= -12 && merged.eqLowDb <= 12);
   assert.ok(merged.eqMidDb >= -12 && merged.eqMidDb <= 12);
   assert.ok(merged.space >= 0 && merged.space <= 1);
   assert.equal(typeof merged.muted, 'boolean');
 });
-

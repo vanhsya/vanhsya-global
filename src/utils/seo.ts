@@ -114,8 +114,8 @@ export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "VANHSYA Global Migration",
-  "url": "https://www.vanhsya.com",
-  "logo": "https://www.vanhsya.com/images/originallogo.png",
+  "url": "https://vanhsya.com",
+  "logo": "https://vanhsya.com/images/originallogo.png",
   "description": "Leading immigration consultancy providing expert visa services for Canada, Australia, UK, and USA.",
   "address": {
     "@type": "PostalAddress",

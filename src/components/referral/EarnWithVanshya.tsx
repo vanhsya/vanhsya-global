@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
+import { getSiteUrl } from "@/lib/utils";
 import {
   FiArrowRight,
   FiCopy,
@@ -325,7 +326,7 @@ function computeProgress(state: EarnState) {
 }
 
 function buildShareMessage(code: string) {
-  const link = `${typeof window !== "undefined" ? window.location.origin : "https://vanhsya.com"}/referral-program?ref=${encodeURIComponent(code)}`;
+  const link = `${typeof window !== "undefined" ? window.location.origin : getSiteUrl()}/referral-program?ref=${encodeURIComponent(code)}`;
   return {
     link,
     short:

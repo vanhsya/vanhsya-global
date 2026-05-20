@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import { CurrencyProvider } from "@/components/CurrencySelector";
 import ContactSupport from "@/components/ContactSupport";
@@ -10,7 +11,7 @@ import LogoPreloader from "@/components/LogoPreloader";
 import TrustRibbon from "@/components/TrustRibbon";
 import SystemStatusBanner from "@/components/SystemStatusBanner";
 import { ErrorBoundary } from "@/components/ErrorHandling";
-import { Pause, Play, SlidersHorizontal, VolumeX } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Disc3, Pause, Play, Shuffle, SlidersHorizontal, Volume2, VolumeX, Wand2, X } from "lucide-react";
 import { getAllTracks, type MusicTrack } from "@/data/musicTracks";
 import MusicStudioModal from "@/components/music/MusicStudioModal";
 import {
@@ -19,7 +20,9 @@ import {
   deriveStudioTheme,
   fnv1a32,
   mergeStudioSettings,
-  safeParseStudioSettings
+  safeParseStudioSettings,
+  type StudioSettings,
+  type StudioTheme
 } from "@/lib/musicStudioPersonalization";
 import { nextId, prevId } from "@/lib/playlistNav";
 
@@ -107,6 +110,321 @@ function rampVolume(audio: HTMLAudioElement, to: number, durationMs: number): vo
   requestAnimationFrame(tick);
 }
 
+type MusicQuickPanelModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onOpenStudio: () => void;
+  theme: StudioTheme;
+  track: MusicTrack | null;
+  tracks: MusicTrack[];
+  orderedTrackIds: string[];
+  statusLabel: string;
+  isPlaying: boolean;
+  settings: StudioSettings;
+  onPatchSettings: (patch: Partial<StudioSettings>) => void;
+  onPlayPause: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onSelectTrackId: (trackId: string) => void;
+};
+
+function formatCrossfade(ms: number) {
+  const n = Math.max(0, Math.round(ms));
+  if (n === 0) return "Off";
+  if (n < 1000) return `${n}ms`;
+  return `${(n / 1000).toFixed(2)}s`;
+}
+
+function MusicQuickPanelModal({
+  open,
+  onClose,
+  onOpenStudio,
+  theme,
+  track,
+  tracks,
+  orderedTrackIds,
+  statusLabel,
+  isPlaying,
+  settings,
+  onPatchSettings,
+  onPlayPause,
+  onPrev,
+  onNext,
+  onSelectTrackId
+}: MusicQuickPanelModalProps) {
+  const upNext = useMemo(() => {
+    const ids = orderedTrackIds.length ? orderedTrackIds : tracks.map((t) => t.id);
+    const out: MusicTrack[] = [];
+    let cursor = track?.id ?? null;
+    for (let i = 0; i < Math.min(4, ids.length); i++) {
+      const n = nextId(ids, cursor);
+      if (!n) break;
+      cursor = n;
+      const t = tracks.find((x) => x.id === n) ?? null;
+      if (t) out.push(t);
+    }
+    return out;
+  }, [orderedTrackIds, track?.id, tracks]);
+
+  const bgStyle = useMemo(() => ({ backgroundImage: theme.gradientCss }), [theme.gradientCss]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[97]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Quick Mix"
+        >
+          <button type="button" onClick={onClose} className="absolute inset-0 bg-black/70" aria-label="Close Quick Mix" />
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.985 }}
+            transition={{ duration: 0.2 }}
+            className="absolute left-1/2 top-1/2 w-[94vw] max-w-3xl -translate-x-1/2 -translate-y-1/2"
+          >
+            <div className="rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl" style={bgStyle}>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-black/30 backdrop-blur">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-white font-black text-xl tracking-tight">
+                    <Wand2 className="w-5 h-5 text-white/80" />
+                    <span className="truncate">Quick Mix</span>
+                  </div>
+                  <div className="mt-1 text-xs text-white/65 font-semibold">
+                    Alternate controls • tuned per user
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="rounded-3xl border border-white/10 bg-black/30 backdrop-blur p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-white font-extrabold truncate">{track?.title ?? "VANHSYA Library"}</div>
+                        <div className="mt-1 text-xs text-white/60 font-semibold truncate">{statusLabel}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={onPrev}
+                          className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center"
+                          aria-label="Previous"
+                        >
+                          <ArrowLeft className="w-5 h-5 text-white" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onPlayPause}
+                          className="w-12 h-12 rounded-2xl bg-white/15 hover:bg-white/20 border border-white/10 flex items-center justify-center"
+                          aria-label={isPlaying ? "Pause" : "Play"}
+                        >
+                          {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white ml-0.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onNext}
+                          className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center"
+                          aria-label="Next"
+                        >
+                          <ArrowRight className="w-5 h-5 text-white" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ muted: !settings.muted })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors flex items-center gap-2 justify-center"
+                        aria-label={settings.muted ? "Unmute" : "Mute"}
+                      >
+                        <VolumeX className={`w-4 h-4 ${settings.muted ? "text-amber-200" : "text-white/60"}`} />
+                        <span className="text-white/90 font-extrabold text-sm">{settings.muted ? "Muted" : "Sound"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ shuffle: !settings.shuffle })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors flex items-center gap-2 justify-center"
+                        aria-label={settings.shuffle ? "Disable shuffle" : "Enable shuffle"}
+                      >
+                        <Shuffle className={`w-4 h-4 ${settings.shuffle ? "text-emerald-200" : "text-white/60"}`} />
+                        <span className="text-white/90 font-extrabold text-sm">Shuffle</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ loop: !settings.loop, journeyMode: false })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors flex items-center gap-2 justify-center"
+                        aria-label={settings.loop ? "Disable loop" : "Enable loop"}
+                      >
+                        <Disc3 className={`w-4 h-4 ${settings.loop ? "text-indigo-200" : "text-white/60"}`} />
+                        <span className="text-white/90 font-extrabold text-sm">Loop</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ journeyMode: !settings.journeyMode, loop: false })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors flex items-center gap-2 justify-center"
+                        aria-label={settings.journeyMode ? "Disable journey" : "Enable journey"}
+                      >
+                        <Compass className={`w-4 h-4 ${settings.journeyMode ? "text-amber-200" : "text-white/60"}`} />
+                        <span className="text-white/90 font-extrabold text-sm">Journey</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-white/10 bg-black/25 backdrop-blur p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-white font-black flex items-center gap-2">
+                          <Volume2 className="w-5 h-5 text-white/80" />
+                          <span>Volume</span>
+                        </div>
+                        <div className="mt-1 text-xs text-white/60 font-semibold">Applied site-wide</div>
+                      </div>
+                      <div className="text-white/80 font-extrabold text-sm">{Math.round(settings.volume * 100)}%</div>
+                    </div>
+                    <input
+                      aria-label="Volume"
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={settings.volume}
+                      onChange={(e) => onPatchSettings({ volume: Number(e.target.value) })}
+                      className="mt-4 w-full"
+                    />
+                  </div>
+
+                  <div className="rounded-3xl border border-white/10 bg-black/25 backdrop-blur p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-white font-black flex items-center gap-2">
+                          <SlidersHorizontal className="w-5 h-5 text-white/80" />
+                          <span>Crossfade</span>
+                        </div>
+                        <div className="mt-1 text-xs text-white/60 font-semibold">Controls how seamless track switches feel</div>
+                      </div>
+                      <div className="text-white/80 font-extrabold text-sm">{formatCrossfade(settings.crossfadeMs)}</div>
+                    </div>
+                    <input
+                      aria-label="Crossfade"
+                      type="range"
+                      min={0}
+                      max={2500}
+                      step={50}
+                      value={settings.crossfadeMs}
+                      onChange={(e) => onPatchSettings({ crossfadeMs: Number(e.target.value) })}
+                      className="mt-4 w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="rounded-3xl border border-white/10 bg-black/25 backdrop-blur p-5">
+                    <div className="text-white font-black">One-tap EQ</div>
+                    <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                      Quick presets that keep your current track but shift the feel.
+                    </div>
+                    <div className="mt-4 grid grid-cols-1 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ eqLowDb: 3.5, eqMidDb: -0.5, eqHighDb: 1.2, space: 0.35 })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors text-left"
+                      >
+                        <div className="text-white font-extrabold">Night Bass</div>
+                        <div className="text-xs text-white/60 font-semibold mt-1">Warm low-end • cinematic</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ eqLowDb: 1.0, eqMidDb: 2.2, eqHighDb: 1.4, space: 0.12 })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors text-left"
+                      >
+                        <div className="text-white font-extrabold">Focus Glass</div>
+                        <div className="text-xs text-white/60 font-semibold mt-1">Clear mids • steady</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onPatchSettings({ eqLowDb: 0.2, eqMidDb: -0.2, eqHighDb: 4.2, space: 0.08 })}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 transition-colors text-left"
+                      >
+                        <div className="text-white font-extrabold">Aerial Bright</div>
+                        <div className="text-xs text-white/60 font-semibold mt-1">Crisp highs • punchy</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-white/10 bg-black/25 backdrop-blur overflow-hidden">
+                    <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between gap-3">
+                      <div className="text-white font-black">Up Next</div>
+                      <div className="text-xs text-white/60 font-semibold">{upNext.length ? `${upNext.length} queued` : "—"}</div>
+                    </div>
+                    <div className="max-h-[240px] overflow-auto">
+                      <div className="divide-y divide-white/10">
+                        {upNext.map((t) => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => onSelectTrackId(t.id)}
+                            className="w-full text-left px-5 py-4 hover:bg-white/[0.05] transition-colors"
+                          >
+                            <div className="text-white font-extrabold truncate">{t.title}</div>
+                            <div className="text-xs text-white/60 font-semibold mt-1 truncate">{t.category}</div>
+                          </button>
+                        ))}
+                        {!upNext.length ? (
+                          <div className="px-5 py-4 text-sm text-white/60 font-semibold">Select a track to build your queue.</div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-5 border-t border-white/10 bg-black/30 backdrop-blur flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                <div className="text-xs text-white/60 font-semibold">Secondary controls are saved and follow your user signature.</div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={onOpenStudio}
+                    className="px-4 py-2 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] text-white font-extrabold text-sm transition-colors flex items-center gap-2"
+                  >
+                    <SlidersHorizontal className="w-4 h-4 text-white/70" />
+                    <span>Open Studio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 rounded-2xl border border-white/10 bg-white/10 hover:bg-white/15 text-white font-extrabold text-sm transition-colors flex items-center gap-2"
+                  >
+                    <X className="w-4 h-4 text-white/80" />
+                    <span>Done</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function SessionBackgroundMusic() {
   const pathname = usePathname();
   const tracks = useMemo(() => getAllTracks(), []);
@@ -150,6 +468,7 @@ function SessionBackgroundMusic() {
   const [error, setError] = useState<string | null>(null);
   const [userEnabled, setUserEnabled] = useState(false);
   const [studioOpen, setStudioOpen] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
   const [studioSettings, setStudioSettings] = useState(() =>
     mergeStudioSettings(deriveDefaultStudioSettings("seed"), {})
   );
@@ -550,7 +869,7 @@ function SessionBackgroundMusic() {
   }, []);
 
   const transitionToTrack = useCallback(
-    async (nextTrack: MusicTrack, opts?: { crossfade?: boolean }) => {
+    async (nextTrack: MusicTrack, opts?: { crossfade?: boolean; forceAutoPlay?: boolean }) => {
       const activeAudio = getActiveAudio();
       const inactiveAudio = getInactiveAudio();
       if (!activeAudio || !inactiveAudio) {
@@ -572,7 +891,11 @@ function SessionBackgroundMusic() {
       inactiveAudio.crossOrigin = "anonymous";
       inactiveAudio.loop = false;
 
-      const shouldCrossfade = Boolean(opts?.crossfade) && !activeAudio.paused && userEnabledRef.current;
+      const s = settingsRef.current;
+      const fadeMs = Math.max(0, Math.min(2500, Math.round(Number(s.crossfadeMs) || 0)));
+      const allowMotion =
+        typeof window === "undefined" ? true : !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const shouldCrossfade = Boolean(opts?.crossfade) && fadeMs > 0 && allowMotion && !activeAudio.paused && userEnabledRef.current;
       if (inactiveSrc !== expected) {
         inactiveAudio.src = resolvedUrl;
         inactiveAudio.preload = userEnabledRef.current ? "auto" : "none";
@@ -580,7 +903,7 @@ function SessionBackgroundMusic() {
       }
 
       if (!shouldCrossfade) {
-        pendingAutoPlayRef.current = !activeAudio.paused;
+        pendingAutoPlayRef.current = Boolean(opts?.forceAutoPlay) ? true : !activeAudio.paused;
         persistActiveTrackId(nextTrack.id);
         requestAnimationFrame(() => setTrack(nextTrack));
         return;
@@ -618,7 +941,6 @@ function SessionBackgroundMusic() {
         return;
       }
 
-      const fadeMs = 900;
       if (fx) {
         if (activeDeckRef.current === 0) {
           fx.gainB.gain.value = 0;
@@ -654,7 +976,7 @@ function SessionBackgroundMusic() {
   );
 
   const transitionToTrackId = useCallback(
-    async (id: string, opts?: { crossfade?: boolean }) => {
+    async (id: string, opts?: { crossfade?: boolean; forceAutoPlay?: boolean }) => {
       const next = tracks.find((t) => t.id === id) ?? null;
       if (!next) return;
       await transitionToTrack(next, opts);
@@ -699,7 +1021,7 @@ function SessionBackgroundMusic() {
       const currentId = trackIdRef.current;
       const n = nextId(ids, currentId);
       if (!n) return;
-      await transitionToTrackId(n, { crossfade: false });
+      await transitionToTrackId(n, { crossfade: false, forceAutoPlay: userEnabledRef.current });
     };
 
     const onTimeUpdate = async (e: Event) => {
@@ -712,13 +1034,15 @@ function SessionBackgroundMusic() {
       if (transitionRef.current) return;
 
       const remaining = audio.duration - audio.currentTime;
-      if (remaining > 1.8) return;
+      const fadeSec = Math.max(0, Math.min(2.5, (Number(s.crossfadeMs) || 0) / 1000));
+      const trigger = Math.max(1.2, Math.min(4.5, fadeSec + 0.6));
+      if (remaining > trigger) return;
 
       const ids = orderedIdsRef.current;
       const currentId = trackIdRef.current;
       const n = nextId(ids, currentId);
       if (!n) return;
-      await transitionToTrackId(n, { crossfade: true });
+      await transitionToTrackId(n, { crossfade: true, forceAutoPlay: true });
     };
 
     for (const el of [a, b]) {
@@ -1018,6 +1342,15 @@ function SessionBackgroundMusic() {
 
           <button
             type="button"
+            onClick={() => setQuickOpen(true)}
+            className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center"
+            aria-label="Open Quick Mix"
+          >
+            <Wand2 className="w-5 h-5 text-white" />
+          </button>
+
+          <button
+            type="button"
             onClick={() => setStudioOpen(true)}
             className="w-10 h-10 rounded-2xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/25 flex items-center justify-center"
             aria-label="Open Music Studio"
@@ -1035,6 +1368,27 @@ function SessionBackgroundMusic() {
           </div>
         </div>
       </div>
+
+      <MusicQuickPanelModal
+        open={quickOpen}
+        onClose={() => setQuickOpen(false)}
+        onOpenStudio={() => {
+          setQuickOpen(false);
+          setStudioOpen(true);
+        }}
+        theme={studioTheme}
+        track={track}
+        tracks={tracks}
+        orderedTrackIds={orderedTrackIds}
+        statusLabel={statusLabel}
+        isPlaying={status === "playing"}
+        settings={studioSettings}
+        onPatchSettings={patchStudioSettings}
+        onPlayPause={togglePlay}
+        onPrev={goPrev}
+        onNext={goNext}
+        onSelectTrackId={selectTrackId}
+      />
 
       <MusicStudioModal
         open={studioOpen}

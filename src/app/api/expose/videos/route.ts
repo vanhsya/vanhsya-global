@@ -1,6 +1,7 @@
 import { EXPOSE_INTERVIEWS } from '@/data/expose/interviews';
 import { EXPOSE_CASES } from '@/data/expose/cases';
 import { COMPANY } from '@/lib/company';
+import { getSiteUrl } from '@/lib/utils';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-static';
@@ -48,8 +49,9 @@ const parseUploadsFeed = (xml: string, limit: number): UploadItem[] => {
 
 const getLatestUploads = async (channelId: string, limit: number) => {
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
+  const origin = getSiteUrl();
   const res = await fetch(feedUrl, {
-    headers: { 'user-agent': 'vanhsya-web/1.0 (+https://vanhsya.com)' },
+    headers: { 'user-agent': `vanhsya-web/1.0 (+${origin})` },
     cache: 'force-cache'
   });
   if (!res.ok) return [] as UploadItem[];

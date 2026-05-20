@@ -25,6 +25,8 @@ const verification: Metadata["verification"] = {
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "#0A0A10",
   colorScheme: "dark",
 };
@@ -69,7 +71,17 @@ export const metadata: Metadata = {
   authors: [{ name: "VANHSYA Global" }],
   creator: "VANHSYA Global",
   publisher: "VANHSYA Global",
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/images/logo.png", type: "image/png" }],
     apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
@@ -131,9 +143,43 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}#organization`,
+        name: "VANHSYA Global",
+        url: siteUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: `${siteUrl}/images/logo.png`,
+        },
+        sameAs: [
+          "https://facebook.com/vanhsyaglobal",
+          "https://twitter.com/vanhsya_global",
+          "https://instagram.com/vanhsyaglobal",
+          "https://linkedin.com/company/vanhsya-global",
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}#website`,
+        url: siteUrl,
+        name: "VANHSYA Global",
+        publisher: { "@id": `${siteUrl}#organization` },
+        inLanguage: "en",
+      },
+    ],
+  };
+
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <Script
           id="suppress-wallet-extension-ethereum-defineproperty"
           strategy="beforeInteractive"
