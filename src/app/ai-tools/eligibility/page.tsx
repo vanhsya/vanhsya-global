@@ -18,6 +18,18 @@ interface Question {
 
 const questions: Question[] = [
   {
+    id: 'nationality',
+    question: 'What is your country of origin (nationality)?',
+    type: 'input',
+    placeholder: 'e.g., India'
+  },
+  {
+    id: 'currentCountry',
+    question: 'Where do you currently live? (optional)',
+    type: 'input',
+    placeholder: 'e.g., UAE'
+  },
+  {
     id: 'age',
     question: 'What is your age?',
     type: 'slider',
@@ -29,6 +41,12 @@ const questions: Question[] = [
     question: 'What is your highest level of education?',
     type: 'single',
     options: ['High School', 'Bachelor\'s Degree', 'Master\'s Degree', 'PhD/Doctorate', 'Professional Certification']
+  },
+  {
+    id: 'fieldOfStudy',
+    question: 'What is your field of study? (optional)',
+    type: 'input',
+    placeholder: 'e.g., Computer Science'
   },
   {
     id: 'experience',
@@ -44,10 +62,34 @@ const questions: Question[] = [
     options: ['Beginner', 'Intermediate', 'Advanced', 'Native/Fluent', 'IELTS 6.0+', 'IELTS 7.0+', 'IELTS 8.0+']
   },
   {
+    id: 'ieltsOverall',
+    question: 'IELTS overall score (optional, 0–9)',
+    type: 'input',
+    placeholder: 'e.g., 7.5'
+  },
+  {
     id: 'occupation',
     question: 'What is your current occupation field?',
     type: 'single',
     options: ['Information Technology', 'Engineering', 'Healthcare', 'Education', 'Finance', 'Business/Management', 'Skilled Trades', 'Arts/Creative', 'Other']
+  },
+  {
+    id: 'jobOffer',
+    question: 'Do you have a job offer in your target country?',
+    type: 'single',
+    options: ['Yes', 'No']
+  },
+  {
+    id: 'fundsUsd',
+    question: 'Available settlement funds (USD, optional)',
+    type: 'input',
+    placeholder: 'e.g., 20000'
+  },
+  {
+    id: 'relativesInDestination',
+    question: 'Do you have close relatives in your destination country?',
+    type: 'single',
+    options: ['Yes', 'No']
   },
   {
     id: 'countries',
@@ -66,24 +108,45 @@ const questions: Question[] = [
     question: 'When do you plan to immigrate?',
     type: 'single',
     options: ['Within 6 months', '6-12 months', '1-2 years', '2+ years', 'Just exploring options']
+  },
+  {
+    id: 'notes',
+    question: 'Anything else we should know? (optional)',
+    type: 'input',
+    placeholder: 'e.g., spouse profile, certifications, budget constraints'
   }
 ];
 
 interface AssessmentResult {
+  countryId: string;
   country: string;
   score: number;
   probability: string;
-  recommendations: string[];
+  recommendedPrograms: string[];
   nextSteps: string[];
   estimatedTime: string;
   flag: string;
+  matchedSignals: string[];
+  gaps: string[];
 }
+
+type EligibilityReport = {
+  normalized: { nationality: string | null; currentCountry: string | null; targets: string[] };
+  issues: { field: string; message: string }[];
+  results: AssessmentResult[];
+};
+
+type EligibilityApiResponse = { ok: true; report: EligibilityReport; ai: null | { summary: string; keyMatches: string[]; highestLeverageImprovements: string[]; disclaimers: string[] }; offline: boolean };
 
 export default function EligibilityBot() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [report, setReport] = useState<EligibilityReport | null>(null);
+  const [ai, setAi] = useState<EligibilityApiResponse['ai']>(null);
+  const [offline, setOffline] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleAnswer = (questionId: string, answer: string | number | string[]) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
@@ -105,84 +168,65 @@ export default function EligibilityBot() {
 
   const generateResults = async () => {
     setIsLoading(true);
-    
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsLoading(false);
-    setShowResults(true);
-  };
+    setSubmitError(null);
+    setReport(null);
+    setAi(null);
+    setOffline(false);
 
-  const getRecommendations = (): AssessmentResult[] => {
-    // AI-powered logic would go here
-    const baseResults: AssessmentResult[] = [
-      {
-        country: 'Canada',
-        score: 85,
-        probability: 'Very High',
-        flag: '🇨🇦',
-        recommendations: [
-          'Apply for Express Entry Pool',
-          'Improve IELTS score to 7.0+ for better chances',
-          'Consider Provincial Nominee Program',
-          'Get Educational Credential Assessment'
-        ],
-        nextSteps: [
-          'Create Express Entry profile',
-          'Take IELTS exam',
-          'Get documents assessed',
-          'Build Canadian work experience'
-        ],
-        estimatedTime: '8-12 months'
-      },
-      {
-        country: 'Australia',
-        score: 78,
-        probability: 'High',
-        flag: '🇦🇺',
-        recommendations: [
-          'Check occupation on skilled list',
-          'Get skills assessment completed',
-          'Apply for SkillSelect',
-          'Consider regional sponsorship'
-        ],
-        nextSteps: [
-          'Skills assessment application',
-          'Submit EOI through SkillSelect',
-          'Prepare for invitation',
-          'Gather all documents'
-        ],
-        estimatedTime: '10-14 months'
-      },
-      {
-        country: 'United Kingdom',
-        score: 72,
-        probability: 'Moderate',
-        flag: '🇬🇧',
-        recommendations: [
-          'Secure job offer from UK employer',
-          'Check Skilled Worker Visa requirements',
-          'Consider Global Talent Visa if applicable',
-          'Improve English proficiency'
-        ],
-        nextSteps: [
-          'Job search with UK employers',
-          'Apply for Certificate of Sponsorship',
-          'Prepare visa application',
-          'Book biometrics appointment'
-        ],
-        estimatedTime: '6-10 months'
+    const num = (v: unknown) => {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string' && v.trim()) return Number(v);
+      return undefined;
+    };
+
+    const profile = {
+      age: typeof answers.age === 'number' ? answers.age : num(answers.age),
+      nationality: typeof answers.nationality === 'string' ? answers.nationality : '',
+      currentCountry: typeof answers.currentCountry === 'string' ? answers.currentCountry : undefined,
+      educationLevel: typeof answers.education === 'string' ? answers.education : '',
+      fieldOfStudy: typeof answers.fieldOfStudy === 'string' ? answers.fieldOfStudy : undefined,
+      workExperienceYears: typeof answers.experience === 'number' ? answers.experience : num(answers.experience),
+      occupationField: typeof answers.occupation === 'string' ? answers.occupation : '',
+      englishLevel: typeof answers.language === 'string' ? answers.language : undefined,
+      ieltsOverall: num(answers.ieltsOverall),
+      jobOffer: answers.jobOffer === 'Yes',
+      fundsUsd: num(answers.fundsUsd),
+      relativesInDestination: answers.relativesInDestination === 'Yes',
+      purpose: typeof answers.purpose === 'string' ? answers.purpose : '',
+      timeline: typeof answers.timeline === 'string' ? answers.timeline : undefined,
+      targetCountries: Array.isArray(answers.countries) ? (answers.countries as string[]) : [],
+      notes: typeof answers.notes === 'string' ? answers.notes : undefined
+    };
+
+    try {
+      const res = await fetch('/api/ai/eligibility', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(profile)
+      });
+      const json = (await res.json().catch(() => null)) as EligibilityApiResponse | { error?: string } | null;
+      if (!res.ok) {
+        setSubmitError((json as any)?.error || 'Failed to assess eligibility.');
+        setIsLoading(false);
+        return;
       }
-    ];
-
-    return baseResults.sort((a, b) => b.score - a.score);
+      const ok = json as EligibilityApiResponse;
+      setReport(ok.report);
+      setAi(ok.ai);
+      setOffline(ok.offline);
+      setIsLoading(false);
+      setShowResults(true);
+    } catch {
+      setSubmitError('Network error. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   const currentQ = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   if (showResults) {
-    const results = getRecommendations();
+    const results = report?.results ?? [];
     
     return (
       <div className="min-h-screen">
@@ -208,9 +252,47 @@ export default function EligibilityBot() {
             </motion.div>
 
             <div className="space-y-8">
+              {report?.issues?.length ? (
+                <div className="modern-card border border-amber-200/60 bg-amber-50">
+                  <div className="font-extrabold text-amber-900">Profile checks</div>
+                  <div className="mt-2 text-sm text-amber-800 space-y-1">
+                    {report.issues.map((x) => (
+                      <div key={`${x.field}:${x.message}`}>• {x.message}</div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {ai ? (
+                <div className="modern-card border border-indigo-200/60 bg-indigo-50">
+                  <div className="font-extrabold text-indigo-900">AI summary</div>
+                  <div className="mt-2 text-sm text-indigo-900/90 whitespace-pre-wrap">{ai.summary}</div>
+                  {ai.highestLeverageImprovements?.length ? (
+                    <div className="mt-4">
+                      <div className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Highest leverage improvements</div>
+                      <div className="mt-2 text-sm text-indigo-900/90 space-y-1">
+                        {ai.highestLeverageImprovements.slice(0, 6).map((x) => (
+                          <div key={x}>• {x}</div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {offline ? (
+                    <div className="mt-4 text-xs font-bold text-indigo-700">AI is in offline mode; results are computed deterministically from your profile.</div>
+                  ) : null}
+                </div>
+              ) : offline ? (
+                <div className="modern-card border border-indigo-200/60 bg-indigo-50">
+                  <div className="font-extrabold text-indigo-900">Offline analysis</div>
+                  <div className="mt-2 text-sm text-indigo-900/90">
+                    AI is currently offline. Results below are computed deterministically from your full profile answers.
+                  </div>
+                </div>
+              ) : null}
+
               {results.map((result, index) => (
                 <motion.div
-                  key={result.country}
+                  key={result.countryId}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -244,8 +326,8 @@ export default function EligibilityBot() {
                             Recommendations
                           </h4>
                           <ul className="space-y-2">
-                            {result.recommendations.map((rec, recIndex) => (
-                              <li key={recIndex} className="text-sm text-gray-600 flex items-start">
+                            {result.recommendedPrograms.map((rec, recIndex) => (
+                              <li key={`${recIndex}:${rec}`} className="text-sm text-gray-600 flex items-start">
                                 <CheckCircle className="w-3 h-3 text-green-500 mr-2 mt-1 flex-shrink-0" />
                                 {rec}
                               </li>
@@ -259,15 +341,36 @@ export default function EligibilityBot() {
                             Next Steps
                           </h4>
                           <ul className="space-y-2">
-                            {result.nextSteps.map((step, stepIndex) => (
-                              <li key={stepIndex} className="text-sm text-gray-600 flex items-start">
+                            {result.nextSteps.map((step, idx) => (
+                              <li key={step} className="text-sm text-gray-600 flex items-start">
                                 <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center mr-2 mt-1 flex-shrink-0">
-                                  <span className="text-xs text-blue-600 font-semibold">{stepIndex + 1}</span>
+                                  <span className="text-xs text-blue-600 font-semibold">{idx + 1}</span>
                                 </div>
                                 {step}
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 grid md:grid-cols-2 gap-6">
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                          <div className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">Matched profile signals</div>
+                          <div className="mt-3 text-sm text-gray-700 space-y-1">
+                            {result.matchedSignals.slice(0, 8).map((x) => (
+                              <div key={x}>• {x}</div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                          <div className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">Gaps / improvements</div>
+                          <div className="mt-3 text-sm text-gray-700 space-y-1">
+                            {result.gaps.length ? (
+                              result.gaps.slice(0, 8).map((x) => <div key={x}>• {x}</div>)
+                            ) : (
+                              <div>• No major gaps detected from the submitted profile.</div>
+                            )}
+                          </div>
                         </div>
                       </div>
                       
@@ -343,6 +446,7 @@ export default function EligibilityBot() {
             </motion.div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">AI Processing Your Profile...</h2>
             <p className="text-gray-600 mb-6">Our advanced algorithms are analyzing your responses and matching you with the best immigration opportunities.</p>
+            {submitError ? <div className="text-sm text-red-600 font-semibold mb-6">{submitError}</div> : null}
             <div className="w-64 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-blue-500 to-purple-600"
@@ -487,6 +591,24 @@ export default function EligibilityBot() {
                       <span>{currentQ.min}</span>
                       <span>{currentQ.max}+</span>
                     </div>
+                  </div>
+                )}
+
+                {currentQ.type === 'input' && (
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      value={(answers[currentQ.id] as string) || ''}
+                      onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
+                      placeholder={currentQ.placeholder || ''}
+                      className="w-full h-12 px-4 rounded-2xl bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                      aria-label={currentQ.question}
+                    />
+                    {currentQ.id === 'ieltsOverall' ? (
+                      <div className="text-xs text-gray-500">
+                        If you provide IELTS, it will be used instead of the coarse English level selection.
+                      </div>
+                    ) : null}
                   </div>
                 )}
 

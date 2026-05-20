@@ -1,6 +1,6 @@
 export const runtime = 'nodejs';
 
-import { verifyCsrf } from '@/lib/security/csrf';
+import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 type Req = {
   country?: unknown;

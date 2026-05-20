@@ -21,12 +21,21 @@ interface EligibilityStep {
 
 interface EligibilityResult {
   score: number;
+  topCountry: string;
+  probability: string;
   eligiblePrograms: string[];
   recommendations: string[];
   nextSteps: string[];
 }
 
 const eligibilitySteps: EligibilityStep[] = [
+  {
+    id: 'nationality',
+    title: 'Country of Origin',
+    question: 'What is your nationality (country of origin)?',
+    type: 'input',
+    required: true
+  },
   {
     id: 'age',
     title: 'Age Information',
@@ -115,60 +124,92 @@ export default function EligibilityBot() {
 
   const calculateEligibility = async () => {
     setIsCalculating(true);
-    
-    // Simulate AI calculation
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock calculation logic
-    let score = 0;
-    const eligiblePrograms = [];
-    const recommendations = [];
-    const nextSteps = [];
 
-    // Age scoring
-    if (answers.age === '26-30' || answers.age === '31-35') score += 25;
-    else if (answers.age === '18-25') score += 20;
-    else score += 15;
+    const ageMid = (v: string) => {
+      if (v === '18-25') return 22;
+      if (v === '26-30') return 28;
+      if (v === '31-35') return 33;
+      if (v === '36-40') return 38;
+      if (v === '41-45') return 43;
+      return 48;
+    };
 
-    // Education scoring
-    if (answers.education === 'Master\'s Degree' || answers.education === 'PhD/Doctorate') score += 25;
-    else if (answers.education === 'Bachelor\'s Degree') score += 20;
-    else score += 10;
+    const expMid = (v: string) => {
+      if (v.includes('0-1')) return 1;
+      if (v.includes('2-3')) return 3;
+      if (v.includes('4-5')) return 5;
+      if (v.includes('6-10')) return 8;
+      return 10;
+    };
 
-    // Experience scoring
-    if (answers.experience === '6-10 years' || answers.experience === '10+ years') score += 20;
-    else if (answers.experience === '4-5 years') score += 15;
-    else score += 10;
+    const english = (v: string) => {
+      if (v.includes('Expert')) return 'IELTS 8.0+';
+      if (v.includes('Advanced')) return 'IELTS 7.0+';
+      if (v.includes('Intermediate')) return 'IELTS 6.0+';
+      return 'Beginner';
+    };
 
-    // Language scoring
-    if (answers.language === 'Expert (IELTS 7.5+)') score += 20;
-    else if (answers.language === 'Advanced (IELTS 6.5-7.0)') score += 15;
-    else score += 10;
+    const profile = {
+      age: ageMid(String(answers.age || '')),
+      nationality: String(answers.nationality || ''),
+      educationLevel: String(answers.education || ''),
+      workExperienceYears: expMid(String(answers.experience || '')),
+      occupationField: 'Other',
+      englishLevel: english(String(answers.language || '')),
+      purpose: String(answers.purpose || ''),
+      timeline: 'Just exploring options',
+      targetCountries: Array.isArray(answers.destination) ? answers.destination : [],
+      jobOffer: false,
+      relativesInDestination: false
+    };
 
-    // Determine eligible programs
-    if (score >= 80) {
-      eligiblePrograms.push('Express Entry (Canada)', 'SkillSelect (Australia)', 'Skilled Worker (UK)');
-      recommendations.push('You have excellent chances for skilled migration programs');
-    } else if (score >= 60) {
-      eligiblePrograms.push('Provincial Nominee Program', 'State Nomination (Australia)');
-      recommendations.push('Consider improving language scores for better chances');
-    } else {
-      eligiblePrograms.push('Student Visa pathways', 'Work permit programs');
-      recommendations.push('Focus on education or work experience improvement');
+    try {
+      const res = await fetch('/api/ai/eligibility', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(profile)
+      });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!res.ok || !json?.report?.results?.length) {
+        setResult({
+          score: 0,
+          topCountry: 'Global',
+          probability: 'Low',
+          eligiblePrograms: ['Open the full assessment for a detailed match'],
+          recommendations: ['We could not generate results for this quick widget.'],
+          nextSteps: ['Open the full eligibility assessment', 'Book a consultation']
+        });
+        setIsCalculating(false);
+        return;
+      }
+      const top = json.report.results[0] as any;
+      const score = typeof top.score === 'number' ? top.score : 0;
+      const probability = typeof top.probability === 'string' ? top.probability : 'Moderate';
+      const country = typeof top.country === 'string' ? top.country : 'Destination';
+      const programs = Array.isArray(top.recommendedPrograms) ? top.recommendedPrograms : Array.isArray(top.recommendations) ? top.recommendations : [];
+      const gaps = Array.isArray(top.gaps) ? top.gaps : [];
+      const signals = Array.isArray(top.matchedSignals) ? top.matchedSignals : [];
+
+      setResult({
+        score,
+        topCountry: country,
+        probability,
+        eligiblePrograms: programs.slice(0, 4),
+        recommendations: [...gaps.slice(0, 2), ...signals.slice(0, 1)].filter(Boolean),
+        nextSteps: ['Open the full eligibility assessment', 'Book a consultation', 'Prepare your core documents']
+      });
+      setIsCalculating(false);
+    } catch {
+      setResult({
+        score: 0,
+        topCountry: 'Global',
+        probability: 'Low',
+        eligiblePrograms: ['Open the full assessment for a detailed match'],
+        recommendations: ['Network error while assessing profile.'],
+        nextSteps: ['Open the full eligibility assessment', 'Book a consultation']
+      });
+      setIsCalculating(false);
     }
-
-    // Generate next steps
-    nextSteps.push('Book a consultation with our certified consultants');
-    nextSteps.push('Prepare required documents');
-    nextSteps.push('Improve language test scores if needed');
-
-    setResult({
-      score,
-      eligiblePrograms,
-      recommendations,
-      nextSteps
-    });
-    setIsCalculating(false);
   };
 
   const resetBot = () => {
@@ -260,6 +301,9 @@ export default function EligibilityBot() {
                       {result.score}/100
                     </div>
                     <p className="text-white/70">Eligibility Score</p>
+                    <div className="mt-2 text-sm font-bold text-white/80">
+                      Best match: {result.topCountry} ({result.probability})
+                    </div>
                   </div>
 
                   {/* Eligible Programs */}
@@ -331,21 +375,53 @@ export default function EligibilityBot() {
                     <p className="text-white/80 mb-6">{currentStepData.question}</p>
 
                     {/* Options */}
-                    <div className="space-y-3">
-                      {currentStepData.options?.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleAnswer(currentStepData.id, option)}
-                          className={`w-full text-left p-4 rounded-lg transition-all duration-200 ${
-                            answers[currentStepData.id] === option
-                              ? 'bg-primary-600 text-white border-primary-500'
-                              : 'bg-white/10 text-white/90 border-white/20 hover:bg-white/20'
-                          } border`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
+                    {currentStepData.type === 'input' ? (
+                      <input
+                        type="text"
+                        value={String(answers[currentStepData.id] || '')}
+                        onChange={(e) => handleAnswer(currentStepData.id, e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                        placeholder="Type your answer…"
+                        aria-label={currentStepData.question}
+                      />
+                    ) : currentStepData.type === 'multiselect' ? (
+                      <div className="space-y-3">
+                        {currentStepData.options?.map((option) => {
+                          const current = Array.isArray(answers[currentStepData.id]) ? (answers[currentStepData.id] as string[]) : [];
+                          const selected = current.includes(option);
+                          return (
+                            <button
+                              key={option}
+                              onClick={() => {
+                                const next = selected ? current.filter((x) => x !== option) : [...current, option];
+                                handleAnswer(currentStepData.id, next);
+                              }}
+                              className={`w-full text-left p-4 rounded-lg transition-all duration-200 ${
+                                selected ? 'bg-primary-600 text-white border-primary-500' : 'bg-white/10 text-white/90 border-white/20 hover:bg-white/20'
+                              } border`}
+                            >
+                              {option}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {currentStepData.options?.map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => handleAnswer(currentStepData.id, option)}
+                            className={`w-full text-left p-4 rounded-lg transition-all duration-200 ${
+                              answers[currentStepData.id] === option
+                                ? 'bg-primary-600 text-white border-primary-500'
+                                : 'bg-white/10 text-white/90 border-white/20 hover:bg-white/20'
+                            } border`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Navigation */}
@@ -359,7 +435,15 @@ export default function EligibilityBot() {
                     </button>
                     <button
                       onClick={nextStep}
-                      disabled={!answers[currentStepData.id]}
+                      disabled={
+                        currentStepData.required
+                          ? currentStepData.type === 'multiselect'
+                            ? !(Array.isArray(answers[currentStepData.id]) && (answers[currentStepData.id] as string[]).length > 0)
+                            : currentStepData.type === 'input'
+                              ? !(typeof answers[currentStepData.id] === 'string' && String(answers[currentStepData.id]).trim().length > 0)
+                              : !answers[currentStepData.id]
+                          : false
+                      }
                       className="px-6 py-2 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {currentStep === eligibilitySteps.length - 1 ? 'Calculate' : 'Next'}

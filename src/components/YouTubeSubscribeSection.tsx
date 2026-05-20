@@ -2,8 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { COMPANY } from '@/lib/company';
+import { useState } from 'react';
 
 export default function YouTubeSubscribeSection() {
+  const [showPlayer, setShowPlayer] = useState(false);
+
   return (
     <section className="section-padding bg-gradient-to-r from-red-50 to-white">
       <div className="container-max">
@@ -24,13 +27,31 @@ export default function YouTubeSubscribeSection() {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl"
         >
-          <iframe
-            src="https://www.youtube.com/embed/Vanhsya_live?rel=0&showinfo=0"
-            title="VANHSYA Live YouTube Channel"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full aspect-video"
-          />
+          {showPlayer ? (
+            <iframe
+              src={`https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(COMPANY.social.youtubeChannelId)}&rel=0`}
+              title="VANHSYA Live YouTube Channel"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full aspect-video"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPlayer(true)}
+              className="w-full aspect-video bg-gradient-to-br from-red-600 to-red-900 text-white flex items-center justify-center"
+              aria-label="Play VANHSYA Live on YouTube"
+            >
+              <div className="flex items-center gap-3 text-lg font-semibold">
+                <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/15">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                </span>
+                Watch VANHSYA Live
+              </div>
+            </button>
+          )}
         </motion.div>
         <div className="text-center mt-6">
           <a

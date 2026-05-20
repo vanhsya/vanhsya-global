@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { 
   FaUser, 
   FaLock, 
@@ -14,14 +15,17 @@ import {
 } from 'react-icons/fa';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { getSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 export default function ClientPortalLogin() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
+  const [status, setStatus] = useState<{ kind: 'idle' | 'loading' | 'error'; message?: string }>({ kind: 'idle' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -31,10 +35,23 @@ export default function ClientPortalLogin() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    // console.log('Login attempt:', formData);
+    setStatus({ kind: 'loading' });
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim(),
+        password: formData.password
+      });
+      if (error) {
+        setStatus({ kind: 'error', message: error.message });
+        return;
+      }
+      router.push('/portal/dashboard');
+    } catch (err) {
+      setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'Login failed.' });
+    }
   };
 
   return (
@@ -154,15 +171,22 @@ export default function ClientPortalLogin() {
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  disabled={status.kind === 'loading'}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                     <FaShieldAlt className="h-4 w-4 text-blue-500 group-hover:text-blue-400" />
                   </span>
-                  Sign in to Portal
+                  {status.kind === 'loading' ? 'Signing in…' : 'Sign in to Portal'}
                   <FaArrowRight className="ml-2 h-4 w-4" />
                 </motion.button>
               </div>
+
+              {status.kind === 'error' ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                  {status.message || 'Login failed.'}
+                </div>
+              ) : null}
 
               {/* Social Login Divider */}
               <div className="relative">

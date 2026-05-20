@@ -8,14 +8,17 @@ import GlassCard from '@/components/GlassCard';
 import {
   ArrowRight,
   BadgeCheck,
+  Bell,
   BrainCircuit,
   ClipboardCheck,
   FileCheck2,
+  FileText,
   Gamepad2,
   GraduationCap,
   LineChart,
   Mic,
   ScanText,
+  Sparkles,
   Timer
 } from 'lucide-react';
 import { useMemo } from 'react';
@@ -99,6 +102,38 @@ export default function AIToolsLanding() {
         icon: LineChart,
         tags: ['Risk band', 'Factors', 'Improvements'],
         accent: 'purple'
+      },
+      {
+        title: 'Eligibility Assessment',
+        description: 'Full-profile eligibility matching across destinations with non-generic, profile-aware results.',
+        href: '/ai-tools/eligibility',
+        icon: BrainCircuit,
+        tags: ['Profile', 'Match', 'Next steps'],
+        accent: 'indigo'
+      },
+      {
+        title: 'CV Builder',
+        description: 'Generate an ATS-optimized CV draft from your achievements and skills.',
+        href: '/ai-tools/cv-builder',
+        icon: FileText,
+        tags: ['ATS', 'Draft', 'Download'],
+        accent: 'emerald'
+      },
+      {
+        title: 'SOP Generator',
+        description: 'Create a structured Statement of Purpose draft with a personalization checklist.',
+        href: '/ai-tools/sop-generator',
+        icon: Sparkles,
+        tags: ['SOP', 'Study', 'Work'],
+        accent: 'purple'
+      },
+      {
+        title: 'Embassy Alerts',
+        description: 'Build a destination watchlist for processing time and requirement changes.',
+        href: '/ai-tools/embassy-alerts',
+        icon: Bell,
+        tags: ['Watchlist', 'Changes', 'Plan'],
+        accent: 'amber'
       },
       {
         title: 'Progress Dashboard',
@@ -209,4 +244,3 @@ export default function AIToolsLanding() {
     </main>
   );
 }
-

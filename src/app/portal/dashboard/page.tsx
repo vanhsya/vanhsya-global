@@ -7,7 +7,9 @@ import {
   BarChart3, TrendingUp, Globe
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 const applicationData = {
   profile: {
@@ -44,7 +46,53 @@ const applicationData = {
 };
 
 export default function ClientDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [profile, setProfile] = useState(applicationData.profile);
+
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data } = await supabase.auth.getSession();
+        const session = data.session;
+        if (!session?.user) {
+          if (!cancelled) router.replace('/portal');
+          return;
+        }
+        const email = typeof session.user.email === 'string' ? session.user.email : profile.email;
+        const md = (session.user.user_metadata ?? {}) as Record<string, unknown>;
+        const name =
+          (typeof md.full_name === 'string' && md.full_name.trim()) ||
+          (typeof md.name === 'string' && md.name.trim()) ||
+          profile.name;
+        if (!cancelled) setProfile((p) => ({ ...p, name, email }));
+      } catch {
+        if (!cancelled) router.replace('/portal');
+        return;
+      } finally {
+        if (!cancelled) setSessionChecked(true);
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [router, profile.email, profile.name]);
+
+  const signOut = async () => {
+    try {
+      const supabase = getSupabaseBrowserClient();
+      await supabase.auth.signOut();
+    } catch {
+    } finally {
+      router.replace('/portal');
+    }
+  };
+
+  const viewProfile = useMemo(() => profile, [profile]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -97,9 +145,14 @@ export default function ClientDashboard() {
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-white font-medium">{applicationData.profile.name}</span>
+                <span className="text-white font-medium">{viewProfile.name}</span>
               </div>
-              <button className="p-2 text-white/70 hover:text-white transition-colors" aria-label="Sign out">
+              <button
+                type="button"
+                onClick={signOut}
+                className="p-2 text-white/70 hover:text-white transition-colors"
+                aria-label="Sign out"
+              >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
@@ -107,6 +160,13 @@ export default function ClientDashboard() {
         </div>
       </header>
 
+      {!sessionChecked ? (
+        <div className="container-max py-8">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-5 text-white/80 font-bold">
+            Loading portal session…
+          </div>
+        </div>
+      ) : (
       <div className="container-max py-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar */}
@@ -116,10 +176,10 @@ export default function ClientDashboard() {
                 <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <User className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-800">{applicationData.profile.name}</h3>
-                <p className="text-gray-600 text-sm">{applicationData.profile.email}</p>
+                <h3 className="font-semibold text-gray-800">{viewProfile.name}</h3>
+                <p className="text-gray-600 text-sm">{viewProfile.email}</p>
                 <div className="mt-2 px-3 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 rounded-full text-xs">
-                  {applicationData.profile.applicationId}
+                  {viewProfile.applicationId}
                 </div>
               </div>
 
@@ -329,10 +389,12 @@ export default function ClientDashboard() {
                 <h3 className="text-xl font-semibold mb-6 text-gray-800">Account Settings</h3>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input 
-                      type="email" 
-                      value={applicationData.profile.email}
+                    <label htmlFor="settings-email" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input
+                      id="settings-email"
+                      type="email"
+                      value={viewProfile.email}
+                      aria-label="Email address"
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                       readOnly
                     />
@@ -372,6 +434,7 @@ export default function ClientDashboard() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

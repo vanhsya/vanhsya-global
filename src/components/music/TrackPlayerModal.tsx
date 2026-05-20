@@ -28,7 +28,7 @@ function getMediaKind(fileName: string): 'audio' | 'video' {
 export default function TrackPlayerModal({ open, onClose, track }: Props) {
   const src = useMemo(() => {
     // Served from /public/vanhsya-media/
-    const cleanedFileName = encodeURI(track.fileName);
+    const cleanedFileName = encodeURIComponent(track.fileName);
     return `/vanhsya-media/${cleanedFileName}`;
   }, [track.fileName]);
 
@@ -115,18 +115,18 @@ export default function TrackPlayerModal({ open, onClose, track }: Props) {
                           )
                         }
                       >
-                        <source src={src} />
+                        <source src={src} type="video/mp4" />
                       </video>
                     ) : (
                       <audio
                         controls
-                        preload="metadata"
+                        preload="auto"
                         className="w-full p-4"
                         onError={() =>
                           setError('Media not found or failed to load. Please verify the file is present and playable at: ' + src)
                         }
                       >
-                        <source src={src} />
+                        <source src={src} type="audio/mp4" />
                       </audio>
                     )}
                   </div>

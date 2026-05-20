@@ -1,11 +1,15 @@
 export type ToolId =
+  | 'eligibility'
   | 'ielts-trainer'
   | 'immigration-simulations'
   | 'visa-rejection-analyzer'
   | 'visa-interview-coach'
   | 'document-verification'
   | 'timeline-optimizer'
-  | 'success-predictor';
+  | 'success-predictor'
+  | 'cv-builder'
+  | 'sop-generator'
+  | 'embassy-alerts';
 
 export type ProgressEvent = {
   id: string;

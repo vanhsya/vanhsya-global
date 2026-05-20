@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic';
 
 const uploadsDir = () => join(process.cwd(), 'var', 'expose', 'uploads');
 
+const MAX_UPLOAD_BYTES = 55 * 1024 * 1024;
+
 const createId = () => {
   const rand = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   return `vx_${rand}`;
@@ -15,9 +17,57 @@ const createId = () => {
 
 const toSafeFileName = (name: string) => name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
 
+function extractClientIp(headers: Headers): string {
+  const candidates = [
+    headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+    headers.get('x-real-ip')?.trim(),
+    headers.get('cf-connecting-ip')?.trim(),
+    headers.get('x-vercel-forwarded-for')?.trim(),
+    headers.get('true-client-ip')?.trim(),
+  ];
+
+  for (const c of candidates) {
+    if (c && c.length > 0) return c;
+  }
+
+  return 'unknown';
+}
+
+type RateEntry = { count: number; resetAt: number };
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 2;
+const recent = new Map<string, RateEntry>();
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const existing = recent.get(key);
+
+  if (!existing || now >= existing.resetAt) {
+    recent.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (existing.count >= RATE_LIMIT_MAX) return false;
+
+  existing.count += 1;
+  return true;
+}
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403 });
+
+  const contentLength = Number(req.headers.get('content-length') ?? '0');
+  if (Number.isFinite(contentLength) && contentLength > MAX_UPLOAD_BYTES) {
+    return Response.json({ error: 'Request body too large' }, { status: 413 });
+  }
+
+  const ip = extractClientIp(req.headers);
+  const ua = req.headers.get('user-agent')?.slice(0, 120) ?? 'unknown';
+  const rateKey = `${ip}|${ua}`;
+  if (!checkRateLimit(rateKey)) {
+    return Response.json({ error: 'Too many requests. Please wait a minute.' }, { status: 429 });
+  }
 
   const contentType = req.headers.get('content-type') || '';
   if (!contentType.includes('multipart/form-data')) {
@@ -25,6 +75,12 @@ export async function POST(req: Request) {
   }
 
   const form = await req.formData();
+
+  const honeypot = String(form.get('website') || form.get('companyWebsite') || form.get('_hp') || '').trim();
+  if (honeypot) {
+    const id = createId();
+    return Response.json({ id, status: 'received' }, { status: 200 });
+  }
 
   const scamType = String(form.get('scamType') || '').trim();
   const severity = String(form.get('severity') || '').trim();

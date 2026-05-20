@@ -8,11 +8,11 @@ import { SiBinance, SiPolygon } from 'react-icons/si';
 type CryptoMethod = 'btc' | 'eth' | 'usdt' | 'usdc' | 'yno';
 
 const methods = [
-  { id: 'btc' as CryptoMethod, label: 'Bitcoin', icon: FaBitcoin, color: 'orange-500', address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wl' },
-  { id: 'eth' as CryptoMethod, label: 'Ethereum', icon: FaEthereum, color: 'indigo-500', address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976' },
-  { id: 'usdt' as CryptoMethod, label: 'USDT (TRC20)', icon: SiPolygon, color: 'green-500', address: 'TQn9Y2NZ4gN7H2Q4Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z' },
-  { id: 'usdc' as CryptoMethod, label: 'USDC (Polygon)', icon: SiPolygon, color: 'blue-600', address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' },
-  { id: 'yno' as CryptoMethod, label: 'YNO Coin', icon: FaBitcoin, color: 'purple-600', address: 'yno1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wl' },
+  { id: 'btc' as CryptoMethod, label: 'Bitcoin', icon: FaBitcoin, iconClass: 'text-orange-500', address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wl' },
+  { id: 'eth' as CryptoMethod, label: 'Ethereum', icon: FaEthereum, iconClass: 'text-indigo-500', address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976' },
+  { id: 'usdt' as CryptoMethod, label: 'USDT (TRC20)', icon: SiPolygon, iconClass: 'text-green-500', address: 'TQn9Y2NZ4gN7H2Q4Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z' },
+  { id: 'usdc' as CryptoMethod, label: 'USDC (Polygon)', icon: SiPolygon, iconClass: 'text-blue-600', address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' },
+  { id: 'yno' as CryptoMethod, label: 'YNO Coin', icon: FaBitcoin, iconClass: 'text-purple-600', address: 'yno1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wl' },
 ];
 
 interface Props {
@@ -44,7 +44,7 @@ export default function CryptoPayment({ amount, service, onComplete }: Props) {
               onClick={() => { setSelected(m.id); setStatus('pay'); }}
               className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-4 hover:border-blue-500 hover:bg-blue-50 transition-colors"
             >
-              <m.icon className={`text-2xl text-${m.color}`} />
+              <m.icon className={`text-2xl ${m.iconClass}`} />
               <span className="text-sm font-medium text-gray-800">{m.label}</span>
             </button>
           ))}

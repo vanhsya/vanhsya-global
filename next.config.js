@@ -5,6 +5,15 @@ const nextConfig = {
     if (process.env.NODE_ENV !== 'production') return [];
     return [
       {
+        source: '/vanhsya-media/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
         source: '/(.*)',
         headers: [
           {

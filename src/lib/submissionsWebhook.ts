@@ -73,6 +73,16 @@ export type SubmissionWebhookPayload =
         message?: string;
         source?: string;
       };
+    }
+  | {
+      kind: 'lucky_draw_entry';
+      receivedAt: string;
+      data: {
+        id: string;
+        month: string;
+        email: string;
+        source?: string;
+      };
     };
 
 export const queueSubmissionWebhook = (payload: SubmissionWebhookPayload) => {
@@ -91,4 +101,3 @@ export const queueSubmissionWebhook = (payload: SubmissionWebhookPayload) => {
     body: JSON.stringify(payload)
   }).catch(() => undefined);
 };
-

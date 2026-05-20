@@ -148,13 +148,13 @@ const officeLocations = [
 ];
 
 const socialLinks = [
-  { icon: FaFacebook, name: 'Facebook', url: COMPANY.social.facebook, color: 'blue-600' },
-  { icon: FaTwitter, name: 'Twitter', url: COMPANY.social.twitter, color: 'blue-400' },
-  { icon: FaLinkedin, name: 'LinkedIn', url: COMPANY.social.linkedin, color: 'blue-700' },
-  { icon: FaInstagram, name: 'Instagram', url: COMPANY.social.instagram, color: 'pink-600' },
-  { icon: FaYoutube, name: 'YouTube', url: COMPANY.social.youtubeChannel, color: 'red-600' },
-  { icon: SiTiktok, name: 'TikTok', url: COMPANY.social.tiktok, color: 'gray-900' },
-  { icon: SiThreads, name: 'Threads', url: COMPANY.social.threads, color: 'gray-700' },
+  { icon: FaFacebook, name: 'Facebook', url: COMPANY.social.facebook, bgClass: 'bg-blue-600' },
+  { icon: FaTwitter, name: 'Twitter', url: COMPANY.social.twitter, bgClass: 'bg-blue-400' },
+  { icon: FaLinkedin, name: 'LinkedIn', url: COMPANY.social.linkedin, bgClass: 'bg-blue-700' },
+  { icon: FaInstagram, name: 'Instagram', url: COMPANY.social.instagram, bgClass: 'bg-pink-600' },
+  { icon: FaYoutube, name: 'YouTube', url: COMPANY.social.youtubeChannel, bgClass: 'bg-red-600' },
+  { icon: SiTiktok, name: 'TikTok', url: COMPANY.social.tiktok, bgClass: 'bg-gray-900' },
+  { icon: SiThreads, name: 'Threads', url: COMPANY.social.threads, bgClass: 'bg-gray-700' },
 ];
 
 const faqs = [
@@ -279,7 +279,7 @@ export default function ContactPage() {
 
               return (
                 <AnimatedCard
-                  key={index}
+                  key={method.title}
                   delay={index * 0.1}
                   className={`bg-white rounded-xl p-6 shadow-lg border-l-4 ${colorClasses[method.color as keyof typeof colorClasses].split(' ')[2]}`}
                   hover={true}
@@ -324,12 +324,34 @@ export default function ContactPage() {
                 Fill out the form below and our experts will get back to you within 24 hours.
               </p>
 
-              {!isSubmitted ? (
+              {isSubmitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-12"
+                >
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaCheck className="text-2xl text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Message Sent Successfully!</h3>
+                  <p className="text-gray-600 mb-6">
+                    Thank you for contacting us. Our team will review your message and get back to you within 24 hours.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsSubmitted(false)}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Send Another Message
+                  </button>
+                </motion.div>
+              ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Full Name</label>
+                      <label htmlFor="contact-name" className="block text-gray-700 font-medium mb-2">Full Name</label>
                       <input
+                        id="contact-name"
                         type="text"
                         name="name"
                         value={formData.name}
@@ -340,8 +362,9 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Email Address</label>
+                      <label htmlFor="contact-email" className="block text-gray-700 font-medium mb-2">Email Address</label>
                       <input
+                        id="contact-email"
                         type="email"
                         name="email"
                         value={formData.email}
@@ -355,8 +378,9 @@ export default function ContactPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
+                      <label htmlFor="contact-phone" className="block text-gray-700 font-medium mb-2">Phone Number</label>
                       <input
+                        id="contact-phone"
                         type="tel"
                         name="phone"
                         value={formData.phone}
@@ -366,8 +390,9 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Service Interest</label>
+                      <label htmlFor="contact-service" className="block text-gray-700 font-medium mb-2">Service Interest</label>
                       <select
+                        id="contact-service"
                         name="service"
                         value={formData.service}
                         onChange={handleInputChange}
@@ -388,8 +413,9 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Destination Country</label>
+                    <label htmlFor="contact-country" className="block text-gray-700 font-medium mb-2">Destination Country</label>
                     <select
+                      id="contact-country"
                       name="country"
                       value={formData.country}
                       onChange={handleInputChange}
@@ -409,8 +435,9 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Message</label>
+                    <label htmlFor="contact-message" className="block text-gray-700 font-medium mb-2">Message</label>
                     <textarea
+                      id="contact-message"
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
@@ -445,26 +472,6 @@ export default function ContactPage() {
                     )}
                   </motion.button>
                 </form>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-12"
-                >
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaCheck className="text-2xl text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Message Sent Successfully!</h3>
-                  <p className="text-gray-600 mb-6">
-                    Thank you for contacting us. Our team will review your message and get back to you within 24 hours.
-                  </p>
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Send Another Message
-                  </button>
-                </motion.div>
               )}
             </motion.div>
 
@@ -509,13 +516,13 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Follow Us</h3>
                 <div className="flex space-x-4">
-                  {socialLinks.map((social, index) => (
+                  {socialLinks.map((social) => (
                     <motion.a
-                      key={index}
+                      key={social.name}
                       href={social.url}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`w-12 h-12 bg-${social.color} text-white rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity`}
+                      className={`w-12 h-12 ${social.bgClass} text-white rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity`}
                     >
                       <social.icon className="text-xl" />
                     </motion.a>
@@ -542,8 +549,8 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h3>
                 <div className="space-y-4">
-                  {faqs.slice(0, 2).map((faq, index) => (
-                    <div key={index} className="border-l-4 border-blue-500 pl-4">
+                  {faqs.slice(0, 2).map((faq) => (
+                    <div key={faq.question} className="border-l-4 border-blue-500 pl-4">
                       <h4 className="font-medium text-gray-800 mb-2">{faq.question}</h4>
                       <p className="text-gray-600 text-sm">{faq.answer}</p>
                     </div>
@@ -580,7 +587,7 @@ export default function ContactPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {officeLocations.map((office, index) => (
               <AnimatedCard
-                key={index}
+                key={office.city}
                 delay={index * 0.1}
                 className="bg-white rounded-xl p-6 shadow-lg"
               >
@@ -611,8 +618,8 @@ export default function ContactPage() {
                 <div>
                   <h4 className="font-medium text-gray-700 mb-2">Services Available:</h4>
                   <div className="flex flex-wrap gap-2">
-                    {office.services.map((service, idx) => (
-                      <span key={idx} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+                    {office.services.map((service) => (
+                      <span key={`${office.city}-${service}`} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
                         {service}
                       </span>
                     ))}

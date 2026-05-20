@@ -43,15 +43,20 @@ export default function SystemStatusBanner() {
 
   useEffect(() => {
     let cancelled = false;
+    let controller: AbortController | null = null;
     const run = async () => {
       try {
-        const res = await fetch('/api/health', { cache: 'no-store' });
+        controller?.abort();
+        controller = new AbortController();
+        const res = await fetch('/api/health', { cache: 'no-store', signal: controller.signal });
         const json = (await res.json().catch(() => null)) as HealthResponse | null;
         if (cancelled) return;
         setHealth(json);
         setHealthError(!res.ok);
-      } catch {
+      } catch (e) {
         if (cancelled) return;
+        const name = (e as { name?: string } | null)?.name;
+        if (name === 'AbortError') return;
         setHealth(null);
         setHealthError(true);
       }
@@ -60,6 +65,7 @@ export default function SystemStatusBanner() {
     const id = window.setInterval(run, 30000);
     return () => {
       cancelled = true;
+      controller?.abort();
       window.clearInterval(id);
     };
   }, []);
@@ -148,4 +154,3 @@ export default function SystemStatusBanner() {
     </div>
   );
 }
-

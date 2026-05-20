@@ -27,13 +27,17 @@ const fadeUp = {
 };
 
 const TOOL_LABELS: Record<ToolId, string> = {
+  eligibility: 'Eligibility Assessment',
   'ielts-trainer': 'IELTS Trainer',
   'immigration-simulations': 'Immigration Simulations',
   'visa-rejection-analyzer': 'Visa Rejection Analyzer',
   'visa-interview-coach': 'Visa Interview Coach',
   'document-verification': 'Document Verification',
   'timeline-optimizer': 'Timeline Optimizer',
-  'success-predictor': 'Success Predictor'
+  'success-predictor': 'Success Predictor',
+  'cv-builder': 'CV Builder',
+  'sop-generator': 'SOP Generator',
+  'embassy-alerts': 'Embassy Alerts'
 };
 
 const STRINGS: Record<

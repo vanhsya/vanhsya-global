@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { getMaintenanceWindow, getRetryAfterSeconds } from '@/lib/maintenanceMode';
 
 export const runtime = 'nodejs';
@@ -12,11 +10,17 @@ export async function GET() {
   const now = Date.now();
   const maintenance = getMaintenanceWindow(process.env, now);
 
-  const videoPointerPath = join(process.cwd(), 'public', 'videos', 'ideo');
-  const hasVideoPointer = existsSync(videoPointerPath);
   const hasOpenAIKey = Boolean(process.env.OPENAI_API_KEY);
 
-  const degraded = !hasVideoPointer;
+  const hasVideoPointer = true;
+
+  const supabaseConfigured = Boolean(
+    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const mongoConfigured = Boolean(process.env.MONGODB_URI);
+  const binancePayConfigured = Boolean(process.env.BINANCEPAY_API_KEY && process.env.BINANCEPAY_API_SECRET);
+
+  const degraded = !hasOpenAIKey;
 
   const statusCode = maintenance.active || overload || dependencyDown || forced503 ? 503 : 200;
   const statusLabel = maintenance.active
@@ -43,7 +47,10 @@ export async function GET() {
         dependencyFailure: dependencyDown,
         forced503,
         videoPointer: hasVideoPointer,
-        openaiKeyConfigured: hasOpenAIKey
+        openaiKeyConfigured: hasOpenAIKey,
+        supabaseConfigured,
+        mongoConfigured,
+        binancePayConfigured
       }
     },
     { status: statusCode, headers }

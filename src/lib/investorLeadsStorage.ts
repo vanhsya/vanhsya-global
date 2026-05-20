@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getLocalStorageEncryptionKey, readJsonFile, writeJsonFile } from '@/lib/encryptedJsonFile';
 
 export type InvestorDeckRequest = {
   id: string;
@@ -34,8 +35,7 @@ const readAll = (): InvestorDeckRequest[] => {
   try {
     if (canWriteFileStorage()) {
       if (!fs.existsSync(filePath)) return getMemory();
-      const raw = fs.readFileSync(filePath, 'utf8');
-      const parsed = JSON.parse(raw) as unknown;
+      const parsed = readJsonFile<unknown>(filePath, getLocalStorageEncryptionKey());
       if (!Array.isArray(parsed)) return getMemory();
       const disk = parsed as InvestorDeckRequest[];
       const mem = getMemory();
@@ -54,7 +54,7 @@ const writeAll = (entries: InvestorDeckRequest[]) => {
   mem.push(...entries);
   if (!canWriteFileStorage()) return;
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(entries, null, 2), 'utf8');
+  writeJsonFile(filePath, entries, getLocalStorageEncryptionKey());
 };
 
 export const addDeckRequest = (input: Omit<InvestorDeckRequest, 'id' | 'createdAt'>): InvestorDeckRequest => {

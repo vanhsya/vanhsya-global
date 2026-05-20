@@ -1,5 +1,6 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { getLocalStorageEncryptionKey, readJsonFile, writeJsonFile } from '@/lib/encryptedJsonFile';
 
 export type ExposeSubmissionStatus = 'received' | 'reviewing' | 'published' | 'rejected';
 
@@ -48,16 +49,15 @@ const ensureStorage = () => {
   try {
     readFileSync(storagePath(), 'utf8');
   } catch {
-    writeFileSync(storagePath(), JSON.stringify({ submissions: [] } satisfies StorageShape, null, 2), 'utf8');
+    writeJsonFile(storagePath(), { submissions: [] } satisfies StorageShape, getLocalStorageEncryptionKey());
   }
 };
 
 export const readSubmissions = (): StorageShape => {
   if (!canWriteFileStorage()) return getMemory();
   ensureStorage();
-  const raw = readFileSync(storagePath(), 'utf8');
   try {
-    const parsed = JSON.parse(raw) as StorageShape;
+    const parsed = readJsonFile<StorageShape>(storagePath(), getLocalStorageEncryptionKey());
     if (!Array.isArray(parsed.submissions)) return getMemory();
     const mem = getMemory();
     if (mem.submissions.length === 0 && parsed.submissions.length) mem.submissions.push(...parsed.submissions);
@@ -72,7 +72,7 @@ export const writeSubmissions = (next: StorageShape) => {
   mem.submissions = Array.isArray(next.submissions) ? next.submissions : [];
   if (!canWriteFileStorage()) return;
   ensureStorage();
-  writeFileSync(storagePath(), JSON.stringify(next, null, 2), 'utf8');
+  writeJsonFile(storagePath(), next, getLocalStorageEncryptionKey());
 };
 
 export const findSubmission = (id: string) => {

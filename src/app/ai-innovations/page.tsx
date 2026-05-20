@@ -70,16 +70,65 @@ export default function AIInnovations() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [referralCode, setReferralCode] = useState('');
   const [luckyDrawEntry, setLuckyDrawEntry] = useState('');
+  const [luckyDrawState, setLuckyDrawState] = useState<{ status: 'idle' | 'loading' | 'success' | 'error'; message: string }>({
+    status: 'idle',
+    message: ''
+  });
 
   const handleGenerateReferralCode = () => {
     const code = `VANHSYA${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     setReferralCode(code);
   };
 
-  const handleLuckyDrawEntry = () => {
-    if (luckyDrawEntry.trim()) {
-      alert('🎉 Entry submitted! Draw results will be announced monthly.');
+  const monthKey = (d: Date) => {
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  };
+
+  const drawWindow = (now: Date) => {
+    const y = now.getUTCFullYear();
+    const m = now.getUTCMonth();
+    const start = new Date(Date.UTC(y, m, 1, 0, 0, 0));
+    const nextStart = new Date(Date.UTC(y, m + 1, 1, 0, 0, 0));
+    const end = new Date(nextStart.getTime() - 1);
+    const announce = nextStart;
+    return { start, end, announce, month: monthKey(now) };
+  };
+
+  const handleLuckyDrawEntry = async () => {
+    const email = luckyDrawEntry.trim();
+    if (!email) {
+      setLuckyDrawState({ status: 'error', message: 'Please enter your email.' });
+      return;
+    }
+
+    setLuckyDrawState({ status: 'loading', message: '' });
+    try {
+      const res = await fetch('/api/lucky-draw/enter', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, source: 'ai_innovations_lucky_draw' })
+      });
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; alreadyEntered?: boolean; month?: string }
+        | { error?: string }
+        | null;
+
+      if (!res.ok) {
+        setLuckyDrawState({ status: 'error', message: (json as any)?.error || 'Submission failed. Please try again.' });
+        return;
+      }
+
+      const alreadyEntered = Boolean((json as any)?.alreadyEntered);
+      const month = typeof (json as any)?.month === 'string' ? String((json as any).month) : drawWindow(new Date()).month;
+      setLuckyDrawState({
+        status: 'success',
+        message: alreadyEntered ? `You're already entered for ${month}.` : `Entry received for ${month}. Winners are announced monthly.`
+      });
       setLuckyDrawEntry('');
+    } catch {
+      setLuckyDrawState({ status: 'error', message: 'Network error. Please try again.' });
     }
   };
 
@@ -188,8 +237,8 @@ export default function AIInnovations() {
                   <p className="text-sm text-purple-600 mb-3">{template.category}</p>
                   
                   <div className="space-y-1 mb-4">
-                    {template.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                    {template.features.map((feature) => (
+                      <div key={feature} className="flex items-center gap-2 text-xs text-gray-600">
                         <Check className="w-3 h-3 text-green-500" />
                         {feature}
                       </div>
@@ -413,8 +462,9 @@ export default function AIInnovations() {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
+                    <label htmlFor="lucky_draw_email" className="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
                     <input
+                      id="lucky_draw_email"
                       type="email"
                       value={luckyDrawEntry}
                       onChange={(e) => setLuckyDrawEntry(e.target.value)}
@@ -424,29 +474,55 @@ export default function AIInnovations() {
                   </div>
                   
                   <button
+                    type="button"
                     onClick={handleLuckyDrawEntry}
+                    disabled={luckyDrawState.status === 'loading'}
                     className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold py-3 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300"
                   >
                     <Gift className="inline w-5 h-5 mr-2" />
-                    Enter Draw
+                    {luckyDrawState.status === 'loading' ? 'Submitting…' : 'Enter Draw'}
                   </button>
                 </div>
+
+                {luckyDrawState.status !== 'idle' && (
+                  <div
+                    className={`mt-4 rounded-lg px-4 py-3 text-sm ${
+                      luckyDrawState.status === 'success'
+                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        : luckyDrawState.status === 'error'
+                          ? 'bg-red-50 text-red-800 border border-red-200'
+                          : 'bg-gray-50 text-gray-700 border border-gray-200'
+                    }`}
+                    role={luckyDrawState.status === 'error' ? 'alert' : 'status'}
+                  >
+                    {luckyDrawState.message}
+                  </div>
+                )}
 
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <h4 className="font-semibold text-gray-800 mb-3">Draw Schedule</h4>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Current Draw Ends</span>
-                      <span className="font-semibold">July 31, 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Winner Announcement</span>
-                      <span className="font-semibold">August 1, 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Next Draw Starts</span>
-                      <span className="font-semibold">August 1, 2025</span>
-                    </div>
+                    {(() => {
+                      const win = drawWindow(new Date());
+                      const fmt = (d: Date) =>
+                        d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+                      return (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Current Draw Ends</span>
+                            <span className="font-semibold">{fmt(win.end)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Winner Announcement</span>
+                            <span className="font-semibold">{fmt(win.announce)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Next Draw Starts</span>
+                            <span className="font-semibold">{fmt(win.announce)}</span>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -478,36 +554,38 @@ export default function AIInnovations() {
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
+              {(
+                [
                 {
                   name: 'EligibilityBot',
                   description: 'AI-powered visa eligibility assessment',
                   icon: Brain,
-                  color: 'blue',
+                  style: { bg: 'bg-blue-100', hoverBg: 'group-hover:bg-blue-200', text: 'text-blue-600' },
                   link: '/ai-tools/eligibility'
                 },
                 {
                   name: 'Document Wizard',
                   description: 'Intelligent document checklist generator',
                   icon: FileText,
-                  color: 'green',
+                  style: { bg: 'bg-green-100', hoverBg: 'group-hover:bg-green-200', text: 'text-green-600' },
                   link: '/ai-tools/document-wizard'
                 },
                 {
                   name: 'Scam Detector',
                   description: 'AI fraud protection and verification',
                   icon: Award,
-                  color: 'red',
+                  style: { bg: 'bg-red-100', hoverBg: 'group-hover:bg-red-200', text: 'text-red-600' },
                   link: '/ai-tools/scam-detector'
                 },
                 {
                   name: 'Checklist Assistant',
                   description: 'Smart task management for your journey',
                   icon: Check,
-                  color: 'purple',
+                  style: { bg: 'bg-purple-100', hoverBg: 'group-hover:bg-purple-200', text: 'text-purple-600' },
                   link: '/ai-tools/checklist-assistant'
                 }
-              ].map((tool, index) => (
+              ] as const
+              ).map((tool, index) => (
                 <motion.a
                   key={tool.name}
                   href={tool.link}
@@ -516,8 +594,8 @@ export default function AIInnovations() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="modern-card group hover:shadow-xl transition-all duration-300"
                 >
-                  <div className={`w-12 h-12 bg-${tool.color}-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-${tool.color}-200`}>
-                    <tool.icon className={`w-6 h-6 text-${tool.color}-600`} />
+                  <div className={`w-12 h-12 ${tool.style.bg} rounded-xl flex items-center justify-center mb-4 ${tool.style.hoverBg}`}>
+                    <tool.icon className={`w-6 h-6 ${tool.style.text}`} />
                   </div>
                   <h3 className="font-semibold text-gray-800 mb-2">{tool.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{tool.description}</p>

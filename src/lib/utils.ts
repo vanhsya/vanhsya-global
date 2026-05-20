@@ -94,3 +94,20 @@ export const getStatusColor = (status: string): string => {
   
   return statusColors[status] || 'bg-gray-100 text-gray-800';
 };
+
+export const getSiteUrl = (): string => {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!raw) return 'https://vanhsya.com';
+  const trimmed = raw.trim();
+  if (!trimmed) return 'https://vanhsya.com';
+
+  try {
+    return new URL(trimmed).toString().replace(/\/$/, '');
+  } catch {}
+
+  try {
+    return new URL(`https://${trimmed}`).toString().replace(/\/$/, '');
+  } catch {}
+
+  return 'https://vanhsya.com';
+};

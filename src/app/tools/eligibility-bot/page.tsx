@@ -17,11 +17,18 @@ interface Message {
 interface EligibilityResult {
   score: number;
   eligible: boolean;
+  topCountry: string;
+  probability: string;
   recommendations: string[];
   nextSteps: string[];
 }
 
 const questions = [
+  {
+    id: 'nationality',
+    question: 'What is your nationality (country of origin)?',
+    type: 'input'
+  },
   {
     id: 'age',
     question: "What is your age?",
@@ -57,6 +64,12 @@ const questions = [
     question: "What is your occupation?",
     type: 'options',
     options: ['IT/Software', 'Healthcare', 'Engineering', 'Business/Finance', 'Education', 'Skilled Trades', 'Other']
+  },
+  {
+    id: 'purpose',
+    question: 'What is your primary goal?',
+    type: 'options',
+    options: ['Work/Employment', 'Study', 'Business/Investment', 'Permanent Residence', 'Tourism/Visit']
   }
 ];
 
@@ -138,95 +151,96 @@ export default function EligibilityBot() {
     }
   };
 
-  const calculateEligibility = (userAnswers: Record<string, string>): EligibilityResult => {
-    let score = 0;
-    const recommendations: string[] = [];
-    const nextSteps: string[] = [];
-
-    // Age scoring
-    if (userAnswers.age === '26-30' || userAnswers.age === '31-35') score += 25;
-    else if (userAnswers.age === '18-25') score += 20;
-    else if (userAnswers.age === '36-40') score += 15;
-    else score += 10;
-
-    // Education scoring
-    if (userAnswers.education === 'PhD/Doctorate') score += 25;
-    else if (userAnswers.education === 'Master\'s Degree') score += 23;
-    else if (userAnswers.education === 'Bachelor\'s Degree') score += 21;
-    else if (userAnswers.education === 'Diploma/Certificate') score += 15;
-    else score += 5;
-
-    // Experience scoring
-    if (userAnswers.experience === '9+ years') score += 20;
-    else if (userAnswers.experience === '6-8 years') score += 18;
-    else if (userAnswers.experience === '4-5 years') score += 15;
-    else if (userAnswers.experience === '2-3 years') score += 10;
-    else score += 5;
-
-    // Language scoring
-    if (userAnswers.language === 'Native/IELTS 8+') score += 20;
-    else if (userAnswers.language === 'Advanced') score += 15;
-    else if (userAnswers.language === 'Intermediate') score += 10;
-    else score += 5;
-
-    // Add recommendations based on answers
-    if (userAnswers.destination === 'Canada') {
-      recommendations.push("Express Entry system is ideal for your profile");
-      nextSteps.push("Take IELTS test if not already done");
-      nextSteps.push("Get Educational Credential Assessment (ECA)");
-    }
-
-    if (userAnswers.occupation === 'IT/Software') {
-      recommendations.push("Tech professionals are in high demand");
-      score += 5;
-    }
-
-    if (score < 50) {
-      recommendations.push("Consider improving language skills");
-      recommendations.push("Gain more work experience");
-    }
-
-    const eligible = score >= 65;
-    
-    if (eligible) {
-      nextSteps.push("Book a consultation with our experts");
-      nextSteps.push("Prepare your document checklist");
-    } else {
-      nextSteps.push("Work on improving your profile");
-      nextSteps.push("Consider alternative immigration pathways");
-    }
-
-    return {
-      score,
-      eligible,
-      recommendations,
-      nextSteps
-    };
-  };
-
   const completeAssessment = (finalAnswers: Record<string, string>) => {
     setIsTyping(true);
-    
-    setTimeout(() => {
-      const result = calculateEligibility(finalAnswers);
-      setEligibilityResult(result);
-      
-      setMessages(prev => {
-        const resultMessage: Message = {
-          id: String(prev.length + 1),
-          type: 'bot',
-          content: `Based on your answers, your eligibility score is ${result.score}/100. ${
-            result.eligible
-              ? "🎉 Great news! You appear to be eligible for immigration programs."
-              : "Your profile needs some improvements to meet standard requirements."
-          }`,
-          timestamp: new Date(),
-        };
-        return [...prev, resultMessage];
-      });
-      setIsComplete(true);
-      setIsTyping(false);
-    }, 2000);
+
+    const ageMid = (v: string) => {
+      if (v === '18-25') return 22;
+      if (v === '26-30') return 28;
+      if (v === '31-35') return 33;
+      if (v === '36-40') return 38;
+      if (v === '41-45') return 43;
+      return 48;
+    };
+
+    const expMid = (v: string) => {
+      if (v.includes('0-1')) return 1;
+      if (v.includes('2-3')) return 3;
+      if (v.includes('4-5')) return 5;
+      if (v.includes('6-8')) return 7;
+      return 10;
+    };
+
+    window.setTimeout(() => {
+      const run = async () => {
+        try {
+          const profile = {
+            age: ageMid(finalAnswers.age || ''),
+            nationality: finalAnswers.nationality || '',
+            educationLevel: finalAnswers.education || '',
+            workExperienceYears: expMid(finalAnswers.experience || ''),
+            occupationField: finalAnswers.occupation || 'Other',
+            englishLevel: finalAnswers.language || undefined,
+            jobOffer: false,
+            relativesInDestination: false,
+            fundsUsd: undefined,
+            purpose: finalAnswers.purpose || 'Work/Employment',
+            timeline: 'Just exploring options',
+            targetCountries: finalAnswers.destination ? [finalAnswers.destination] : []
+          };
+
+          const res = await fetch('/api/ai/eligibility', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(profile)
+          });
+          const json = (await res.json().catch(() => null)) as any;
+          const top = json?.report?.results?.[0] ?? null;
+          const score = typeof top?.score === 'number' ? top.score : 0;
+          const probability = typeof top?.probability === 'string' ? top.probability : 'Low';
+          const topCountry = typeof top?.country === 'string' ? top.country : 'Destination';
+          const eligible = score >= 65;
+          const recommendations = Array.isArray(top?.gaps) ? top.gaps.slice(0, 4) : [];
+          const nextSteps = Array.isArray(top?.nextSteps) ? top.nextSteps.slice(0, 4) : ['Open the full eligibility assessment', 'Book a consultation'];
+
+          const result: EligibilityResult = {
+            score,
+            eligible,
+            topCountry,
+            probability,
+            recommendations,
+            nextSteps
+          };
+
+          setEligibilityResult(result);
+          setMessages((prev) => {
+            const resultMessage: Message = {
+              id: String(prev.length + 1),
+              type: 'bot',
+              content: `Based on your full profile, your top match is ${topCountry} (${probability}) with a score of ${score}/100. ${
+                eligible ? '🎉 You have a strong baseline for key pathways.' : 'Your profile can improve before targeting competitive pathways.'
+              }`,
+              timestamp: new Date()
+            };
+            return [...prev, resultMessage];
+          });
+          setIsComplete(true);
+          setIsTyping(false);
+        } catch {
+          setEligibilityResult({
+            score: 0,
+            eligible: false,
+            topCountry: 'Destination',
+            probability: 'Low',
+            recommendations: ['Network error. Try again or use the full eligibility assessment page.'],
+            nextSteps: ['Open /ai-tools/eligibility', 'Book a consultation']
+          });
+          setIsComplete(true);
+          setIsTyping(false);
+        }
+      };
+      void run();
+    }, 1200);
   };
 
   const restartAssessment = () => {

@@ -19,7 +19,34 @@ type HealthResponse = {
     forced503?: boolean;
     videoPointer?: boolean;
     openaiKeyConfigured?: boolean;
+    supabaseConfigured?: boolean;
+    mongoConfigured?: boolean;
+    binancePayConfigured?: boolean;
   };
+};
+
+type ServiceState = 'operational' | 'degraded' | 'down';
+
+type ServiceSample = { t: string; state: ServiceState; latencyMs: number | null };
+
+type Incident = { id: string; startedAt: string; endedAt: string | null; message: string };
+
+type ServicesResponse = {
+  generatedAt: string;
+  config: { openaiKeyConfigured: boolean; mongoConfigured: boolean };
+  services: {
+    id: string;
+    name: string;
+    description: string;
+    state: ServiceState;
+    latencyMs: number | null;
+    checkedAt: string;
+    uptime24h: number;
+    responseP50Ms: number | null;
+    message?: string;
+    recent: ServiceSample[];
+    incidents: Incident[];
+  }[];
 };
 
 const formatIso = (iso: string | null | undefined) => {
@@ -29,10 +56,51 @@ const formatIso = (iso: string | null | undefined) => {
   return d.toLocaleString();
 };
 
+function Sparkline({ samples }: { samples: ServiceSample[] }) {
+  const points = samples
+    .slice()
+    .reverse()
+    .map((s) => (typeof s.latencyMs === 'number' ? s.latencyMs : null));
+
+  const valid = points.filter((v): v is number => typeof v === 'number');
+  const max = valid.length ? Math.max(...valid) : 1;
+  const min = valid.length ? Math.min(...valid) : 0;
+  const span = Math.max(1, max - min);
+
+  const w = 120;
+  const h = 28;
+
+  const toY = (v: number) => {
+    const n = (v - min) / span;
+    return Math.round((h - 3) - n * (h - 6));
+  };
+
+  const toX = (i: number, n: number) => (n <= 1 ? 0 : Math.round((i / (n - 1)) * (w - 2)) + 1);
+
+  const n = points.length || 1;
+  const d = points
+    .map((v, i) => {
+      const x = toX(i, n);
+      const y = v == null ? h - 3 : toY(v);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  const last = samples[0]?.state;
+  const stroke = last === 'down' ? '#fb7185' : last === 'degraded' ? '#fbbf24' : '#34d399';
+
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="opacity-90">
+      <polyline fill="none" stroke={stroke} strokeWidth="2" points={d} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function StatusPage() {
   const [online, setOnline] = useState(true);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [services, setServices] = useState<ServicesResponse | null>(null);
   const [error, setError] = useState(false);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
 
@@ -50,13 +118,20 @@ export default function StatusPage() {
   const refresh = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/health', { cache: 'no-store' });
-      const json = (await res.json().catch(() => null)) as HealthResponse | null;
-      setHealth(json);
-      setError(!res.ok);
+      const [healthRes, servicesRes] = await Promise.all([
+        fetch('/api/health', { cache: 'no-store' }),
+        fetch('/api/status/services', { cache: 'no-store' })
+      ]);
+      const healthJson = (await healthRes.json().catch(() => null)) as HealthResponse | null;
+      const servicesJson = (await servicesRes.json().catch(() => null)) as ServicesResponse | null;
+      setHealth(healthJson);
+      setServices(servicesJson);
+      const hasServiceDown = Boolean(servicesJson?.services?.some((s) => s.state === 'down'));
+      setError(!healthRes.ok || !servicesRes.ok || hasServiceDown);
       setCheckedAt(new Date().toISOString());
     } catch {
       setHealth(null);
+      setServices(null);
       setError(true);
       setCheckedAt(new Date().toISOString());
     } finally {
@@ -172,6 +247,110 @@ export default function StatusPage() {
               </div>
             </GlassCard>
           </div>
+
+          <div className="mt-8">
+            <GlassCard className="p-7 border-white/10" hover={false}>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="text-white font-extrabold text-xl">AI Tools Status</div>
+                  <div className="mt-2 text-sm text-white/70">
+                    Live checks for each AI tool endpoint with uptime, response time, and incident history.
+                  </div>
+                </div>
+                <div className="text-xs text-white/60 font-semibold">
+                  {services?.generatedAt ? `Updated ${formatIso(services.generatedAt)}` : '—'}
+                </div>
+              </div>
+
+              <div className="mt-6 overflow-x-auto">
+                <div className="min-w-[820px]">
+                  <div className="grid grid-cols-12 gap-3 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/50">
+                    <div className="col-span-4">Service</div>
+                    <div className="col-span-2">State</div>
+                    <div className="col-span-2">Uptime (24h)</div>
+                    <div className="col-span-2">Latency</div>
+                    <div className="col-span-2">Trend</div>
+                  </div>
+
+                  <div className="divide-y divide-white/10 rounded-2xl border border-white/10 overflow-hidden bg-white/[0.03]">
+                    {(services?.services || []).map((s) => {
+                      const dot =
+                        s.state === 'down'
+                          ? 'bg-pink-400'
+                          : s.state === 'degraded'
+                            ? 'bg-amber-300'
+                            : 'bg-emerald-300';
+                      const stateLabel = s.state === 'down' ? 'Down' : s.state === 'degraded' ? 'Degraded' : 'Operational';
+                      const latency = typeof s.latencyMs === 'number' ? `${s.latencyMs}ms` : '—';
+                      const p50 = typeof s.responseP50Ms === 'number' ? `${s.responseP50Ms}ms p50` : '—';
+                      return (
+                        <div key={s.id} className="grid grid-cols-12 gap-3 px-4 py-4 items-center">
+                          <div className="col-span-4 min-w-0">
+                            <div className="flex items-start gap-3">
+                              <div className={`mt-1 w-2.5 h-2.5 rounded-full ${dot}`} />
+                              <div className="min-w-0">
+                                <div className="text-white font-extrabold truncate">{s.name}</div>
+                                <div className="mt-1 text-xs text-white/60 truncate">{s.description}</div>
+                                {s.message ? <div className="mt-1 text-xs text-amber-200/90 truncate">{s.message}</div> : null}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-span-2">
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-white/10 bg-black/30 text-xs font-extrabold text-white/80">
+                              {stateLabel}
+                            </div>
+                          </div>
+                          <div className="col-span-2">
+                            <div className="text-white font-extrabold">{typeof s.uptime24h === 'number' ? `${s.uptime24h}%` : '—'}</div>
+                            <div className="mt-1 text-xs text-white/60">Last 24h</div>
+                          </div>
+                          <div className="col-span-2">
+                            <div className="text-white font-extrabold">{latency}</div>
+                            <div className="mt-1 text-xs text-white/60">{p50}</div>
+                          </div>
+                          <div className="col-span-2 flex items-center justify-end">
+                            <Sparkline samples={s.recent.slice(0, 30)} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {!services?.services?.length ? (
+                      <div className="px-4 py-6 text-white/60">No data yet. Refresh to run checks.</div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {(services?.services || [])
+                  .filter((s) => (s.incidents || []).length)
+                  .slice(0, 4)
+                  .map((s) => (
+                    <div key={`${s.id}-inc`} className="rounded-2xl border border-white/10 bg-black/25 px-5 py-4">
+                      <div className="text-white font-extrabold">{s.name} incidents</div>
+                      <div className="mt-3 space-y-2">
+                        {s.incidents.slice(0, 3).map((i) => (
+                          <div key={i.id} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-xs text-white/70 font-semibold truncate">{i.message}</div>
+                              <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em]">
+                                {formatIso(i.startedAt) || '—'}
+                              </div>
+                            </div>
+                            <div className="mt-1 text-[11px] text-white/60">
+                              {i.endedAt ? `Resolved: ${formatIso(i.endedAt)}` : 'Ongoing'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                {!services?.services?.some((s) => (s.incidents || []).length) ? (
+                  <div className="text-white/60">No incident history recorded in this runtime session.</div>
+                ) : null}
+              </div>
+            </GlassCard>
+          </div>
         </div>
       </section>
 
@@ -179,4 +358,3 @@ export default function StatusPage() {
     </main>
   );
 }
-
