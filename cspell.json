@@ -94,7 +94,19 @@
     "VANHSYA's",
     "vanhsya",
     "accum",
-    "conv"
+    "conv",
+    "Rabby",
+    "msvalidate",
+    "kgdygjrsqtzq",
+    "kkfjhx",
+    "harami",
+    "IYTDY",
+    "Hijw",
+    "Segoe",
+    "maint",
+    "pprrx",
+    "azvk",
+    "biyo"
   ],
   "ignoreRegExpList": [
     "\\bVANHSYA(?:'s)?\\b",
@@ -103,7 +115,9 @@
   "ignorePaths": [
     "node_modules",
     ".next",
-    "public"
+    "public",
+    "src/app/ai-tools/dashboard/page.tsx",
+    "src/app/ai-tools/success-predictor/page.tsx"
   ],
   "dictionaries": [
     "en_US",
