@@ -9,7 +9,7 @@ import {
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '@/lib/supabaseClient';
+import { tryGetSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 const applicationData = {
   profile: {
@@ -50,12 +50,17 @@ export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [sessionChecked, setSessionChecked] = useState(false);
   const [profile, setProfile] = useState(applicationData.profile);
+  const supabaseReady = Boolean(tryGetSupabaseBrowserClient());
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       try {
-        const supabase = getSupabaseBrowserClient();
+        const supabase = tryGetSupabaseBrowserClient();
+        if (!supabase) {
+          if (!cancelled) router.replace('/portal');
+          return;
+        }
         const { data } = await supabase.auth.getSession();
         const session = data.session;
         if (!session?.user) {
@@ -84,8 +89,8 @@ export default function ClientDashboard() {
 
   const signOut = async () => {
     try {
-      const supabase = getSupabaseBrowserClient();
-      await supabase.auth.signOut();
+      const supabase = tryGetSupabaseBrowserClient();
+      if (supabase) await supabase.auth.signOut();
     } catch {
     } finally {
       router.replace('/portal');
@@ -168,6 +173,11 @@ export default function ClientDashboard() {
         </div>
       ) : (
       <div className="container-max py-8">
+        {!supabaseReady ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-5 text-amber-900 font-bold">
+            Portal auth is not configured on this deployment. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel.
+          </div>
+        ) : null}
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">

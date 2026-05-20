@@ -17,6 +17,9 @@ export async function GET() {
   const supabaseConfigured = Boolean(
     (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY
   );
+  const supabaseBrowserConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
   const mongoConfigured = Boolean(process.env.MONGODB_URI);
   const binancePayConfigured = Boolean(process.env.BINANCEPAY_API_KEY && process.env.BINANCEPAY_API_SECRET);
 
@@ -41,6 +44,11 @@ export async function GET() {
       status: statusLabel,
       time: new Date().toISOString(),
       retryAfter: maintenance.until ? new Date(maintenance.until).toISOString() : null,
+      deployment: {
+        vercelEnv: process.env.VERCEL_ENV ?? null,
+        vercelUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+        gitCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null
+      },
       checks: {
         maintenance: maintenance.active,
         serverOverload: overload,
@@ -49,6 +57,7 @@ export async function GET() {
         videoPointer: hasVideoPointer,
         openaiKeyConfigured: hasOpenAIKey,
         supabaseConfigured,
+        supabaseBrowserConfigured,
         mongoConfigured,
         binancePayConfigured
       }

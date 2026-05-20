@@ -144,6 +144,28 @@ export default function ExposeInterviews() {
             </div>
           </motion.div>
 
+          <div className="mt-10">
+            <GlassCard className="border-white/10 overflow-hidden" hover={false}>
+              <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-xs font-black uppercase tracking-[0.25em] text-white/50">Dedicated Case File</div>
+                  <div className="mt-2 text-white font-black text-2xl tracking-tight truncate">
+                    Vanhsya Interview Scam
+                  </div>
+                  <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                    A structured hub for timeline, testimonies, statements, evidence, and media — with source-first publishing.
+                  </div>
+                </div>
+                <Link
+                  href="/expose/interviews/vanhsya-interview-scam"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-extrabold transition-colors"
+                >
+                  Open Case File <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </GlassCard>
+          </div>
+
           {uploads.length > 0 && (
             <div className="mt-10">
               <div className="flex items-center justify-between gap-4">

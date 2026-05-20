@@ -858,6 +858,44 @@ function SessionBackgroundMusic() {
     param.linearRampToValueAtTime(target, now + Math.max(0.01, durationMs / 1000));
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onDuck = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ level?: number; ms?: number }>).detail || {};
+      const level = Math.max(0, Math.min(1, typeof detail.level === "number" ? detail.level : 0.18));
+      const ms = Math.max(0, Math.min(3000, typeof detail.ms === "number" ? detail.ms : 180));
+      const s = settingsRef.current;
+      const base = s.muted ? 0 : Math.max(0, Math.min(1, s.volume));
+      const target = Math.min(base, level);
+      const fx = fxRef.current;
+      if (fx) rampParam(fx.master.gain, target, ms);
+      else {
+        const audio = getActiveAudio();
+        if (audio && !audio.paused) rampVolume(audio, target, ms);
+      }
+    };
+
+    const onUnduck = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ ms?: number }>).detail || {};
+      const ms = Math.max(0, Math.min(3000, typeof detail.ms === "number" ? detail.ms : 220));
+      const s = settingsRef.current;
+      const base = s.muted ? 0 : Math.max(0, Math.min(1, s.volume));
+      const fx = fxRef.current;
+      if (fx) rampParam(fx.master.gain, base, ms);
+      else {
+        const audio = getActiveAudio();
+        if (audio && !audio.paused) rampVolume(audio, base, ms);
+      }
+    };
+
+    window.addEventListener("vanhsya:media:duck", onDuck as EventListener);
+    window.addEventListener("vanhsya:media:unduck", onUnduck as EventListener);
+    return () => {
+      window.removeEventListener("vanhsya:media:duck", onDuck as EventListener);
+      window.removeEventListener("vanhsya:media:unduck", onUnduck as EventListener);
+    };
+  }, [rampParam]);
+
   const persistActiveTrackId = useCallback((id: string) => {
     try {
       sessionStorage.setItem("vanhsya.sessionTrackId", id);

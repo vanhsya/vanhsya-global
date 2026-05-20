@@ -15,10 +15,11 @@ import {
 } from 'react-icons/fa';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { getSupabaseBrowserClient } from '@/lib/supabaseClient';
+import { tryGetSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 export default function ClientPortalLogin() {
   const router = useRouter();
+  const supabaseReady = Boolean(tryGetSupabaseBrowserClient());
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -37,9 +38,17 @@ export default function ClientPortalLogin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!supabaseReady) {
+      setStatus({ kind: 'error', message: 'Portal authentication is not configured on this deployment.' });
+      return;
+    }
     setStatus({ kind: 'loading' });
     try {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = tryGetSupabaseBrowserClient();
+      if (!supabase) {
+        setStatus({ kind: 'error', message: 'Portal authentication is not configured on this deployment.' });
+        return;
+      }
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email.trim(),
         password: formData.password
@@ -171,7 +180,7 @@ export default function ClientPortalLogin() {
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={status.kind === 'loading'}
+                  disabled={status.kind === 'loading' || !supabaseReady}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -181,6 +190,12 @@ export default function ClientPortalLogin() {
                   <FaArrowRight className="ml-2 h-4 w-4" />
                 </motion.button>
               </div>
+
+              {!supabaseReady ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+                  Portal auth is not configured on this deployment. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel.
+                </div>
+              ) : null}
 
               {status.kind === 'error' ? (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
