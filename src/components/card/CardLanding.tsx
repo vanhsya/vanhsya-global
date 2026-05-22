@@ -99,6 +99,12 @@ export default function CardLanding() {
                         Preview <ArrowRight className="w-4 h-4" />
                       </button>
                       <Link
+                        href="/card/immersive"
+                        className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold transition-colors"
+                      >
+                        Immersive 3D <ArrowRight className="w-4 h-4" />
+                      </Link>
+                      <Link
                         href={`/card/${tier}`}
                         className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold transition-colors shadow-lg shadow-purple-500/20"
                       >
@@ -164,4 +170,3 @@ export default function CardLanding() {
     </main>
   );
 }
-
