@@ -76,7 +76,7 @@ export default function AIInnovations() {
   });
 
   const handleGenerateReferralCode = () => {
-    const code = `VANHSYA${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    const code = `VANHSYA${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
     setReferralCode(code);
   };
 
@@ -167,6 +167,7 @@ export default function AIInnovations() {
             ].map((tab) => (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === tab.id
@@ -245,7 +246,7 @@ export default function AIInnovations() {
                     ))}
                   </div>
                   
-                  <button className="w-full btn-primary text-sm group-hover:bg-purple-700">
+                  <button type="button" className="w-full btn-primary text-sm group-hover:bg-purple-700">
                     Use Template
                   </button>
                 </motion.div>
@@ -337,9 +338,10 @@ export default function AIInnovations() {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Referral Code</label>
+                    <label htmlFor="referral_code" className="block text-sm font-medium text-gray-700 mb-2">Your Referral Code</label>
                     <div className="flex gap-2">
                       <input
+                        id="referral_code"
                         type="text"
                         value={referralCode}
                         readOnly
@@ -347,6 +349,7 @@ export default function AIInnovations() {
                         placeholder="Click generate to get your code"
                       />
                       <button
+                        type="button"
                         onClick={handleGenerateReferralCode}
                         className="btn-primary"
                       >
@@ -362,8 +365,8 @@ export default function AIInnovations() {
                         Share this code with friends and earn rewards when they use our services!
                       </p>
                       <div className="flex gap-2">
-                        <button className="btn-secondary text-sm">Copy Code</button>
-                        <button className="btn-secondary text-sm">Share via WhatsApp</button>
+                        <button type="button" className="btn-secondary text-sm">Copy Code</button>
+                        <button type="button" className="btn-secondary text-sm">Share via WhatsApp</button>
                       </div>
                     </div>
                   )}
@@ -484,20 +487,26 @@ export default function AIInnovations() {
                   </button>
                 </div>
 
-                {luckyDrawState.status !== 'idle' && (
-                  <div
-                    className={`mt-4 rounded-lg px-4 py-3 text-sm ${
-                      luckyDrawState.status === 'success'
-                        ? 'bg-green-50 text-green-800 border border-green-200'
-                        : luckyDrawState.status === 'error'
-                          ? 'bg-red-50 text-red-800 border border-red-200'
+                {luckyDrawState.status !== 'idle' &&
+                  (luckyDrawState.status === 'error' ? (
+                    <output
+                      className="mt-4 rounded-lg px-4 py-3 text-sm bg-red-50 text-red-800 border border-red-200"
+                      aria-live="assertive"
+                    >
+                      {luckyDrawState.message}
+                    </output>
+                  ) : (
+                    <output
+                      className={`mt-4 rounded-lg px-4 py-3 text-sm ${
+                        luckyDrawState.status === 'success'
+                          ? 'bg-green-50 text-green-800 border border-green-200'
                           : 'bg-gray-50 text-gray-700 border border-gray-200'
-                    }`}
-                    role={luckyDrawState.status === 'error' ? 'alert' : 'status'}
-                  >
-                    {luckyDrawState.message}
-                  </div>
-                )}
+                      }`}
+                      aria-live="polite"
+                    >
+                      {luckyDrawState.message}
+                    </output>
+                  ))}
 
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <h4 className="font-semibold text-gray-800 mb-3">Draw Schedule</h4>

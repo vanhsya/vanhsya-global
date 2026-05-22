@@ -92,6 +92,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "VANHSYA Global",
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
     title: "VANHSYA Global – World's First AI & Crypto-Enabled Migration Platform",
     description:

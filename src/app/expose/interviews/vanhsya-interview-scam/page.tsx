@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import VanhsyaInterviewScamPage from "@/components/expose/VanhsyaInterviewScamPage";
+import VanhsyaInterviewScamPage from "../../../../components/expose/VanhsyaInterviewScamPage";
 
 export const metadata: Metadata = {
   title: "Vanhsya Interview Scam – Verified Evidence & Media | VANHSYA Expose",
@@ -10,4 +10,3 @@ export const metadata: Metadata = {
 export default function Page() {
   return <VanhsyaInterviewScamPage />;
 }
-

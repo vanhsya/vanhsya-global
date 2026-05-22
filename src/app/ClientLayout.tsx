@@ -1354,7 +1354,7 @@ function SessionBackgroundMusic() {
     <>
       <audio ref={audioARef} className="hidden" />
       <audio ref={audioBRef} className="hidden" />
-      <div className="fixed bottom-4 left-4 z-[95]">
+      <div className="fixed bottom-4 right-[5.5rem] z-[95]">
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-md px-3 py-2 shadow-xl">
           <button
             type="button"
@@ -1451,6 +1451,12 @@ function SessionBackgroundMusic() {
 }
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") return;
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
+
   return (
     <>
       <ErrorBoundary>

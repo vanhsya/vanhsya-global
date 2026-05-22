@@ -52,10 +52,16 @@ jobs:
           npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           npx vercel build --prod --token="$VERCEL_TOKEN"
           DEPLOY_LOG="$(mktemp)"
-          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee "$DEPLOY_LOG"
-          DEPLOY_URL="$(grep -Eo 'https?://[^ ]+\\.vercel\\.app' "$DEPLOY_LOG" | tail -n 1 || true)"
+          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" 2>&1 | tee "$DEPLOY_LOG"
+          DEPLOY_URL="$(grep -Eo 'https?://[^ ]+\.vercel\.app' "$DEPLOY_LOG" | tail -n 1 || true)"
           if [ -z "$DEPLOY_URL" ]; then
             DEPLOY_URL="$(tail -n 1 "$DEPLOY_LOG" | tr -d '\r' | awk '{print $NF}')"
+          fi
+          DEPLOY_URL="${DEPLOY_URL%/}"
+          if [ -z "$DEPLOY_URL" ] && [ -z "${VERCEL_SMOKE_URL:-}" ]; then
+            echo "Failed to detect deployment URL from Vercel CLI output."
+            echo "Set VERCEL_SMOKE_URL as a fallback smoke-test target or inspect the CLI output above."
+            exit 1
           fi
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
           echo "Deployed to: $DEPLOY_URL"
@@ -67,10 +73,15 @@ jobs:
         run: |
           set -euo pipefail
           BASE_URL="${VERCEL_SMOKE_URL:-$DEPLOY_URL}"
+          BASE_URL="${BASE_URL%/}"
           if [ -z "$BASE_URL" ]; then
             echo "Smoke test skipped: no deploy URL detected."
             exit 1
           fi
+          case "$BASE_URL" in
+            http://*|https://*) ;;
+            *) BASE_URL="https://$BASE_URL" ;;
+          esac
 
           echo "Smoke testing: $BASE_URL"
           COOKIE_JAR="$(mktemp)"
