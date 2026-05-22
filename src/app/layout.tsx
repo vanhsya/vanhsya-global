@@ -149,6 +149,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const walletExtensionCompatScript =
+    `(function(){var isExtensionSource=function(src){return typeof src==="string"&&(src.startsWith("chrome-extension://")||src.startsWith("moz-extension://")||src.startsWith("safari-extension://"));};var shouldSuppress=function(msg,src,stack){if(!msg)return false;var m=String(msg);if(m.indexOf("Cannot redefine property: ethereum")!==-1)return true;if(m.indexOf("Cannot redefine property")!==-1&&m.indexOf("ethereum")!==-1)return true;if(isExtensionSource(src)&&m.indexOf("ethereum")!==-1)return true;if(isExtensionSource(src)&&stack&&String(stack).indexOf("defineProperty")!==-1)return true;return false;};window.addEventListener("error",function(ev){try{var src=ev&&ev.filename||"";var stack=ev&&ev.error&&ev.error.stack||"";if(shouldSuppress(ev&&ev.message,src,stack)){ev.preventDefault();ev.stopImmediatePropagation&&ev.stopImmediatePropagation();}}catch(e){}},true);window.addEventListener("unhandledrejection",function(ev){try{var reason=ev&&ev.reason;var msg=reason&&reason.message?reason.message:String(reason||"");var stack=reason&&reason.stack?reason.stack:"";if(shouldSuppress(msg,"",stack)){ev.preventDefault();}}catch(e){}},true);}());`;
+
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -181,7 +184,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
+      <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -189,7 +192,10 @@ export default function RootLayout({
         <Script
           id="suppress-wallet-extension-ethereum-defineproperty"
           strategy="beforeInteractive"
-        >{`(function(){var isExtensionSource=function(src){return typeof src==="string"&&(src.startsWith("chrome-extension://")||src.startsWith("moz-extension://")||src.startsWith("safari-extension://"));};var shouldSuppress=function(msg,src,stack){if(!msg)return false;var m=String(msg);if(m.indexOf("Cannot redefine property: ethereum")!==-1)return true;if(m.indexOf("Cannot redefine property")!==-1&&m.indexOf("ethereum")!==-1)return true;if(isExtensionSource(src)&&m.indexOf("ethereum")!==-1)return true;if(isExtensionSource(src)&&stack&&String(stack).indexOf("defineProperty")!==-1)return true;return false;};window.addEventListener("error",function(ev){try{var src=ev&&ev.filename||"";var stack=ev&&ev.error&&ev.error.stack||"";if(shouldSuppress(ev&&ev.message,src,stack)){ev.preventDefault();ev.stopImmediatePropagation&&ev.stopImmediatePropagation();}}catch(e){}},true);window.addEventListener("unhandledrejection",function(ev){try{var reason=ev&&ev.reason;var msg=reason&&reason.message?reason.message:String(reason||"");var stack=reason&&reason.stack?reason.stack:"";if(shouldSuppress(msg,"",stack)){ev.preventDefault();}}catch(e){}},true);}());`}</Script>
+          dangerouslySetInnerHTML={{ __html: walletExtensionCompatScript }}
+        />
+      </head>
+      <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
         <ClientLayout>{children}</ClientLayout>
         {enableVercelRuntimeScripts ? <Analytics /> : null}
         {enableVercelRuntimeScripts ? <SpeedInsights /> : null}
