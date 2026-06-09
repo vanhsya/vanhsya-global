@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="trans-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+  <path d="M60,10 L105,25 L105,75 C105,95 85,110 60,115 C35,110 15,95 15,75 L15,25 Z" fill="url(#trans-grad)" stroke="#ffffff" stroke-width="2" />
+  <path d="M60,18 L97,30 L97,72 C97,88 80,101 60,106 C40,101 23,88 23,72 L23,30 Z" fill="none" stroke="#fcd34d" stroke-width="1.5" stroke-dasharray="3,3" />
+  <circle cx="60" cy="55" r="16" fill="none" stroke="#ffffff" stroke-width="3" />
+  <circle cx="60" cy="55" r="8" fill="#fcd34d" />
+  <path d="M38,55 Q60,25 82,55 Q60,85 38,55 Z" fill="none" stroke="#ffffff" stroke-width="2" />
+  <text x="60" y="93" font-family="'Inter', system-ui, sans-serif" font-size="8" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">TI VERIFIED</text>
+</svg>

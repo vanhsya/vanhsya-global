@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="maria-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#4c1d95" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <clipPath id="circle-clip">
+      <circle cx="100" cy="100" r="95" />
+    </clipPath>
+  </defs>
+  
+  <circle cx="100" cy="100" r="98" fill="none" stroke="#8b5cf6" stroke-width="3" opacity="0.6"/>
+  
+  <g clip-path="url(#circle-clip)">
+    <rect width="200" height="200" fill="url(#maria-grad)" />
+    
+    <path d="M-20,100 C40,40 80,160 140,100 C200,40 240,160 280,100" fill="none" stroke="#c084fc" stroke-width="1.5" opacity="0.2" />
+    <path d="M-20,120 C40,60 80,180 140,120 C200,60 240,180 280,120" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.1" />
+    
+    <circle cx="140" cy="100" r="4" fill="#a78bfa" opacity="0.5" />
+    <circle cx="80" cy="100" r="3" fill="#a78bfa" opacity="0.4" />
+    
+    <text x="100" y="115" font-family="'Inter', system-ui, sans-serif" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">MR</text>
+    <text x="100" y="145" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#c084fc" text-anchor="middle" letter-spacing="2" opacity="0.8">INNOVATION</text>
+  </g>
+</svg>

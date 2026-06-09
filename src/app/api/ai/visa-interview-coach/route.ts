@@ -1,5 +1,5 @@
 import { COUNTRY_LABELS, VISA_INTERVIEW_QUESTIONS } from '../../../../data/ai/interviewQuestions.ts';
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceEnum, coerceNumber, coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 export const runtime = 'nodejs';
@@ -156,6 +156,31 @@ const offlineCoach = (input: {
   };
 };
 
+const normalizeResult = (data: unknown, fallback: Res): Res => {
+  const value = data && typeof data === 'object' ? (data as Partial<Res>) : {};
+  const score = value.score && typeof value.score === 'object' ? value.score : fallback.score;
+  const redFlagRisk = value.redFlagRisk && typeof value.redFlagRisk === 'object' ? value.redFlagRisk : fallback.redFlagRisk;
+
+  return {
+    question: coerceString(value.question, fallback.question, 500),
+    score: {
+      overall: Math.round(coerceNumber((score as any).overall, fallback.score.overall, 1, 99)),
+      clarity: Math.round(coerceNumber((score as any).clarity, fallback.score.clarity, 1, 99)),
+      confidence: Math.round(coerceNumber((score as any).confidence, fallback.score.confidence, 1, 99)),
+      compliance: Math.round(coerceNumber((score as any).compliance, fallback.score.compliance, 1, 99))
+    },
+    feedback: coerceStringArray(value.feedback, fallback.feedback, 10, 220),
+    improvedAnswer: coerceString(value.improvedAnswer, fallback.improvedAnswer, 1400),
+    culturalTips: coerceStringArray(value.culturalTips, fallback.culturalTips, 6, 220),
+    redFlagRisk: {
+      level: coerceEnum((redFlagRisk as any).level, ['low', 'medium', 'high'] as const, fallback.redFlagRisk.level),
+      reasons: coerceStringArray((redFlagRisk as any).reasons, fallback.redFlagRisk.reasons, 6, 220)
+    },
+    nextDrills: coerceStringArray(value.nextDrills, fallback.nextDrills, 8, 220),
+    disclaimer: coerceString(value.disclaimer, fallback.disclaimer, 320)
+  };
+};
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403, headers: noStore });
@@ -228,7 +253,16 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<Res>({ system, prompt });
+    const offline = offlineCoach({
+      question,
+      answer,
+      countryLabel: label,
+      redFlags: qFromId?.redFlags || [],
+      strongSignals: qFromId?.strongSignals || [],
+      selfReport,
+      voiceMetrics
+    });
+    const { data } = await generateJson<Res>({ system, prompt, maxOutputTokens: 2400, validate: (raw) => normalizeResult(raw, offline) });
     return Response.json(data, { status: 200, headers: noStore });
   } catch {
     const offline = offlineCoach({

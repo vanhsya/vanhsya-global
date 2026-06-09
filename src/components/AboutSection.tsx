@@ -306,7 +306,7 @@ const AboutSection: React.FC = () => {
             and no misleading success claims. Your trust is earned through honest service and professional excellence.
           </p>
           <motion.a
-            href="/transparency-policy"
+            href="/expose"
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
           >

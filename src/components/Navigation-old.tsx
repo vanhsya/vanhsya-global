@@ -33,7 +33,7 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick }) => {
         { label: 'Tourist Visa', href: '/services/tourist-visa' },
         { label: 'Business Visa', href: '/services/business-visa' },
         { label: 'Family Visa', href: '/services/family-visa' },
-        { label: 'Permanent Residency', href: '/services/permanent-residency' },
+        { label: 'Permanent Residency', href: '/services/permanent-residence' },
       ]
     },
     {

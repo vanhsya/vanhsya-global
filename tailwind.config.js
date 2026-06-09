@@ -10,6 +10,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        vanhsya: {
+          ink: '#0A0A10',
+          obsidian: '#06060A',
+          surface: '#11111A',
+          surface2: '#161627',
+          line: '#27283A',
+          text: '#F5F3EE',
+          muted: '#B8B3AA',
+        },
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -162,6 +171,9 @@ module.exports = {
         'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'large': '0 10px 50px -12px rgba(0, 0, 0, 0.25)',
         'xl-blue': '0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04)',
+        'lux': '0 18px 55px rgba(0, 0, 0, 0.55)',
+        'lux-soft': '0 12px 40px rgba(0, 0, 0, 0.35)',
+        'lux-ring': '0 0 0 1px rgba(255, 255, 255, 0.10)',
       },
       blur: {
         xs: '2px',

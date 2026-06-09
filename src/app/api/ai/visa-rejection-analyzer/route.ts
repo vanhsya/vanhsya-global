@@ -1,5 +1,5 @@
 import { VISA_REJECTION_TAXONOMY } from '../../../../data/ai/rejectionTaxonomy.ts';
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceEnum, coerceNumber, coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 export const runtime = 'nodejs';
@@ -128,6 +128,39 @@ const offlineAnalyze = (input: { letterText: string; country?: string; pathway?:
   };
 };
 
+const normalizeResult = (data: unknown, fallback: Res): Res => {
+  const value = data && typeof data === 'object' ? (data as Partial<Res>) : {};
+  const detectedReasons = Array.isArray(value.detectedReasons) ? value.detectedReasons : fallback.detectedReasons;
+  const improvementPlan = Array.isArray(value.improvementPlan) ? value.improvementPlan : fallback.improvementPlan;
+
+  return {
+    summary: coerceString(value.summary, fallback.summary, 700),
+    detectedReasons: detectedReasons
+      .map((item, index) => {
+        const row = item && typeof item === 'object' ? (item as Partial<Res['detectedReasons'][number]>) : {};
+        return {
+          id: coerceString(row.id, fallback.detectedReasons[index]?.id || 'other', 80),
+          confidence: coerceNumber(row.confidence, fallback.detectedReasons[index]?.confidence || 0.4, 0, 1),
+          evidence: coerceStringArray(row.evidence, fallback.detectedReasons[index]?.evidence || [], 5, 260),
+          whyItFailed: coerceStringArray(row.whyItFailed, fallback.detectedReasons[index]?.whyItFailed || [], 5, 240)
+        };
+      })
+      .slice(0, 6),
+    improvementPlan: improvementPlan
+      .map((item, index) => {
+        const row = item && typeof item === 'object' ? (item as Partial<Res['improvementPlan'][number]>) : {};
+        return {
+          priority: coerceEnum(row.priority, ['high', 'medium', 'low'] as const, fallback.improvementPlan[index]?.priority || 'medium'),
+          action: coerceString(row.action, fallback.improvementPlan[index]?.action || 'Strengthen the evidence pack.', 240),
+          evidenceToAdd: coerceStringArray(row.evidenceToAdd, fallback.improvementPlan[index]?.evidenceToAdd || [], 6, 160)
+        };
+      })
+      .slice(0, 12),
+    nextAttemptChecklist: coerceStringArray(value.nextAttemptChecklist, fallback.nextAttemptChecklist, 10, 220),
+    disclaimer: coerceString(value.disclaimer, fallback.disclaimer, 320)
+  };
+};
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403, headers: noStore });
@@ -177,7 +210,8 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<Res>({ system, prompt });
+    const offline = offlineAnalyze({ letterText, country, pathway });
+    const { data } = await generateJson<Res>({ system, prompt, maxOutputTokens: 2600, validate: (raw) => normalizeResult(raw, offline) });
     return Response.json(data, { status: 200, headers: noStore });
   } catch {
     const offline = offlineAnalyze({ letterText, country, pathway });

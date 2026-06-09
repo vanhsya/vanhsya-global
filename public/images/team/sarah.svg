@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="sarah-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#180030" />
+      <stop offset="50%" stop-color="#2d0050" />
+      <stop offset="100%" stop-color="#b829ff" />
+    </linearGradient>
+    <clipPath id="circle-clip">
+      <circle cx="100" cy="100" r="95" />
+    </clipPath>
+  </defs>
+  
+  <circle cx="100" cy="100" r="98" fill="none" stroke="#b829ff" stroke-width="3" opacity="0.6"/>
+  
+  <g clip-path="url(#circle-clip)">
+    <rect width="200" height="200" fill="url(#sarah-grad)" />
+    
+    <g opacity="0.15" stroke="#f5d0fe" stroke-width="1" font-family="monospace" font-size="8">
+      <text x="20" y="40">0101101</text>
+      <text x="130" y="60">10110</text>
+      <text x="25" y="150">ML_FLOW</text>
+      <text x="125" y="130">R_SQR</text>
+    </g>
+    <circle cx="100" cy="100" r="60" fill="none" stroke="#f5d0fe" stroke-dasharray="4,4" stroke-width="1" opacity="0.2" />
+    
+    <text x="100" y="115" font-family="'Inter', system-ui, sans-serif" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">SC</text>
+    <text x="100" y="145" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#f5d0fe" text-anchor="middle" letter-spacing="2" opacity="0.8">RESEARCH</text>
+  </g>
+</svg>

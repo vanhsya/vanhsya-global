@@ -1,20 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
-import { 
-  FiChevronDown, 
-  FiLogIn,
-  FiMenu,
-  FiX,
-  FiZap,
-  FiCreditCard,
-  FiShield
-} from 'react-icons/fi';
-import { FaRobot } from 'react-icons/fa';
+import { FiChevronDown, FiCreditCard, FiMenu, FiX } from 'react-icons/fi';
+import strings from '@/lib/strings';
 
 interface DropdownItem {
   label: string;
@@ -27,84 +19,89 @@ interface NavigationProps {
   variant?: 'default' | 'neo';
 }
 
-type DropdownMenuProps = {
-  items: DropdownItem[];
-  isOpen: boolean;
-  onSelect: () => void;
-};
-
-function DropdownMenu({ items, isOpen, onSelect }: DropdownMenuProps) {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="absolute top-full left-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl z-50 overflow-hidden"
-        >
-          <div className="p-2">
-            {items.map((item, index) => (
-              <motion.div
-                key={item.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link
-                  href={item.href}
-                  className="flex flex-col p-3 rounded-xl hover:bg-white/10 transition-all duration-200 group"
-                  onClick={onSelect}
-                >
-                  <span className="text-white font-medium group-hover:text-indigo-300 transition-colors">
-                    {item.label}
-                  </span>
-                  {item.description && (
-                    <span className="text-gray-400 text-sm mt-1 group-hover:text-gray-300 transition-colors">
-                      {item.description}
-                    </span>
-                  )}
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 export default function NavigationPremium({ className = '', variant = 'default' }: NavigationProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
+  const explorePanelId = 'vanhsya-nav-explore-panel';
+  const mobilePanelId = 'vanhsya-nav-mobile-panel';
+  const exploreRef = useRef<HTMLDivElement | null>(null);
+  const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+  const scrollRafRef = useRef<number | null>(null);
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
     const raf = window.requestAnimationFrame(() => {
-      setIsMenuOpen(false);
-      setActiveDropdown(null);
+      setIsMobileOpen(false);
+      setIsExploreOpen(false);
     });
     return () => window.cancelAnimationFrame(raf);
   }, [pathname]);
 
   useEffect(() => {
-    if (!isMenuOpen) return;
-
+    if (!isMobileOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isMenuOpen]);
+  }, [isMobileOpen]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const update = () => {
+      const next = window.scrollY > 50;
+      if (next === scrolledRef.current) return;
+      scrolledRef.current = next;
+      if (scrollRafRef.current) return;
+      scrollRafRef.current = window.requestAnimationFrame(() => {
+        scrollRafRef.current = null;
+        setScrolled(scrolledRef.current);
+      });
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', update);
+      if (scrollRafRef.current) window.cancelAnimationFrame(scrollRafRef.current);
+      scrollRafRef.current = null;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!isExploreOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (exploreRef.current && exploreRef.current.contains(target)) return;
+      setIsExploreOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isExploreOpen]);
+
+  useEffect(() => {
+    if (!isExploreOpen && !isMobileOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setIsExploreOpen(false);
+      setIsMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isExploreOpen, isMobileOpen]);
+
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      if (w >= 1024 && isMobileOpen) setIsMobileOpen(false);
+      if (w < 1024 && isExploreOpen) setIsExploreOpen(false);
+    };
+    window.addEventListener('resize', onResize, { passive: true } as any);
+    return () => window.removeEventListener('resize', onResize as any);
+  }, [isExploreOpen, isMobileOpen]);
 
   const migrationServices: DropdownItem[] = [
     { label: 'Study Visa', href: '/services/study-visa', description: 'Student visas & education guidance' },
@@ -173,35 +170,90 @@ export default function NavigationPremium({ className = '', variant = 'default' 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  const exploreSections = [
+    { title: 'Services', items: migrationServices },
+    { title: 'Countries', items: countries },
+    { title: 'AI Tools', items: aiTools },
+    { title: 'Expose', items: exposeItems },
+  ];
+
+  const secondarySections = [
+    {
+      title: 'Company',
+      items: [
+        { label: 'Why VANHSYA?', href: '/why-vanhsya', description: 'What sets the platform apart' },
+        { label: 'VANHSYA Vision', href: '/next-era', description: 'The next era: AI, systems, and experiences' },
+        { label: 'Success Stories', href: '/success-stories', description: 'Verified global testimonials' },
+        { label: 'Resources', href: '/resources', description: 'Guides, toolkits, and frameworks' },
+        { label: 'Investors', href: '/investors', description: 'IR materials and contact' },
+        { label: 'Contact', href: '/contact', description: 'Support, careers, and partnerships' },
+      ],
+    },
+  ];
+
+  const topOffset = variant === 'neo' ? 'top-10' : 'top-0';
+  const shell = variant === 'neo' ? `nav-island rounded-3xl ${scrolled ? 'px-4' : 'px-6'}` : '';
+
+  const height = variant === 'neo' ? (scrolled ? 'h-14' : 'h-16') : 'h-20';
+  const paddingY = variant === 'neo' ? (scrolled ? 'py-2' : 'py-4') : '';
+
+  const navMotion = reduceMotion
+    ? { initial: false, animate: false, transition: undefined as unknown }
+    : { initial: { y: -40, opacity: 0 }, animate: { y: 0, opacity: 1 }, transition: { duration: 0.45 } };
+
+  const panelMotion = reduceMotion
+    ? { initial: false, animate: false, exit: false, transition: undefined as unknown }
+    : { initial: { opacity: 0, y: 10, scale: 0.99 }, animate: { opacity: 1, y: 0, scale: 1 }, exit: { opacity: 0, y: 10, scale: 0.99 }, transition: { duration: 0.18 } };
+
+  const overlayMotion = reduceMotion
+    ? { initial: false, animate: false, exit: false, transition: undefined as unknown }
+    : { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.16 } };
+
+  const trapMobileFocus = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Tab') return;
+    const root = mobilePanelRef.current;
+    if (!root) return;
+    const focusables = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (event.shiftKey) {
+      if (!active || active === first) {
+        event.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+
+    if (active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
     <motion.nav
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className={`fixed ${variant === 'neo' ? 'top-10' : 'top-0'} left-0 right-0 z-50 ${
-        variant === 'neo'
-          ? 'bg-transparent'
-          : 'bg-slate-950/80 backdrop-blur-xl border-b border-white/10'
+      className={`fixed ${topOffset} left-0 right-0 z-50 ${
+        variant === 'neo' ? 'bg-transparent' : 'bg-slate-950/80 backdrop-blur-xl border-b border-white/10'
       } ${className}`}
+      {...(navMotion as any)}
     >
-      <div
-        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
-          variant === 'neo' ? (scrolled ? 'py-2' : 'py-4') : ''
-        } transition-[padding] duration-300`}
+      <Link
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-black focus:px-4 focus:py-3 focus:text-white focus:shadow-lux focus-visible:ring-2 focus-visible:ring-amber-400/50"
       >
-        <div
-          className={`${
-            variant === 'neo'
-              ? `nav-island rounded-3xl ${scrolled ? 'px-4' : 'px-6'}`
-              : ''
-          } transition-[padding] duration-300`}
-        >
-          <div
-            className={`flex items-center ${
-              variant === 'neo' ? (scrolled ? 'h-14' : 'h-16') : 'h-20'
-            } transition-[height] duration-300`}
-          >
-            <motion.div whileHover={{ scale: 1.03 }} className="shrink-0">
+        Skip to content
+      </Link>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${paddingY} transition-[padding] duration-300`}>
+        <div className={`${shell} transition-[padding] duration-300`}>
+          <div className={`flex items-center ${height} transition-[height] duration-300`}>
+            <div className="shrink-0">
               <Link href="/" aria-label="VANHSYA Home" className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-11 h-11 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
@@ -218,341 +270,253 @@ export default function NavigationPremium({ className = '', variant = 'default' 
                       forcedVariant="B"
                     />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full animate-pulse" />
                 </div>
                 <div className="flex flex-col justify-center leading-none">
-                  <div className="text-[18px] font-black tracking-[0.10em] bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent leading-none">
-                    VANHSYA
-                  </div>
-                  <div className="mt-1 text-[11px] text-white/50 tracking-[0.12em] leading-none">GLOBAL MIGRATION</div>
+                  <div className="text-[18px] font-black tracking-[0.12em] text-white leading-none">VANHSYA</div>
+                  <div className="mt-1 text-[11px] text-white/55 tracking-[0.14em] leading-none">GLOBAL MIGRATION</div>
                 </div>
               </Link>
-            </motion.div>
-
-            <div className="hidden lg:flex flex-1 items-center justify-center">
-              <div className="flex items-center gap-1 xl:gap-2">
-                <Link
-                  href="/"
-                  className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                    isActive('/') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                  }`}
-                >
-                  Home
-                </Link>
-
-            {/* Migration Services Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('services')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-current={isActive('/services') ? 'page' : undefined}
-                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                  isActive('/services') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                }`}
-              >
-                <span>Migration Services</span>
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-              <DropdownMenu
-                items={migrationServices}
-                isOpen={activeDropdown === 'services'}
-                onSelect={() => setActiveDropdown(null)}
-              />
             </div>
 
-            {/* Countries Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('countries')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-current={isActive('/countries') ? 'page' : undefined}
-                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                  isActive('/countries') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                }`}
-              >
-                <span>Countries</span>
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-              <DropdownMenu items={countries} isOpen={activeDropdown === 'countries'} onSelect={() => setActiveDropdown(null)} />
-            </div>
-
-            {/* Company Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('company')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-current={
-                  isActive('/about') || isActive('/blog') || isActive('/referral-program') || isActive('/success-stories') || isActive('/investors') || isActive('/resources') || isActive('/ai-innovations')
-                    ? 'page'
-                    : undefined
-                }
-                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                  isActive('/about') || isActive('/blog') || isActive('/referral-program') || isActive('/success-stories') || isActive('/investors') || isActive('/resources') || isActive('/ai-innovations')
-                    ? 'text-amber-200'
-                    : 'text-white hover:text-indigo-200'
-                }`}
-              >
-                <span>Company</span>
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-              <DropdownMenu items={companyItems} isOpen={activeDropdown === 'company'} onSelect={() => setActiveDropdown(null)} />
-            </div>
-
-                <Link
-                  href="/why-vanhsya"
-                  className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                    isActive('/why-vanhsya') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                  }`}
-                >
-                  Why VANHSYA?
-                </Link>
-
-            {/* Expose Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('expose')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-current={isActive('/expose') ? 'page' : undefined}
-                className={`h-10 px-3 rounded-xl inline-flex items-center gap-1 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                  isActive('/expose') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                }`}
-              >
-                <span>Expose</span>
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-              <DropdownMenu items={exposeItems} isOpen={activeDropdown === 'expose'} onSelect={() => setActiveDropdown(null)} />
-            </div>
-
-            {/* AI Tools Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('ai-tools')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-current={isActive('/ai-tools') || isActive('/tools') ? 'page' : undefined}
-                className={`h-10 px-3 rounded-xl inline-flex items-center gap-2 transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                  isActive('/ai-tools') || isActive('/tools') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-                }`}
-              >
-                <FaRobot className="w-4 h-4" />
-                <span>AI Tools</span>
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-              <DropdownMenu items={aiTools} isOpen={activeDropdown === 'ai-tools'} onSelect={() => setActiveDropdown(null)} />
-            </div>
-
-            <Link 
-              href="/card"
-              className="relative h-10 px-3 rounded-xl inline-flex items-center gap-2 text-amber-300 hover:text-amber-200 transition-colors font-extrabold group nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
-            >
-              <FiCreditCard className="w-4 h-4" />
-              <span>VANHSYA Card</span>
-              <span className="text-[8px] bg-amber-400/20 px-1 rounded uppercase tracking-tighter">Preview</span>
-              <span className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="absolute inset-0 rounded-md bg-gradient-to-r from-amber-300/10 via-amber-500/10 to-amber-300/10 blur-md" />
-              </span>
-            </Link>
-
-            <Link
-              href="/next-era"
-              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                isActive('/next-era') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-              }`}
-            >
-              Vanhsya Vision
-            </Link>
-
-            <Link
-              href="/investors"
-              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                isActive('/investors') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-              }`}
-            >
-              Invest
-            </Link>
-
-            <Link 
-              href="/contact" 
-              className={`h-10 px-3 rounded-xl inline-flex items-center transition-colors font-semibold nav-link-liquid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-                isActive('/contact') ? 'text-amber-200' : 'text-white hover:text-indigo-200'
-              }`}
-            >
-              Contact
-            </Link>
-              </div>
-            </div>
-
-            <div className="ml-auto flex items-center gap-2">
-              <div className="hidden lg:flex items-center">
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    href="/consultation"
-                    className="cta-shimmer h-10 px-5 rounded-2xl inline-flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transition-colors shadow-lg shadow-purple-500/30 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+            <div className="ml-auto hidden lg:flex items-center gap-3">
+              <div ref={exploreRef} className="relative">
+                <button
+                    type="button"
+                    aria-haspopup="dialog"
+                    onClick={() => setIsExploreOpen((v) => !v)}
+                    className="h-10 px-4 rounded-2xl inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.10] border border-white/10 text-white font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
                   >
-                    <span className="font-extrabold">Get Started</span>
-                  </Link>
-                </motion.div>
+                    {strings.nav.explore}
+                    <FiChevronDown className={`w-4 h-4 transition-transform ${isExploreOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                <AnimatePresence>
+                  {isExploreOpen && (
+                    <motion.div
+                      id={explorePanelId}
+                      className="absolute left-0 mt-3 w-[min(1040px,calc(100vw-2rem))] rounded-3xl border border-white/12 bg-slate-950/92 backdrop-blur-2xl shadow-lux overflow-hidden"
+                      {...(panelMotion as any)}
+                    >
+                      <div className="p-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {exploreSections.map((section) => (
+                            <div key={section.title} className="min-w-0">
+                              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/55">
+                                {section.title}
+                              </div>
+                              <div className="mt-3 space-y-1">
+                                {section.items.map((item) => (
+                                  <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setIsExploreOpen(false)}
+                                    className={`block rounded-2xl px-3 py-2 transition-colors border ${
+                                      isActive(item.href)
+                                        ? 'bg-amber-400/10 border-amber-400/20 text-amber-200'
+                                        : 'bg-white/[0.02] border-transparent text-white hover:bg-white/[0.06]'
+                                    }`}
+                                  >
+                                    <div className="text-sm font-extrabold">{item.label}</div>
+                                    {item.description ? (
+                                      <div className="mt-1 text-xs text-white/60 leading-snug">{item.description}</div>
+                                    ) : null}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {secondarySections.map((section) => (
+                            <div key={section.title} className="min-w-0 lg:col-span-2">
+                              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/55">
+                                {section.title}
+                              </div>
+                              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {section.items.map((item) => (
+                                  <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setIsExploreOpen(false)}
+                                    className={`rounded-2xl px-3 py-2 transition-colors border ${
+                                      isActive(item.href)
+                                        ? 'bg-amber-400/10 border-amber-400/20 text-amber-200'
+                                        : 'bg-white/[0.02] border-transparent text-white hover:bg-white/[0.06]'
+                                    }`}
+                                  >
+                                    <div className="text-sm font-extrabold">{item.label}</div>
+                                    {item.description ? (
+                                      <div className="mt-1 text-xs text-white/60 leading-snug">{item.description}</div>
+                                    ) : null}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+
+                          <div className="lg:col-span-2 flex items-stretch">
+                            <div className="w-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.04] via-white/[0.02] to-amber-400/[0.06] p-5">
+                              <div className="flex items-center gap-2 text-white font-black">
+                                <FiCreditCard className="w-5 h-5 text-amber-200" />
+                                VANHSYA Card
+                              </div>
+                              <div className="mt-2 text-sm text-white/65 leading-relaxed">
+                                Preview tiers, limits, and concierge depth. Experience the immersive 3D gallery for a true product feel.
+                              </div>
+                              <div className="mt-4 flex flex-wrap gap-2">
+                                <Link
+                                  href="/card"
+                                  onClick={() => setIsExploreOpen(false)}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-extrabold transition-colors"
+                                >
+                                  {strings.actions.viewTiers}
+                                </Link>
+                                <Link
+                                  href="/card/immersive"
+                                  onClick={() => setIsExploreOpen(false)}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-400/15 hover:bg-amber-400/20 border border-amber-400/25 text-amber-100 font-extrabold transition-colors"
+                                >
+                                  {strings.actions.immersive3D}
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-                className="lg:hidden h-10 w-10 rounded-2xl inline-flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+              <Link
+                href="/card"
+                className="h-10 px-4 rounded-2xl inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
               >
-                {isMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
-              </button>
+                <FiCreditCard className="w-4 h-4 text-amber-200" />
+                Card
+              </Link>
+
+              <Link
+                href="/concierge"
+                className="h-10 px-4 rounded-2xl inline-flex items-center bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
+              >
+                Concierge
+              </Link>
+
+              <Link
+                href="/consultation"
+                className="cta-shimmer h-10 px-5 rounded-2xl inline-flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transition-colors shadow-lg shadow-purple-500/25 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
+              >
+                <span className="font-extrabold">Get Started</span>
+              </Link>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen((v) => !v)}
+              aria-label={isMobileOpen ? 'Close menu' : 'Open menu'}
+              className="lg:hidden ml-auto h-10 w-10 rounded-2xl inline-flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.10] border border-white/10 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
+            >
+              {isMobileOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div className="lg:hidden fixed inset-0 z-[60]" {...(overlayMotion as any)} role="dialog" aria-modal="true" aria-label="Menu">
+            <button type="button" className="absolute inset-0 bg-black/75" onClick={() => setIsMobileOpen(false)} aria-label="Close menu" />
             <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3 }}
-              className={`lg:hidden fixed ${variant === 'neo' ? 'top-24' : 'top-20'} left-0 right-0 bottom-0 bg-slate-950/95 backdrop-blur-xl border-t border-white/10 overflow-y-auto`}
+              id={mobilePanelId}
+              ref={mobilePanelRef}
+              onKeyDown={trapMobileFocus}
+              className="absolute right-0 top-0 h-full w-[min(420px,94vw)] bg-slate-950/95 backdrop-blur-2xl border-l border-white/10 shadow-lux overflow-y-auto"
+              {...(panelMotion as any)}
             >
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-2">
-                <Link 
-                  href="/" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link 
-                  href="/services" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Migration Services
-                </Link>
-                <Link 
-                  href="/countries" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Countries
-                </Link>
-                <Link 
-                  href="/why-vanhsya" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Why VANHSYA?
-                </Link>
-                <Link 
-                  href="/ai-tools" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  AI Tools
-                </Link>
-                <Link
-                  href="/next-era"
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Vanhsya Vision
-                </Link>
-                <Link
-                  href="/investors"
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Invest
-                </Link>
-                <Link 
-                  href="/blog" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Ecosystem
-                </Link>
-                <Link 
-                  href="/expose" 
-                  className="block text-amber-300 hover:text-amber-200 transition-colors font-bold py-3 px-3 rounded-xl hover:bg-white/5 flex items-center justify-between"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>Expose</span>
-                  <span className="text-[10px] bg-amber-400/20 px-2 py-0.5 rounded-full uppercase tracking-tighter font-black">
-                    Help
-                  </span>
-                </Link>
-                <Link
-                  href="/resources"
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Resources
-                </Link>
-                <Link 
-                  href="/referral-program" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Referral Program
-                </Link>
-                <Link 
-                  href="/card" 
-                  className="block text-amber-400 hover:text-amber-300 transition-colors font-bold py-3 px-3 rounded-xl hover:bg-white/5 flex items-center justify-between"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>VANHSYA Card</span>
-                  <span className="text-[10px] bg-amber-400/20 px-2 py-0.5 rounded-full uppercase tracking-tighter font-black">Coming Soon</span>
-                </Link>
-                <Link 
-                  href="/success-stories" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Success Stories
-                </Link>
-                <Link 
-                  href="/contact" 
-                  className="block text-white hover:text-indigo-300 transition-colors font-medium py-3 px-3 rounded-xl hover:bg-white/5"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-              
-                <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-white/10">
-                  <Link
-                    href="/portal"
-                    className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white transition-all"
-                    onClick={() => setIsMenuOpen(false)}
+              <div className="px-5 pt-5 pb-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white font-black tracking-[0.18em] text-sm">MENU</div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="h-10 w-10 rounded-2xl inline-flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.10] border border-white/10 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40"
+                    aria-label="Close"
                   >
-                    <span className="font-medium">Get Started</span>
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  <Link
+                    href="/"
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`block rounded-2xl px-4 py-3 border transition-colors ${
+                      isActive('/') ? 'bg-amber-400/10 border-amber-400/20 text-amber-200' : 'bg-white/[0.02] border-white/10 text-white hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <div className="font-extrabold">Home</div>
+                    <div className="mt-1 text-xs text-white/60">Overview and key experiences</div>
                   </Link>
+
+                  <Link
+                    href="/consultation"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="block rounded-2xl px-4 py-3 border border-white/10 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-purple-500/20"
+                  >
+                    <div className="font-extrabold">Get Started</div>
+                    <div className="mt-1 text-xs text-white/80">Book a consultation and begin your journey</div>
+                  </Link>
+
+                  <Link
+                    href="/concierge"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="block rounded-2xl px-4 py-3 border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08] transition-colors"
+                  >
+                    <div className="font-extrabold">Concierge</div>
+                    <div className="mt-1 text-xs text-white/60">Chat-first guidance and step-by-step flows</div>
+                  </Link>
+
+                  <Link
+                    href="/card"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="block rounded-2xl px-4 py-3 border border-amber-400/20 bg-amber-400/10 text-amber-100"
+                  >
+                    <div className="font-extrabold">VANHSYA Card</div>
+                    <div className="mt-1 text-xs text-amber-100/75">Tier preview and immersive 3D experience</div>
+                  </Link>
+                </div>
+
+                <div className="mt-8 space-y-6">
+                  {[...exploreSections, ...secondarySections].map((section) => (
+                    <div key={section.title}>
+                      <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/55">{section.title}</div>
+                      <div className="mt-3 space-y-2">
+                        {section.items.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsMobileOpen(false)}
+                            className={`block rounded-2xl px-4 py-3 border transition-colors ${
+                              isActive(item.href)
+                                ? 'bg-amber-400/10 border-amber-400/20 text-amber-200'
+                                : 'bg-white/[0.02] border-white/10 text-white hover:bg-white/[0.06]'
+                            }`}
+                          >
+                            <div className="font-extrabold">{item.label}</div>
+                            {item.description ? <div className="mt-1 text-xs text-white/60">{item.description}</div> : null}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

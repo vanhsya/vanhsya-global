@@ -79,7 +79,7 @@ export default function SuccessStories({ variant = 'homepage', className = '' }:
               </div>
 
               <Link 
-                href="/portal/login"
+                href="/portal"
                 className="inline-flex items-center gap-2 bg-white text-purple-600 font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition-all group"
               >
                 Join Our Community
@@ -193,7 +193,7 @@ export default function SuccessStories({ variant = 'homepage', className = '' }:
                 their authentic stories will appear here. Each story will be verified and shared with permission.
               </p>
               <Link 
-                href="/portal/login"
+                href="/portal"
                 className="btn-secondary inline-flex items-center"
               >
                 Join Our Community

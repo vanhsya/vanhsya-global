@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow dev origins for network access
+  allowedDevOrigins: ['http://192.168.70.72:3000', '192.168.70.72'],
   // Security Headers - Fix Ethereum property error
   async headers() {
     if (process.env.NODE_ENV !== 'production') return [];

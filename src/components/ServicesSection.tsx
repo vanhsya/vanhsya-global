@@ -193,7 +193,7 @@ const ServicesSection: React.FC = () => {
       processingTime: "12-24 months",
       startingPrice: "$2,500",
       successRate: "Your journey starts here",
-      href: "/services/permanent-residency"
+      href: "/services/permanent-residence"
     }
   ];
 

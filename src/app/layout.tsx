@@ -195,7 +195,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: walletExtensionCompatScript }}
         />
       </head>
-      <body className="font-sans antialiased bg-[#0A0A10] text-[#E0E0E0] bg-grid-vanhsya overflow-x-hidden scroll-smooth">
+      <body className="font-sans antialiased bg-grid-vanhsya overflow-x-hidden scroll-smooth">
         <ClientLayout>{children}</ClientLayout>
         {enableVercelRuntimeScripts ? <Analytics /> : null}
         {enableVercelRuntimeScripts ? <SpeedInsights /> : null}

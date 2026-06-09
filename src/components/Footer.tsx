@@ -110,7 +110,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-slate-950 text-white border-t border-white/10">
       {/* Main Footer Content */}
       <div className="container-max px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
@@ -123,12 +123,12 @@ const Footer: React.FC = () => {
               className="mb-6"
             >
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-amber-500 rounded-lg flex items-center justify-center mr-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-amber-400 rounded-xl flex items-center justify-center mr-3 border border-white/10">
                   <FaGlobe className="text-white text-xl" />
                 </div>
                 <span className="text-2xl font-bold">VANHSYA</span>
               </div>
-              <p className="text-gray-300 leading-relaxed mb-6">
+              <p className="text-white/70 leading-relaxed mb-6">
                 Premium global migration support with UAE-wide presence. Transparent processes, expert guidance, and 24/7 assistance across all 7 Emirates.
               </p>
               
@@ -139,28 +139,28 @@ const Footer: React.FC = () => {
                     key={contact.label}
                     href={contact.href}
                     whileHover={{ x: 5 }}
-                    className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+                    className="flex items-center text-white/70 hover:text-white transition-colors duration-200"
                   >
-                    <contact.icon className="mr-3 text-blue-400" />
+                    <contact.icon className="mr-3 text-amber-200" />
                     <span className="text-sm">{contact.value}</span>
                   </motion.a>
                 ))}
               </div>
 
-              <div className="mt-6 rounded-xl border border-gray-800 bg-gray-950/40 p-4">
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="text-sm font-semibold text-white mb-3">Official Contact Emails</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                  <a className="text-gray-300 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.founder}`}>{COMPANY.emails.founder}</a>
-                  <a className="text-gray-300 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.connect}`}>{COMPANY.emails.connect}</a>
-                  <a className="text-gray-300 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.hr}`}>{COMPANY.emails.hr}</a>
-                  <a className="text-gray-300 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.support}`}>{COMPANY.emails.support}</a>
+                  <a className="text-white/70 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.founder}`}>{COMPANY.emails.founder}</a>
+                  <a className="text-white/70 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.connect}`}>{COMPANY.emails.connect}</a>
+                  <a className="text-white/70 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.hr}`}>{COMPANY.emails.hr}</a>
+                  <a className="text-white/70 hover:text-white transition-colors" href={`mailto:${COMPANY.emails.support}`}>{COMPANY.emails.support}</a>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl border border-gray-800 bg-gray-950/40 p-4">
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="text-sm font-semibold text-white mb-3">{COMPANY.uae.partnershipLabel}</div>
-                <div className="text-sm text-gray-300">{COMPANY.uae.availability}</div>
-                <div className="text-xs text-gray-400 mt-2">{COMPANY.uae.partnershipNote}</div>
+                <div className="text-sm text-white/70">{COMPANY.uae.availability}</div>
+                <div className="text-xs text-white/50 mt-2">{COMPANY.uae.partnershipNote}</div>
               </div>
             </motion.div>
 
@@ -173,7 +173,7 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors duration-200"
+                  className="w-10 h-10 bg-white/[0.05] rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.10] transition-colors duration-200"
                   aria-label={social.label}
                 >
                   <social.icon className="text-lg" />
@@ -198,7 +198,7 @@ const Footer: React.FC = () => {
                       <motion.a
                         href={link.href}
                         whileHover={{ x: 5 }}
-                        className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                        className="text-white/70 hover:text-white transition-colors duration-200 text-sm"
                       >
                         {link.name}
                       </motion.a>
@@ -212,10 +212,10 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-gray-800">
+      <div className="border-t border-white/10">
         <div className="container-max px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-400 text-sm mb-4 md:mb-0">
+            <div className="text-white/50 text-sm mb-4 md:mb-0">
               © {currentYear} VANHSYA Global Migration. All rights reserved.
             </div>
             <div className="flex flex-wrap gap-6 text-sm">

@@ -143,6 +143,17 @@ function buildLinePositions(
   return new Float32Array(pts);
 }
 
+const FALLBACK_COUNTRIES: CountryDatum[] = [
+  { id: "uae", name: "UAE", centroid: { lat: 23.4241, lon: 53.8478 }, rings: [] },
+  { id: "singapore", name: "Singapore", centroid: { lat: 1.3521, lon: 103.8198 }, rings: [] },
+  { id: "germany", name: "Germany", centroid: { lat: 51.1657, lon: 10.4515 }, rings: [] },
+  { id: "uk", name: "United Kingdom", centroid: { lat: 55.3781, lon: -3.436 }, rings: [] },
+  { id: "usa", name: "United States", centroid: { lat: 39.7837, lon: -100.4459 }, rings: [] },
+  { id: "canada", name: "Canada", centroid: { lat: 56.1304, lon: -106.3468 }, rings: [] },
+  { id: "australia", name: "Australia", centroid: { lat: -25.2744, lon: 133.7751 }, rings: [] },
+  { id: "new-zealand", name: "New Zealand", centroid: { lat: -40.9006, lon: 174.886 }, rings: [] },
+];
+
 async function fetchCountriesGeoJSON(signal: AbortSignal): Promise<GeoJSON> {
   const cacheKey = "vanhsya_world_geojson_v3";
   try {
@@ -398,6 +409,8 @@ function Scene({
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Failed to load visualization data";
         setError(msg);
+        setCountries(FALLBACK_COUNTRIES);
+        setLoaded(true);
       }
     })();
     return () => controller.abort();
@@ -421,6 +434,7 @@ function Scene({
       const arr = buildLinePositions(c.rings, radius, step);
       for (let i = 0; i < arr.length; i++) merged.push(arr[i]);
     }
+    if (merged.length < 6) return null;
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(merged), 3));
     g.computeBoundingSphere();
@@ -431,6 +445,7 @@ function Scene({
     if (selectedIdx == null || selectedIdx < 0 || selectedIdx >= countries.length) return null;
     const c = countries[selectedIdx];
     const arr = buildLinePositions(c.rings, radius * 1.002, 1);
+    if (arr.length < 6) return null;
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
     g.computeBoundingSphere();
@@ -535,6 +550,7 @@ function Scene({
     handlersRef.current = {
       onPointerDown: (e: PointerEvent) => {
         if (!groupRef.current) return;
+        if (e.cancelable) e.preventDefault();
         (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
         pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
         pointerDownPos.current = { x: e.clientX, y: e.clientY };
@@ -549,6 +565,7 @@ function Scene({
         }
       },
       onPointerMove: (e: PointerEvent) => {
+        if ((dragging.current || pinch.current) && e.cancelable) e.preventDefault();
         pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
         const rect = gl.domElement.getBoundingClientRect();
@@ -590,6 +607,7 @@ function Scene({
         }
       },
       onPointerUp: (e: PointerEvent) => {
+        if (e.cancelable) e.preventDefault();
         pointers.current.delete(e.pointerId);
         const down = pointerDownPos.current;
         if (down && pointers.current.size === 0 && !pinch.current) {
@@ -615,6 +633,7 @@ function Scene({
       },
       onWheel: (e: WheelEvent) => {
         if (reducedMotion) return;
+        if (e.cancelable) e.preventDefault();
         const next = clamp(targetZoom + e.deltaY * 0.004, 3.3, 9.5);
         setTargetZoom(next);
       },
@@ -629,11 +648,11 @@ function Scene({
     const onPointerUp = (e: PointerEvent) => handlersRef.current?.onPointerUp(e);
     const onWheel = (e: WheelEvent) => handlersRef.current?.onWheel(e);
 
-    el.addEventListener("pointerdown", onPointerDown as any, { passive: true });
-    el.addEventListener("pointermove", onPointerMove as any, { passive: true });
-    el.addEventListener("pointerup", onPointerUp as any, { passive: true });
-    el.addEventListener("pointercancel", onPointerUp as any, { passive: true });
-    el.addEventListener("wheel", onWheel as any, { passive: true });
+    el.addEventListener("pointerdown", onPointerDown as any, { passive: false });
+    el.addEventListener("pointermove", onPointerMove as any, { passive: false });
+    el.addEventListener("pointerup", onPointerUp as any, { passive: false });
+    el.addEventListener("pointercancel", onPointerUp as any, { passive: false });
+    el.addEventListener("wheel", onWheel as any, { passive: false });
     return () => {
       el.removeEventListener("pointerdown", onPointerDown as any);
       el.removeEventListener("pointermove", onPointerMove as any);
@@ -704,21 +723,21 @@ function Scene({
   const hoveredName = hoveredIdx != null ? countries[hoveredIdx]?.name : null;
   const selectedName = selectedIdx != null ? countries[selectedIdx]?.name : null;
 
-  if (error) {
+  if (!loaded) {
     return (
       <Html center>
-        <div className="text-white/80 text-sm bg-black/60 border border-white/10 backdrop-blur-md rounded-2xl px-4 py-3 max-w-sm">
-          {error}
+        <div className="text-white/70 text-sm bg-black/40 border border-white/10 backdrop-blur-md rounded-2xl px-4 py-3">
+          Loading visualization…
         </div>
       </Html>
     );
   }
 
-  if (!loaded || !coarseLinesGeometry) {
+  if (!countries.length) {
     return (
       <Html center>
-        <div className="text-white/70 text-sm bg-black/40 border border-white/10 backdrop-blur-md rounded-2xl px-4 py-3">
-          Loading visualization…
+        <div className="text-white/80 text-sm bg-black/60 border border-white/10 backdrop-blur-md rounded-2xl px-4 py-3 max-w-sm">
+          Visualization data unavailable.
         </div>
       </Html>
     );
@@ -747,7 +766,9 @@ function Scene({
         />
       </mesh>
 
-      <lineSegments geometry={coarseLinesGeometry} material={baseLineMaterial} />
+      {coarseLinesGeometry ? (
+        <lineSegments geometry={coarseLinesGeometry} material={baseLineMaterial} />
+      ) : null}
 
       {fineLineGeometry && (
         <lineSegments ref={fineLineRef} geometry={fineLineGeometry} material={highlightMaterial} />
@@ -784,6 +805,14 @@ function Scene({
       </mesh>
 
       <AtmosphericParticles radius={radius} color={scheme.particle} paused={paused || reducedMotion} />
+
+      {error ? (
+        <Html position={[0, 3.15, 0]} center>
+          <div className="pointer-events-none select-none text-[10px] font-black uppercase tracking-[0.25em] text-amber-100/90 bg-black/40 border border-amber-300/20 backdrop-blur-md rounded-full px-4 py-2">
+            Limited dataset mode
+          </div>
+        </Html>
+      ) : null}
 
       {(selectedName || hoveredName) && (
         <Html position={[0, -3.25, 0]} center>
@@ -840,6 +869,7 @@ export default function CountryOrbitGlobe({
     <div className={className}>
       <Canvas
         dpr={[1, 2]}
+        style={{ touchAction: "none" }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0, 7], fov: 42, near: 0.1, far: 100 }}
       >

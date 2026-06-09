@@ -1,4 +1,4 @@
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceEnum, coerceNumber, coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 export const runtime = 'nodejs';
@@ -106,6 +106,40 @@ const offlinePlan = (input: { country: string; pathway: string; startDate: strin
   };
 };
 
+const normalizeResult = (data: unknown, fallback: Res): Res => {
+  const value = data && typeof data === 'object' ? (data as Partial<Res>) : {};
+  const milestones = Array.isArray(value.milestones) ? value.milestones : fallback.milestones;
+  const buffers = Array.isArray(value.buffers) ? value.buffers : fallback.buffers;
+
+  return {
+    summary: coerceString(value.summary, fallback.summary, 500),
+    milestones: milestones
+      .map((item, index) => {
+        const row = item && typeof item === 'object' ? (item as Partial<Res['milestones'][number]>) : {};
+        return {
+          title: coerceString(row.title, fallback.milestones[index]?.title || 'Application milestone', 140),
+          dueDate: /^\d{4}-\d{2}-\d{2}$/.test(coerceString(row.dueDate)) ? coerceString(row.dueDate) : fallback.milestones[index]?.dueDate || fallback.milestones[0].dueDate,
+          durationDays: Math.round(coerceNumber(row.durationDays, fallback.milestones[index]?.durationDays || 7, 1, 365)),
+          risk: coerceEnum(row.risk, ['low', 'medium', 'high'] as const, fallback.milestones[index]?.risk || 'medium'),
+          notes: coerceStringArray(row.notes, fallback.milestones[index]?.notes || [], 5, 180)
+        };
+      })
+      .slice(0, 16),
+    buffers: buffers
+      .map((item, index) => {
+        const row = item && typeof item === 'object' ? (item as Partial<Res['buffers'][number]>) : {};
+        return {
+          title: coerceString(row.title, fallback.buffers[index]?.title || 'Planning buffer', 140),
+          days: Math.round(coerceNumber(row.days, fallback.buffers[index]?.days || 7, 1, 90)),
+          why: coerceString(row.why, fallback.buffers[index]?.why || 'Allows time for case-specific delays.', 220)
+        };
+      })
+      .slice(0, 8),
+    optimizationTips: coerceStringArray(value.optimizationTips, fallback.optimizationTips, 12, 220),
+    disclaimer: coerceString(value.disclaimer, fallback.disclaimer, 320)
+  };
+};
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403, headers: noStore });
@@ -154,7 +188,8 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<Res>({ system, prompt });
+    const offline = offlinePlan({ country, pathway, startDate, constraints });
+    const { data } = await generateJson<Res>({ system, prompt, maxOutputTokens: 2600, validate: (raw) => normalizeResult(raw, offline) });
     return Response.json(data, { status: 200, headers: noStore });
   } catch {
     const offline = offlinePlan({ country, pathway, startDate, constraints });

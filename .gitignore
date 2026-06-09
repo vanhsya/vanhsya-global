@@ -45,3 +45,6 @@ next-env.d.ts
 
 # backups / vendor repos
 /vanhsya-global/
+/backups/
+/scratch/
+/.kilocode/

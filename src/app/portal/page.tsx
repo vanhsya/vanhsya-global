@@ -168,7 +168,7 @@ export default function ClientPortalLogin() {
                 </div>
 
                 <div className="text-sm">
-                  <a href="/portal/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                  <a href="/contact" className="font-medium text-blue-600 hover:text-blue-500">
                     Forgot your password?
                   </a>
                 </div>

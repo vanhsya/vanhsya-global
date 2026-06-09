@@ -29,7 +29,7 @@ export default function Navigation() {
         { label: 'Tourist Visa', href: '/services/tourist-visa' },
         { label: 'Business Visa', href: '/services/business-visa' },
         { label: 'Family Visa', href: '/services/family-visa' },
-        { label: 'Permanent Residency', href: '/services/permanent-residency' },
+        { label: 'Permanent Residency', href: '/services/permanent-residence' },
       ]
     },
     {
@@ -141,7 +141,7 @@ export default function Navigation() {
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <Link 
-                href="/login"
+                href="/portal"
                 className="btn-secondary"
               >
                 <User className="w-4 h-4" />
@@ -221,7 +221,7 @@ export default function Navigation() {
                 
                 <div className="border-t border-gray-200 mt-4 pt-4 px-6 space-y-3">
                   <Link
-                    href="/login"
+                    href="/portal"
                     className="block w-full text-center py-2 text-gray-800 hover:bg-gray-100 rounded-xl transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >

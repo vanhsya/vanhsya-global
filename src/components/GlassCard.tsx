@@ -20,6 +20,8 @@ export default function GlassCard({
   opacity = 'medium',
   onClick
 }: GlassCardProps) {
+  const interactive = typeof onClick === 'function';
+
   const blurClasses = {
     sm: 'backdrop-blur-sm',
     md: 'backdrop-blur-md',
@@ -41,10 +43,19 @@ export default function GlassCard({
       whileHover={hover ? { scale: 1.02, y: -5 } : {}}
       transition={{ duration: 0.3 }}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (!interactive) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
       className={`
         ${opacityClasses[opacity]} 
         ${blurClasses[blur]}
-        border border-white/20 
+        border border-white/10 
         rounded-2xl 
         p-6 
         shadow-lg 
@@ -54,6 +65,7 @@ export default function GlassCard({
         hover:border-white/30
         transition-all 
         duration-300
+        ${interactive ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40 focus-visible:ring-offset-0' : ''}
         ${className}
       `}
     >

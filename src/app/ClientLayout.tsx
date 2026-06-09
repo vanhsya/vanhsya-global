@@ -1451,6 +1451,8 @@ function SessionBackgroundMusic() {
 }
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") return;
     if (!("serviceWorker" in navigator)) return;
@@ -1466,9 +1468,11 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
           <LogoPreloader />
           <SessionBackgroundMusic />
           <PageTransition>
-            {children}
+            <div id="main-content" tabIndex={-1}>
+              {children}
+            </div>
           </PageTransition>
-          <ImmigrationConciergeChat />
+          {pathname?.startsWith("/concierge") ? null : <ImmigrationConciergeChat />}
           <ContactSupport variant="floating" />
         </CurrencyProvider>
       </ErrorBoundary>

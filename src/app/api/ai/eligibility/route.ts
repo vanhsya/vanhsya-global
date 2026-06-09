@@ -1,4 +1,4 @@
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 import { evaluateEligibility, type EligibilityProfile } from '../../../../lib/eligibilityEngine.ts';
 
@@ -31,6 +31,16 @@ const asBool = (v: unknown) => {
 const asString = (v: unknown) => (typeof v === 'string' ? v : '');
 
 const asStringArray = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []);
+
+const normalizeAiInsight = (data: unknown): AiInsight => {
+  const value = data && typeof data === 'object' ? (data as Partial<AiInsight>) : {};
+  return {
+    summary: coerceString(value.summary, 'Eligibility guidance generated from the structured report.', 600),
+    keyMatches: coerceStringArray(value.keyMatches, [], 8, 180),
+    highestLeverageImprovements: coerceStringArray(value.highestLeverageImprovements, [], 8, 220),
+    disclaimers: coerceStringArray(value.disclaimers, ['Guidance only. This is not legal advice or a guarantee of approval.'], 4, 220)
+  };
+};
 
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
@@ -88,7 +98,7 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<AiInsight>({ system, prompt });
+    const { data } = await generateJson<AiInsight>({ system, prompt, validate: normalizeAiInsight });
     return Response.json({ ok: true, report, ai: data, offline: false }, { status: 200, headers: noStore });
   } catch {
     return Response.json({ ok: true, report, ai: null, offline: false }, { status: 200, headers: noStore });

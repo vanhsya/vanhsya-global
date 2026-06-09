@@ -384,7 +384,7 @@ export default function EmployerConnectSection() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    href="/employers"
+                    href="/contact"
                     className="flex items-center justify-center space-x-3 w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-2xl text-white font-semibold text-lg shadow-2xl shadow-blue-500/25 transition-all duration-300"
                   >
                     <FiBriefcase className="w-5 h-5" />

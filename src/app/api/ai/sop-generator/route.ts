@@ -1,4 +1,4 @@
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 export const runtime = 'nodejs';
@@ -79,6 +79,22 @@ const fallback = (input: {
   };
 };
 
+const normalizeResult = (data: unknown): Result => {
+  const value = data && typeof data === 'object' ? (data as Partial<Result>) : {};
+  return {
+    title: coerceString(value.title, 'Statement of Purpose Draft', 160),
+    sop: coerceString(value.sop, 'Add verified applicant details before using this draft.', 7000),
+    outline: coerceStringArray(value.outline, ['Introduction', 'Background', 'Program fit', 'Future plan', 'Compliance'], 10, 140),
+    personalizationChecklist: coerceStringArray(
+      value.personalizationChecklist,
+      ['Verify all dates, institutions, funds, and supporting evidence before submission.'],
+      10,
+      180
+    ),
+    disclaimer: coerceString(value.disclaimer, 'Draft only. Verify accuracy and consider legal review.', 260)
+  };
+};
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403, headers: noStore });
@@ -130,7 +146,7 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<Result>({ system, prompt });
+    const { data } = await generateJson<Result>({ system, prompt, maxOutputTokens: 2600, validate: normalizeResult });
     return Response.json(data, { status: 200, headers: noStore });
   } catch {
     return Response.json({ ok: true, offline: true, result: fallback(input) }, { status: 200, headers: noStore });

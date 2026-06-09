@@ -1,4 +1,4 @@
-import { ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
+import { coerceString, coerceStringArray, ensureAiConfigured, generateJson } from '../../../../lib/aiJson.ts';
 import { verifyCsrf } from '../../../../lib/security/csrf.ts';
 
 export const runtime = 'nodejs';
@@ -80,6 +80,21 @@ const fallback = (input: {
   };
 };
 
+const normalizeResult = (data: unknown): Result => {
+  const value = data && typeof data === 'object' ? (data as Partial<Result>) : {};
+  return {
+    title: coerceString(value.title, 'ATS-Optimized CV Draft', 120),
+    atsHeadline: coerceString(value.atsHeadline, 'Candidate profile', 180),
+    professionalSummary: coerceString(value.professionalSummary, 'Add verified professional summary details.', 700),
+    coreSkills: coerceStringArray(value.coreSkills, ['Communication', 'Problem-solving', 'Stakeholder management'], 20, 80),
+    experienceBullets: coerceStringArray(value.experienceBullets, ['Add achievement bullets backed by verified metrics.'], 10, 220),
+    educationSection: coerceStringArray(value.educationSection, ['Add verified education details.'], 6, 220),
+    projectsSection: coerceStringArray(value.projectsSection, [], 6, 220),
+    atsKeywords: coerceStringArray(value.atsKeywords, [], 16, 70),
+    disclaimer: coerceString(value.disclaimer, 'Draft only. Verify accuracy, tailor to each job, and avoid misrepresentation.', 260)
+  };
+};
+
 export async function POST(req: Request) {
   const csrf = verifyCsrf(req);
   if (!csrf.ok) return Response.json({ error: csrf.reason }, { status: 403, headers: noStore });
@@ -136,7 +151,7 @@ export async function POST(req: Request) {
   );
 
   try {
-    const { data } = await generateJson<Result>({ system, prompt });
+    const { data } = await generateJson<Result>({ system, prompt, validate: normalizeResult });
     return Response.json(data, { status: 200, headers: noStore });
   } catch {
     return Response.json({ ok: true, offline: true, result: fallback(input) }, { status: 200, headers: noStore });

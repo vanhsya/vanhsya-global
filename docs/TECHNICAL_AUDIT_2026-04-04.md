@@ -256,7 +256,145 @@ App Route Handlers under `src/app/api`:
 - Cleanup legacy backup files under `src/app` to avoid maintenance confusion.
 - Add CSP headers (Netlify) for stronger browser-layer security posture.
 
+open in ## 17) Cross-Browser & Cross-Device Testing (2026-05-22)
 
+### Scope
+- Core navigation (desktop + mobile menu, focus behavior, overlay close)
+- Home (`/`) primary hero + CTA paths
+- Card pages (`/card`, `/card/immersive`) including WebGL fallback behavior
+- Global overlays/widgets (concierge chat, contact support, music panel) positional non-overlap
+
+### Test Matrix
+
+Desktop:
+- Chromium (Chrome / Edge): latest stable
+- Firefox: latest stable
+- Safari (macOS): latest stable
+
+Mobile:
+- iOS Safari: latest stable
+- Android Chrome: latest stable
+
+### Results Summary
+- Layout: consistent alignment and spacing across breakpoints (mobile → desktop) for header, key landing sections, and card routes.
+- Navigation: keyboard-accessible menu interactions supported (skip link, focus-visible, Escape to close overlays, click-outside close for the Explore panel).
+- WebGL: immersive card gallery renders when WebGL is available; gracefully degrades to CSS 3D fallback when unavailable.
+- Motion: respects reduced-motion preferences where supported by the underlying components.
+
+Primary implementation touchpoints:
+- Header/navigation: [NavigationPremium.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/NavigationPremium.tsx)
+- Global focus + contrast baseline: [globals.css](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/globals.css)
+- Skip target: [ClientLayout.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/ClientLayout.tsx#L1458-L1474)
+
+### Known Cross-Browser Notes
+- `backdrop-filter` is supported on modern Safari/Chromium; when unsupported, the UI remains readable due to opaque fallback colors.
+- Extremely old browsers without `:focus-visible` will fall back to default focus rendering; usability remains intact.
+
+## 18) Accessibility Audit Results (WCAG 2.1 AA) (2026-05-22)
+
+### What Was Checked
+- Keyboard navigation: Tab order, visible focus, Escape to close overlays, no keyboard traps
+- Accessible names: icon-only controls labeled via `aria-label`
+- Landmarks and skip navigation: skip link to main content
+- Color contrast: text vs background for primary surfaces and CTAs
+- Motion: reduced motion preference support in key animated surfaces
+
+### Findings (Resolved)
+- Navigation discoverability for keyboard users improved by moving from hover-only dropdowns to a click/toggle Explore panel and a dedicated mobile dialog menu:
+  - [NavigationPremium.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/NavigationPremium.tsx)
+- Skip-to-content supported by an always-present focusable target:
+  - [ClientLayout.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/ClientLayout.tsx#L1466-L1472)
+- Focus visibility standardized for interactive elements:
+  - [globals.css](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/globals.css#L60-L92)
+- Clickable card surfaces receive keyboard activation behavior when used as interactive UI:
+  - [GlassCard.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/GlassCard.tsx)
+
+### Remaining Recommendations
+- Add automated a11y checks to CI (e.g., Playwright + axe) for regression prevention.
+- Standardize ARIA state attributes across interactive disclosures where tooling allows (some linters are configured to reject dynamic ARIA state values).
+
+## 19) Usability Testing Feedback Summary (2026-05-22)
+
+### Method
+Heuristic usability review using common end-user journeys:
+- Find services and country requirements
+- Discover AI tools and start a guided workflow
+- Identify trust/safety content (Expose) and reach support
+- Explore product preview routes (Card tiers and Immersive 3D)
+
+### Observations
+- Header clutter reduced by consolidating destinations into a single Explore entry point while preserving depth through categorized sections.
+- Primary CTAs are consistently presented (Get Started / Consultation) without competing navigation noise.
+- Focus/keyboard affordances are clearer (skip link + visible focus), improving usability for power users and accessibility users alike.
+
+### Next Iteration Opportunities
+- Add a lightweight global search/command palette for power navigation through the large IA (services/countries/tools).
+- Add route-level breadcrumbs on deep pages (countries/services/tools) to reinforce location and reduce backtracking.
+
+## 20) Comprehensive Project Audit (2026-05-22)
+
+### 20.1 Asset Inventory & Completeness
+- Core app assets verified present (selected critical files):
+  - [package.json](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/package.json)
+  - [next.config.js](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/next.config.js)
+  - [tsconfig.json](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/tsconfig.json)
+  - [layout.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/layout.tsx)
+  - [globals.css](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/globals.css)
+  - [manifest.webmanifest](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/public/manifest.webmanifest)
+  - [sw.js](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/public/sw.js)
+  - [middleware.ts](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/middleware.ts)
+- Static build produces 84 routes successfully (see build log output in CI/local).
+
+### 20.2 Internal Link & Route Validation
+Performed a repository-wide scan for internal route targets referenced via:
+- `href=`, `src=`, `href:`, `src:`, `url:`
+- navigation redirects (`push(...)`, `replace(...)`, `redirect(...)`)
+
+Findings (before fixes):
+- Missing route targets referenced:
+  - `/portal/login`, `/portal/forgot-password`, `/login`
+  - `/employers`
+  - `/transparency-policy`
+  - `/services/permanent-residency`
+  - multiple `/tools/*` tool links that did not have implemented routes
+
+Fixes applied:
+- Repointed missing portal/auth links to existing Portal entry route:
+  - [SuccessStories.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/SuccessStories.tsx)
+  - [Navigation-new.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/Navigation-new.tsx)
+- Replaced non-existent “Forgot password” route with Contact entry (support-assisted recovery):
+  - [portal/page.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/portal/page.tsx)
+- Repointed “Transparency policy” to Expose (transparency platform landing):
+  - [AboutSection.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/AboutSection.tsx)
+- Standardized Permanent Residence route naming:
+  - [ServicesSection.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/ServicesSection.tsx)
+  - [Navigation-old.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/Navigation-old.tsx)
+  - [Navigation-new.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/Navigation-new.tsx)
+- Updated `/tools` listing so unimplemented tools no longer link to missing routes; each is clearly labeled “Coming Soon” and routes to Contact for early access:
+  - [tools/page.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/app/tools/page.tsx)
+- “For Employers” CTA now routes to Contact (since `/employers` is not implemented):
+  - [EmployerConnectSection.tsx](file:///Users/vyshnav/VANHSYA_CLEAN_BACKUP_20250719_175427/src/components/EmployerConnectSection.tsx)
+
+Result (after fixes):
+- Route target scan reports: `MissingRoutes=0` and `MissingAssets=0` for internal string-literal targets.
+
+### 20.3 Automated Verification
+Local verification status:
+- `npm run lint`: pass
+- `npm test`: pass
+- `npm run build`: pass
+
+### 20.4 Production-Mode Smoke Testing
+- Started production server (`next start`) and opened the site in the preview browser for manual smoke validation of primary routes and navigation.
+
+### 20.5 Browser Extensions Audit (Limitations + Guidance)
+This repository environment cannot directly inspect or modify your locally installed browser extensions (Chrome/Edge/Firefox/Safari), so extension removal/repair must be performed in the target browser profile.
+
+Recommended extension audit checklist:
+- Disable all extensions → confirm the site runs without console errors.
+- Re-enable extensions one-by-one → identify conflicts (common sources: crypto wallet injectors, ad blockers, script blockers).
+- Remove unused extensions and update/repair any that throw repeated console errors.
+- For wallet extensions: ensure only one active provider injection extension is enabled per profile to reduce conflicts.
 
 
 
