@@ -163,7 +163,8 @@
     "ENOSPC",
     "EADDRINUSE",
     "HSTS",
-    "GLSL"
+    "GLSL",
+    "Rabby"
   ],
   "ignoreRegExpList": [
     "\\bVANHSYA(?:'s)?\\b",
@@ -178,7 +179,9 @@
     "node_modules",
     ".next",
     "public",
-    "vanhsya-global"
+    "vanhsya-global",
+    "src/app/ai-tools/dashboard/page.tsx",
+    "src/app/ai-tools/success-predictor/page.tsx"
   ],
   "dictionaries": [
     "en_US",

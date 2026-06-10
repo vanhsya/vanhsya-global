@@ -9,8 +9,11 @@ test('parseIsoDate returns null for invalid input', () => {
 
 test('parseIsoDate parses ISO timestamps', () => {
   const t = parseIsoDate('2099-01-01T00:00:00.000Z');
-  assert.equal(typeof t, 'number');
-  assert.ok((t as number) > 0);
+  assert.notEqual(t, null);
+  if (t === null) {
+    throw new Error('Expected timestamp to be parsed');
+  }
+  assert.ok(t > 0);
 });
 
 test('getMaintenanceWindow activates when MAINTENANCE_MODE=1', () => {
