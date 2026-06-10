@@ -144,7 +144,7 @@ function buildLinePositions(
 }
 
 const FALLBACK_COUNTRIES: CountryDatum[] = [
-  { id: "uae", name: "UAE", centroid: { lat: 23.4241, lon: 53.8478 }, rings: [] },
+  { id: "uae", name: "United Arab Emirates", centroid: { lat: 23.4241, lon: 53.8478 }, rings: [] },
   { id: "singapore", name: "Singapore", centroid: { lat: 1.3521, lon: 103.8198 }, rings: [] },
   { id: "germany", name: "Germany", centroid: { lat: 51.1657, lon: 10.4515 }, rings: [] },
   { id: "uk", name: "United Kingdom", centroid: { lat: 55.3781, lon: -3.436 }, rings: [] },
@@ -152,6 +152,15 @@ const FALLBACK_COUNTRIES: CountryDatum[] = [
   { id: "canada", name: "Canada", centroid: { lat: 56.1304, lon: -106.3468 }, rings: [] },
   { id: "australia", name: "Australia", centroid: { lat: -25.2744, lon: 133.7751 }, rings: [] },
   { id: "new-zealand", name: "New Zealand", centroid: { lat: -40.9006, lon: 174.886 }, rings: [] },
+  { id: "france", name: "France", centroid: { lat: 46.2276, lon: 2.2137 }, rings: [] },
+  { id: "italy", name: "Italy", centroid: { lat: 41.8719, lon: 12.5674 }, rings: [] },
+  { id: "spain", name: "Spain", centroid: { lat: 40.4637, lon: -3.7492 }, rings: [] },
+  { id: "japan", name: "Japan", centroid: { lat: 36.2048, lon: 138.2529 }, rings: [] },
+  { id: "south-korea", name: "South Korea", centroid: { lat: 35.9078, lon: 127.7669 }, rings: [] },
+  { id: "india", name: "India", centroid: { lat: 20.5937, lon: 78.9629 }, rings: [] },
+  { id: "china", name: "China", centroid: { lat: 35.8617, lon: 104.1954 }, rings: [] },
+  { id: "brazil", name: "Brazil", centroid: { lat: -14.235, lon: -51.9253 }, rings: [] },
+  { id: "mexico", name: "Mexico", centroid: { lat: 23.6345, lon: -102.5528 }, rings: [] },
 ];
 
 async function fetchCountriesGeoJSON(signal: AbortSignal): Promise<GeoJSON> {
@@ -194,6 +203,27 @@ async function fetchCountriesGeoJSON(signal: AbortSignal): Promise<GeoJSON> {
 
   if (typeof lastStatus === "number") throw new Error(`Failed to load country data (${lastStatus})`);
   throw new Error(`Failed to load country data (${lastError ? "network" : "unknown"})`);
+}
+
+// Create a reliable embedded GeoJSON from fallback countries
+function createEmbeddedGeoJSON(countries: CountryDatum[]): GeoJSON {
+  const features: GeoJSONFeature[] = countries.map(c => ({
+    type: "Feature",
+    properties: { name: c.name },
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [c.centroid.lon - 0.5, c.centroid.lat - 0.5],
+          [c.centroid.lon + 0.5, c.centroid.lat - 0.5],
+          [c.centroid.lon + 0.5, c.centroid.lat + 0.5],
+          [c.centroid.lon - 0.5, c.centroid.lat + 0.5],
+          [c.centroid.lon - 0.5, c.centroid.lat - 0.5],
+        ],
+      ],
+    },
+  }));
+  return { type: "FeatureCollection", features };
 }
 
 function useReducedMotionPref(initial = false) {
@@ -398,6 +428,7 @@ function Scene({
     (async () => {
       try {
         setError(null);
+        // First try loading external data, but if it fails, use embedded fallback
         const data = await fetchCountriesGeoJSON(controller.signal);
         const mapped: CountryDatum[] = data.features.map((f, idx) => {
           const rings = toRings(f);
@@ -409,7 +440,14 @@ function Scene({
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Failed to load visualization data";
         setError(msg);
-        setCountries(FALLBACK_COUNTRIES);
+        // Create complete embedded data with proper rings
+        const embedded = createEmbeddedGeoJSON(FALLBACK_COUNTRIES);
+        const mappedFallback: CountryDatum[] = embedded.features.map((f, idx) => {
+          const rings = toRings(f);
+          const centroid = computeCentroid(rings);
+          return { id: FALLBACK_COUNTRIES[idx]?.id ?? String(idx), name: FALLBACK_COUNTRIES[idx]?.name ?? pickName(f, idx), rings, centroid };
+        });
+        setCountries(mappedFallback);
         setLoaded(true);
       }
     })();
