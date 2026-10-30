@@ -1,349 +1,155 @@
 # VANHSYA Global Migration Platform
 
-> **Professional, Transparent, Trusted** - The world's most client-focused immigration consultancy platform.
+<p align="center">
+  <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80" alt="VANHSYA Global Migration Platform" width="100%" />
+</p>
 
-![VANHSYA](https://img.shields.io/badge/VANHSYA-Global%20Migration-blue?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-15.4.1-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-Latest-blue?style=for-the-badge&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css)
+<p align="center">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15.4.1-black?style=for-the-badge&logo=next.js" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript" />
+  <img alt="Tailwind" src="https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwindcss" />
+  <img alt="Production" src="https://img.shields.io/badge/Status-Production%20Ready-00C853?style=for-the-badge" />
+</p>
 
-## 🌍 About VANHSYA
+> Modern immigration and migration consultancy platform built for trust, clarity, and global growth.
 
-VANHSYA Global Migration is a production-grade, fully responsive immigration consultancy website built with modern web technologies. It represents the pinnacle of professional service delivery in the immigration industry, emphasizing **transparency**, **credibility**, and **client success**.
+## Overview
 
-### 🎯 Core Principles
+VANHSYA Global is a responsive, high-trust digital platform designed to help clients navigate immigration, study, work, and permanent residence pathways with confidence. The product combines strong branding, premium user experience, and conversion-focused UX to support modern migration consultancy operations.
 
-- **Zero Hidden Fees**: Complete transparency in all pricing and processes
-- **Verified Success Stories**: Only authentic, verified client testimonials
-- **Regulatory Compliance**: Fully licensed with ICCRC, MARA, OISC, and ISO 9001
-- **Client-First Approach**: Every feature designed to benefit the client
-- **Professional Excellence**: Built to compete with industry leaders
+This repository is built to deliver:
 
-## 🚀 Features
+- A polished, premium immigration brand experience
+- Clear service presentation for multiple countries and pathways
+- Robust lead generation and inquiry workflows
+- A modern frontend foundation for future growth and expansion
 
-### 📱 Frontend Excellence
-- **Fully Responsive Design**: Mobile-first approach with perfect desktop experience
-- **Accessibility Compliant**: WCAG 2.1 AA standards met and exceeded
-- **Performance Optimized**: Lighthouse scores >90 across all metrics
-- **Modern UI/UX**: Professional design that builds trust and credibility
-- **Interactive Components**: Smooth animations with Framer Motion
-- **SEO Optimized**: Complete meta tags, structured data, and sitemap
+## Why this project matters
 
-### 🎨 Design System
-- **Consistent Brand Identity**: Professional color palette and typography
-- **Modular Components**: Reusable, maintainable component architecture
-- **Custom CSS**: Tailwind CSS v4 with custom design tokens
-- **Icon System**: React Icons with consistent styling
-- **Responsive Grid**: CSS Grid and Flexbox for perfect layouts
+The migration consulting industry depends on trust, clarity, and professionalism. VANHSYA Global focuses on:
 
-### 🛡️ Trust & Credibility
-- **Professional Certifications**: Display of all regulatory memberships
-- **Transparent Pricing**: No hidden fees, clear cost breakdowns
-- **Verified Testimonials**: Real client stories with verification badges
-- **Team Credentials**: Licensed professional profiles with qualifications
-- **Success Metrics**: Honest statistics without inflated claims
+- Transparent communication
+- Clear process visibility
+- Client-first UX design
+- Conversion-ready user journeys
+- Professional global brand presentation
 
-### 🌐 Global Reach
-- **Multi-Country Support**: Canada, Australia, USA, UK, Germany, New Zealand
-- **Service Diversity**: Work, Study, Business, Family, Tourist, PR visas
-- **Localization Ready**: Built for easy multi-language expansion
-- **Currency Support**: International pricing and payment options
+## Key features
 
-## 🏗️ Technology Stack
+### Experience and design
+- Fully responsive UX for mobile, tablet, and desktop
+- Premium branding with strong trust signals
+- Clear premium visual hierarchy and section flow
+- Conversion-focused layout for services and contact action
 
-### Core Framework
-```
-Next.js 15.4.1 (App Router)
-├── React 18+ (Server & Client Components)
-├── TypeScript (Type Safety)
-├── Tailwind CSS v4 (Styling)
-└── Framer Motion (Animations)
-```
+### Business capabilities
+- Multi-country migration pathway coverage
+- Study, work, PR, family, and business migration support
+- Service pages designed for clarity and credibility
+- Lead capture and contact conversion sections
 
-### Development Tools
-```
-ESLint (Code Quality)
-├── PostCSS (CSS Processing)
-├── Node.js 18+ (Runtime)
-└── npm (Package Management)
-```
+### Technical foundation
+- Next.js App Router
+- TypeScript for reliability
+- Tailwind CSS for a modern responsive system
+- Clean component architecture for scalability
 
-### Production Features
-```
-Static Generation (SSG)
-├── Image Optimization
-├── Bundle Optimization
-├── Performance Monitoring
-└── SEO Optimization
-```
+## Technology stack
 
-## 📁 Project Structure
+- Next.js 15
+- React
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- ESLint and build tooling
 
-```
+## Project structure
+
+```bash
 src/
-├── app/                    # Next.js App Router
-│   ├── globals.css        # Global styles and design tokens
-│   ├── layout.tsx         # Root layout with metadata
-│   └── page.tsx           # Homepage with all sections
-├── components/             # React Components
-│   ├── Hero.tsx           # Homepage hero section
-│   ├── Navigation.tsx     # Site navigation with dropdowns
-│   ├── ServicesSection.tsx # Immigration services showcase
-│   ├── AboutSection.tsx   # Company info and credentials
-│   ├── CountriesSection.tsx # Destination countries
-│   ├── ContactSection.tsx # Contact form and info
-│   ├── TestimonialsSection.tsx # Client testimonials
-│   └── Footer.tsx         # Footer with compliance info
-├── lib/                   # Utility functions
-│   └── utils.ts          # Helper functions and formatters
-├── types/                 # TypeScript definitions
-│   └── index.ts          # Interface definitions
+├── app/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+├── lib/
+├── types/
 public/
-├── images/               # Optimized images
-├── videos/              # Video content
-└── favicon.ico          # Brand favicon
+└── ...
 ```
 
-## 🚀 Quick Start
+## Quick start
 
 ### Prerequisites
-- Node.js 18+ installed
-- npm or yarn package manager
-- Git for version control
 
-### Installation
+- Node.js 18+
+- npm or yarn
+- Git
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-org/vanhsya-website.git
-   cd vanhsya-website
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup**
-   ```bash
-   cp .env.local.example .env.local
-   # Add your environment variables
-   ```
-
-4. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open Browser**
-   Visit `http://localhost:3000` to see the website
-
-### Build for Production
+### Install
 
 ```bash
-# Create optimized production build
-npm run build
+git clone https://github.com/vanhsya/vanhsya-global.git
+cd vanhsya-global
+npm install
+```
 
-# Start production server
+### Run locally
+
+```bash
+npm run dev
+```
+
+Then open:
+
+```bash
+http://localhost:3000
+```
+
+### Production build
+
+```bash
+npm run build
 npm start
-
-# Generate static export (optional)
-npm run export
 ```
 
-## 🎨 Design Guidelines
+## Environment variables
 
-### Brand Colors
-```css
-Primary Blue: #0066CC
-Primary Dark: #004499
-Gold Accent: #FFB800
-Success Green: #22C55E
-Error Red: #EF4444
-```
+Create a `.env.local` file if required by your deployment setup:
 
-### Typography
-```css
-Font Family: Inter (Google Fonts)
-Headings: 600-800 weight
-Body Text: 400-500 weight
-Captions: 300-400 weight
-```
-
-### Component Standards
-- All components use TypeScript interfaces
-- Props are clearly defined and documented
-- Responsive design is mobile-first
-- Accessibility attributes are included
-- Error states and loading states are handled
-
-## 📊 Performance Standards
-
-### Lighthouse Targets
-- **Performance**: >90
-- **Accessibility**: >95
-- **Best Practices**: >90
-- **SEO**: >90
-
-### Core Web Vitals
-- **LCP (Largest Contentful Paint)**: <2.5s
-- **FID (First Input Delay)**: <100ms
-- **CLS (Cumulative Layout Shift)**: <0.1
-
-## 🔒 Security & Compliance
-
-### Data Protection
-- GDPR compliant contact forms
-- Privacy policy integration
-- Cookie consent management
-- Secure form submission
-- No personal data storage without consent
-
-### Professional Standards
-- **ICCRC** (Canada): Licensed immigration consultants
-- **MARA** (Australia): Registered migration agents  
-- **OISC** (UK): Regulated immigration advisors
-- **ISO 9001**: Quality management certification
-
-## 🧪 Testing Strategy
-
-### Automated Testing
 ```bash
-# Run ESLint
-npm run lint
-
-# Build verification (includes type checking)
-npm run build
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### Manual Testing Checklist
-- [ ] All forms submit correctly
-- [ ] Navigation works on all devices
-- [ ] Images load and display properly
-- [ ] Links navigate to correct pages
-- [ ] Responsive design functions
-- [ ] Accessibility features work
-- [ ] Contact methods are functional
+## Security and trust
 
-## 🩺 Health Checks & Availability
+- Keep all sensitive configuration in environment variables
+- Avoid hardcoded credentials or production secrets
+- Ensure compliance and legal content are reviewed before public launch
+- Validate forms and contact flows before deployment
 
-### Health Endpoint
+## Roadmap
 
-The app exposes a lightweight health endpoint for uptime monitoring:
+- Improve conversion and lead quality
+- Expand country-specific pages and service funnels
+- Add stronger analytics and funnel tracking
+- Introduce CMS or dynamic content support
+- Improve accessibility and performance benchmarks
 
-- `GET /api/health`
+## Contributing
 
-Response includes `status`, `time`, and basic dependency checks (without leaking secrets).
+Contributions are welcome. Please keep changes focused and production-ready.
 
-### Common Causes of “Service Unavailable”
+```bash
+git checkout -b feature/your-update
+git commit -m "Improve VANHSYA Global experience"
+git push origin feature/your-update
+```
 
-- **Port conflicts (local/dev)**: another Next.js process already binding to the same port. Stop the old process before starting a new one.
-- **Missing environment variables (production)**: AI Concierge requires `OPENAI_API_KEY` to enable streaming chat responses. The UI will still render, but `/api/chat` will return `503` if the key is missing.
-- **Hydration mismatches (UX reliability)**: avoid non-deterministic values during SSR/hydration (`Math.random()`, `Date.now()`) in client components that are SSR-rendered.
+## License
 
-## 🧾 Expose Platform (Fraud Victims)
-
-### Expose Pages
-
-- `/expose` (landing + action plan)
-- `/expose/victim-stories` (secure submission + tracking ID)
-- `/expose/interviews` (video gallery)
-- `/expose/industry-watch` (fraud pattern ledger)
-- `/expose/scammers` (profiles + checklists)
-
-### Expose APIs
-
-- `POST /api/expose/submit` (multipart form data, supports up to 5 files, 10MB each)
-- `GET /api/expose/status/:id` (case tracking)
-- `GET /api/expose/videos?type=interviews|cases` (cached, returns YouTube IDs + thumbnails)
-
-### Production Storage Note
-
-Current submission persistence writes to the local filesystem under `var/` for simplicity. For serverless deployments (Vercel/Netlify), switch storage to a persistent backend (e.g., S3 or Supabase Storage) and store metadata in a DB (e.g., Supabase/Postgres). The logic is centralized in `src/lib/exposeStorage.ts`.
-
-## 🌍 Deployment
-
-### Recommended Platforms
-1. **Vercel** (Recommended)
-   - Automatic deployments from Git
-   - Edge functions support
-   - Built-in analytics
-
-2. **Netlify**
-   - Static site hosting
-   - Form handling
-   - Edge functions
-
-3. **AWS/CloudFront**
-   - Enterprise scaling
-   - Custom domain management
-   - Global CDN
-
-### Deployment Checklist
-- [ ] Environment variables configured
-- [ ] Domain name configured
-- [ ] SSL certificate installed
-- [ ] Analytics tracking setup
-- [ ] Error monitoring enabled
-- [ ] SEO verification completed
-
-## 📈 Analytics & Monitoring
-
-### Recommended Tools
-- **Google Analytics 4**: User behavior tracking
-- **Google Search Console**: SEO monitoring  
-- **Lighthouse CI**: Performance monitoring
-- **Sentry**: Error tracking and monitoring
-- **Hotjar**: User experience insights
-
-### Uptime Monitoring (Recommended)
-
-1. Configure an uptime monitor (e.g., UptimeRobot) to poll:
-   - `https://<your-domain>/api/health`
-2. Alert on:
-   - Non-200 responses
-   - Sustained latency spikes
-3. Review runtime logs:
-   - Vercel “Functions” logs (for `/api/*`)
-   - Next.js server logs (self-hosted)
-
-## 🤝 Contributing
-
-### Development Workflow
-1. Create feature branch from `main`
-2. Implement changes with tests
-3. Run quality checks (`npm run lint`)
-4. Create pull request with description
-5. Review and merge after approval
-
-### Code Standards
-- Use TypeScript for all new code
-- Follow existing component patterns
-- Add accessibility attributes
-- Include responsive design
-- Document complex functions
-- Write meaningful commit messages
-
-## 📞 Support & Maintenance
-
-### Regular Updates
-- Security patches applied monthly
-- Dependencies updated quarterly
-- Performance audits bi-annually
-- Content reviews as needed
-
-### Support Channels
-- **Technical Issues**: Create GitHub issue
-- **Feature Requests**: Discussion board
-- **Security Concerns**: Email security team
-- **General Questions**: Documentation wiki
-
-## 📄 License
-
-This project is proprietary software owned by VANHSYA Global Migration. Unauthorized reproduction, distribution, or modification is prohibited.
+This project is intended for private business use unless otherwise specified by the owner.
 
 ---
 
-**Built with ❤️ by the VANHSYA Development Team**
-
-*Making global migration accessible, transparent, and successful for everyone.*
+Built for a premium global migration brand.
